@@ -1,2 +1,2 @@
-rootProject.name = "halos-konsole"
+rootProject.name = "halos"
 
