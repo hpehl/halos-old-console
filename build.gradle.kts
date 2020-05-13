@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
     id("org.jetbrains.kotlin.js") version "1.3.72"
 }
@@ -28,4 +30,11 @@ dependencies {
     implementation(npm("@patternfly/patternfly", "2.71.6"))
 }
 
-kotlin.target.browser { }
+kotlin.target.browser {
+    runTask {
+        devServer = KotlinWebpackConfig.DevServer(
+            port = 8888,
+            contentBase = listOf("$buildDir/processedResources/Js/main")
+        )
+    }
+}

@@ -192,7 +192,7 @@ internal class ListValue(value: MutableList<ModelNode> = mutableListOf()) :
         val iterator: Iterator<ModelNode> = value.iterator()
         while (iterator.hasNext()) {
             val node = iterator.next()
-            if (node.type == ModelType.PROPERTY) {
+            if (node.value.type == ModelType.PROPERTY) {
                 val property = node.asProperty()
                 result[property.name].set(property.value)
             } else if (iterator.hasNext()) {
@@ -216,7 +216,7 @@ internal class ListValue(value: MutableList<ModelNode> = mutableListOf()) :
         val iterator = value.iterator()
         while (iterator.hasNext()) {
             val node = iterator.next()
-            if (node.type == ModelType.PROPERTY || node.type == ModelType.OBJECT) {
+            if (node.value.type == ModelType.PROPERTY || node.value.type == ModelType.OBJECT) {
                 properties.add(node.asProperty())
             } else if (iterator.hasNext()) {
                 val name = node.asString()
@@ -362,16 +362,20 @@ internal class PropertyValue(value: Property) : ModelValue<Property>(value, Mode
 
     override fun contains(name: String): Boolean = value.name == name
     override fun get(name: String): ModelNode = if (value.name == name) value.value else super.get(name)
-    override fun asObject(): ModelNode = ModelNode().apply { this[value.name].set(value.value) }
+    override fun asObject(): ModelNode = ModelNode().apply {
+        val pv = this@PropertyValue
+        this[pv.value.name].set(pv.value.value)
+    }
+
     override fun asProperty(): Property = value
     override fun asPropertyList(): List<Property> = listOf(value)
-    override fun asString(): String = StringBuilder()
-        .append("(")
-        .appendQuoted(value.name)
-        .append(" => ")
-        .append(value.value.asString())
-        .append(")")
-        .toString()
+    override fun asString(): String = buildString {
+        append("(")
+        appendQuoted(value.name)
+        append(" => ")
+        append(value.value.asString())
+        append(")")
+    }
 
     override fun write(out: DataOutput) {
         out.writeUTF(value.name)

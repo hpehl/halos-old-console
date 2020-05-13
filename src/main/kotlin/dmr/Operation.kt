@@ -18,16 +18,14 @@ class Operation(val address: ResourceAddress, val name: String) : ModelNode() {
 
     fun param(name: String, value: Any) = get(name).set(value)
 
-    override fun toString(): String {
-        val builder = StringBuilder()
-        builder.append(address).append(":").append(name)
-        if (size > 2) { // TODO Not the best way to detect parameters
-            builder.append("(")
+    override fun toString(): String = buildString {
+        append(address).append(":").append(name)
+        if (size() > 2) { // TODO Not the best way to detect parameters
+            append("(")
             asPropertyList()
                 .filter { it.name != OP && it.name != ADDRESS }
-                .joinTo(builder, ",") { "${it.name}=${it.value.asString()}" }
-            builder.append(")")
+                .joinTo(this, ",") { "${it.name}=${it.value.asString()}" }
+            append(")")
         }
-        return builder.toString()
     }
 }

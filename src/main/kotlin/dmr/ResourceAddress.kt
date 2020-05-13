@@ -33,7 +33,7 @@ class ResourceAddress() : ModelNode() {
     fun isEmpty(): Boolean = asList().isEmpty()
     fun isNotEmpty(): Boolean = asList().isNotEmpty()
 
-    override fun toString(): String = if (defined && isNotEmpty()) {
+    override fun toString(): String = if (defined() && isNotEmpty()) {
         "/" + asPropertyList().joinToString("/") { "${it.name}=${it.value.asString()}" }
     } else {
         ""

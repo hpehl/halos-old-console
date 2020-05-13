@@ -2,14 +2,9 @@ package org.wildfly.halos.dmr
 
 import kotlin.browser.window
 
-open class ModelNode(private var value: ModelValue<*> = ModelValue.UNDEFINED) {
+open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
 
     // ------------------------------------------------------ properties & constructors
-
-    val defined: Boolean = value.type != ModelType.UNDEFINED
-    val size: Int
-        get() = asList().size
-    val type: ModelType = value.type
 
     constructor(node: ModelNode) : this(node.value)
 
@@ -18,7 +13,7 @@ open class ModelNode(private var value: ModelValue<*> = ModelValue.UNDEFINED) {
     operator fun contains(name: String): Boolean = name in value
 
     operator fun get(name: String): ModelNode {
-        if (!defined) value = ObjectValue()
+        if (!defined()) value = ObjectValue()
         return value[name]
     }
 
@@ -29,6 +24,10 @@ open class ModelNode(private var value: ModelValue<*> = ModelValue.UNDEFINED) {
         }
         return current
     }
+
+    fun defined(): Boolean = value.type != ModelType.UNDEFINED
+
+    fun size(): Int = asList().size
 
     // ------------------------------------------------------ as methods
 
@@ -42,11 +41,11 @@ open class ModelNode(private var value: ModelValue<*> = ModelValue.UNDEFINED) {
     fun asPropertyList(): List<Property> = value.asPropertyList()
     fun asObject(): ModelNode = value.asObject()
     fun asString(): String = value.asString()
-    private fun <T> das(defaultValue: T, asFn: () -> T): T = if (!defined) defaultValue else asFn.invoke()
+    private fun <T> das(defaultValue: T, asFn: () -> T): T = if (!defined()) defaultValue else asFn.invoke()
 
     // ------------------------------------------------------ add
 
-    fun add(): ModelNode = if (!defined) {
+    fun add(): ModelNode = if (!defined()) {
         value = ListValue()
         value.add()
     } else {
@@ -130,7 +129,7 @@ open class ModelNode(private var value: ModelValue<*> = ModelValue.UNDEFINED) {
     // ------------------------------------------------------ io
 
     fun write(out: DataOutput) {
-        out.writeByte(type.typeChar.toInt())
+        out.writeByte(value.type.typeChar.toInt())
         value.write(out)
     }
 

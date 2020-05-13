@@ -7,8 +7,6 @@ class DataOutput {
 
     fun bytes(): ByteArray = bytes.copyOfRange(0, pos)
 
-    override fun toString(): String = bytes().toString()
-
     fun writeBoolean(v: Boolean) {
         growToFit(1)
         bytes[pos++] = if (v) 1.toByte() else 0.toByte()
@@ -81,4 +79,9 @@ class DataOutput {
             bytes = bytes.copyInto(ByteArray(bytes.size + size))
         }
     }
+
+    override fun toString(): String = jsString(bytes())
+    private fun jsString(buffer: ByteArray): String = js(
+        "var s='';var b=new Uint8Array(buffer);var l=b.byteLength;for(var i=0;i<l;i++){s+=String.fromCharCode(b[i]);}return s;"
+    ) as String
 }
