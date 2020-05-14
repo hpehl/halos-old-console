@@ -81,8 +81,6 @@ private fun readResource() {
     }
     GlobalScope.async {
         val node = Dispatcher.execute(operation)
-        console.log("Result")
-        console.log(node.toString())
         document.querySelector("#out")!!.textContent = node.toString()
     }
 }

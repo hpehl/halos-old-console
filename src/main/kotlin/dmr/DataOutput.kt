@@ -1,9 +1,5 @@
 package org.wildfly.halos.dmr
 
-import mu.KotlinLogging
-
-private val logger = KotlinLogging.logger("dmr")
-
 class DataOutput {
 
     private var pos: Int = 0
