@@ -1,9 +1,14 @@
 package org.wildfly.dmr
 
+import org.khronos.webgl.ArrayBuffer
+import org.khronos.webgl.DataView
+import org.khronos.webgl.Int8Array
+import org.khronos.webgl.get
+
 class DataOutput {
 
     private var pos: Int = 0
-    private var bytes: ByteArray = ByteArray(256)
+    private var bytes: ByteArray = ByteArray(64)
 
     fun writeBoolean(v: Boolean) {
         growToFit(1)
@@ -22,7 +27,13 @@ class DataOutput {
     }
 
     fun writeDouble(v: Double) {
-        writeLong(v.toRawBits())
+        val buffer = ArrayBuffer(8)
+        val array = Int8Array(buffer)
+        val view = DataView(buffer)
+        view.setFloat64(0, v)
+        for (i in 0 until array.length) {
+            bytes[pos++] = array[i]
+        }
     }
 
     fun writeInt(v: Int) {
@@ -45,12 +56,6 @@ class DataOutput {
         bytes[pos++] = (v and 0xFF).toByte()
     }
 
-    fun writeShort(v: Int) {
-        growToFit(2)
-        bytes[pos++] = (v ushr 8).toByte()
-        bytes[pos++] = (v and 0xFF).toByte()
-    }
-
     fun writeUTF(s: String) {
         var bp = 0
         val b = ByteArray(s.length * 3)
@@ -70,7 +75,10 @@ class DataOutput {
                 }
             }
         }
-        writeShort(bp)
+
+        growToFit(2)
+        bytes[pos++] = (bp ushr 8).toByte()
+        bytes[pos++] = (bp and 0xFF).toByte()
         for (i in 0 until bp) {
             bytes[pos++] = b[i]
         }

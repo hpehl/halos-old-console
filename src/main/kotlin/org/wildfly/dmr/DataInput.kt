@@ -1,5 +1,10 @@
 package org.wildfly.dmr
 
+import org.khronos.webgl.ArrayBuffer
+import org.khronos.webgl.DataView
+import org.khronos.webgl.Int8Array
+import org.khronos.webgl.set
+
 class DataInput(private val bytes: ByteArray) {
 
     private var pos: Int = 0
@@ -16,13 +21,20 @@ class DataInput(private val bytes: ByteArray) {
         }
     }
 
-    fun readChar(): Char {
-        val a = read()
-        val b = read()
-        return (a shl 8 or b).toChar()
-    }
+    fun readDouble(): Double {
+        val doubleBytes = ByteArray(8)
+        for (i in doubleBytes.indices) {
+            doubleBytes[i] = bytes[pos++]
+        }
 
-    fun readDouble(): Double = TODO("readDouble() not yet implemented!")
+        val buffer = ArrayBuffer(8)
+        val array = Int8Array(buffer)
+        val view = DataView(buffer)
+        for (i in doubleBytes.indices) {
+            array[i] = doubleBytes[i]
+        }
+        return view.getFloat64(0)
+    }
 
     fun readInt(): Int {
         val a: Int = read()
@@ -45,12 +57,6 @@ class DataInput(private val bytes: ByteArray) {
                 (longBytes[5] and 255 shl 16) +
                 (longBytes[6] and 255 shl 8) +
                 (longBytes[7] and 255 shl 0)
-    }
-
-    fun readShort(): Short {
-        val a: Int = read()
-        val b: Int = read()
-        return (a shl 8 or b).toShort()
     }
 
     fun readUTF(): String {
