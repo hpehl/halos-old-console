@@ -34,7 +34,7 @@ dependencies {
 kotlin.target.browser {
     runTask {
         devServer = KotlinWebpackConfig.DevServer(
-            port = 8888,
+            port = 9999,
             contentBase = listOf("$buildDir/processedResources/Js/main")
         )
     }

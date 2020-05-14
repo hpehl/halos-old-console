@@ -241,7 +241,7 @@ internal class ListValue(value: MutableList<ModelNode> = mutableListOf()) :
             node.format(builder, indent + 1, multiLine)
             if (iterator.hasNext()) {
                 if (ml) {
-                    builder.append('\n').indent(indent + 1)
+                    builder.append(",\n").indent(indent + 1)
                 } else {
                     builder.append(',')
                 }
@@ -336,7 +336,7 @@ internal class ObjectValue(value: MutableMap<String, ModelNode> = mutableMapOf()
             value.format(builder, indent + 1, multiLine)
             if (iterator.hasNext()) {
                 if (ml) {
-                    builder.append('\n').indent(indent + 1)
+                    builder.append(",\n").indent(indent + 1)
                 } else {
                     builder.append(',')
                 }

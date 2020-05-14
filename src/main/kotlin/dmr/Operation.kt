@@ -12,8 +12,8 @@ fun operation(address: ResourceAddress, name: String, block: Operation.() -> Uni
 class Operation(val address: ResourceAddress, val name: String) : ModelNode() {
 
     init {
-        get(OP).set(name)
         get(ADDRESS).set(address)
+        get(OP).set(name)
     }
 
     fun param(name: String, value: Any) = get(name).set(value)
