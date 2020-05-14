@@ -1,9 +1,6 @@
 package org.wildfly.halos.dmr
 
-import mu.KotlinLogging
 import kotlin.browser.window
-
-private val logger = KotlinLogging.logger("dmr")
 
 open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
 
@@ -179,11 +176,6 @@ open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
     }
 
     fun toBase64(): String {
-        val builder = StringBuilder()
-        value.format(builder, 0)
-        logger.info { "ModelNode" }
-        logger.info { builder.toString() }
-
         val out = DataOutput()
         write(out)
         return window.btoa(out.toString())
@@ -197,8 +189,7 @@ open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
         fun fromBase64(encoded: String): ModelNode {
             val node = ModelNode()
             val decoded = window.atob(encoded)
-            val input = DataInput(bytes(decoded))
-            node.read(input)
+            node.read(DataInput(bytes(decoded)))
             return node
         }
 

@@ -8,6 +8,7 @@ import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
 import mu.KotlinLogging
 import org.wildfly.halos.dmr.Dispatcher
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
 import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_OPERATION
 import org.wildfly.halos.dmr.ResourceAddress
 import org.wildfly.halos.dmr.operation
@@ -76,10 +77,12 @@ fun main() {
 
 private fun readResource() {
     val operation = operation(ResourceAddress.root(), READ_RESOURCE_OPERATION) {
-        param("include-runtime", true)
+        param(ATTRIBUTES_ONLY, true)
     }
     GlobalScope.async {
         val node = Dispatcher.execute(operation)
-        document.querySelector("#out")!!.textContent = node.asString()
+        console.log("Result")
+        console.log(node.toString())
+        document.querySelector("#out")!!.textContent = node.toString()
     }
 }

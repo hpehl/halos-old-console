@@ -1,7 +1,6 @@
 package org.wildfly.halos.dmr
 
 import mu.KotlinLogging
-import kotlin.browser.window
 
 private val logger = KotlinLogging.logger("dmr")
 
@@ -15,25 +14,21 @@ class DataOutput {
     fun writeBoolean(v: Boolean) {
         growToFit(1)
         bytes[pos++] = if (v) 1.toByte() else 0.toByte()
-        dump("writeBoolean(v: Boolean)")
     }
 
     fun writeByte(v: Int) {
         growToFit(1)
         bytes[pos++] = v.toByte()
-        dump("writeByte(v: Int)")
     }
 
     fun writeBytes(b: ByteArray) {
         growToFit(b.size)
         b.copyInto(bytes, pos)
         pos += b.size
-        dump("writeBytes(b: ByteArray)")
     }
 
     fun writeDouble(v: Double) {
         writeLong(v.toRawBits())
-        dump("writeDouble(v: Double)")
     }
 
     fun writeInt(v: Int) {
@@ -42,7 +37,6 @@ class DataOutput {
         bytes[pos++] = (v ushr 16 and 0xFF).toByte()
         bytes[pos++] = (v ushr 8 and 0xFF).toByte()
         bytes[pos++] = (v and 0xFF).toByte()
-        dump("writeInt(v: Int)")
     }
 
     fun writeLong(v: Long) {
@@ -55,40 +49,37 @@ class DataOutput {
         bytes[pos++] = (v ushr 16 and 0xFF).toByte()
         bytes[pos++] = (v ushr 8 and 0xFF).toByte()
         bytes[pos++] = (v and 0xFF).toByte()
-        dump("writeLong(v: Long)")
     }
 
     fun writeShort(v: Int) {
         growToFit(2)
         bytes[pos++] = (v ushr 8).toByte()
         bytes[pos++] = (v and 0xFF).toByte()
-        dump("writeShort(v: Int)")
     }
 
     fun writeUTF(s: String) {
-        var i = 0
+        var bp = 0
         val b = ByteArray(s.length * 3)
         for (c in s) {
             when {
                 c.toInt() in 1..0x7f -> {
-                    b[i++] = c.toByte()
+                    b[bp++] = c.toByte()
                 }
                 c.toInt() <= 0x07ff -> {
-                    b[i++] = (0xc0 or 0x1f and c.toInt() shr 6).toByte()
-                    b[i++] = (0x80 or 0x3f and c.toInt()).toByte()
+                    b[bp++] = (0xc0 or 0x1f and c.toInt() shr 6).toByte()
+                    b[bp++] = (0x80 or 0x3f and c.toInt()).toByte()
                 }
                 else -> {
-                    b[i++] = (0xe0 or 0x0f and c.toInt() shr 12).toByte()
-                    b[i++] = (0x80 or 0x3f and c.toInt() shr 6).toByte()
-                    b[i++] = (0x80 or 0x3f and c.toInt()).toByte()
+                    b[bp++] = (0xe0 or 0x0f and c.toInt() shr 12).toByte()
+                    b[bp++] = (0x80 or 0x3f and c.toInt() shr 6).toByte()
+                    b[bp++] = (0x80 or 0x3f and c.toInt()).toByte()
                 }
             }
         }
-        writeShort(i)
-        for (i in 0 until i) {
+        writeShort(bp)
+        for (i in 0 until bp) {
             bytes[pos++] = b[i]
         }
-        dump("writeUTF(s: String)")
     }
 
     private fun growToFit(size: Int) {
@@ -97,26 +88,9 @@ class DataOutput {
         }
     }
 
-    override fun toString(): String {
-        dump("toString()")
-        return jsString(bytes())
-    }
+    override fun toString(): String = jsString(bytes())
 
     private fun jsString(buffer: ByteArray): String = js(
         "var s='';var b=new Uint8Array(buffer);var l=b.byteLength;for(var i=0;i<l;i++){s+=String.fromCharCode(b[i]);}return s;"
     ) as String
-
-    private fun dump(message: String) {
-        val buffer = bytes()
-        val jsString = jsString(buffer)
-        logger.info { "\n\n$message" }
-        logger.info { "pos:         $pos" }
-        logger.info { "buffer.size: ${buffer.size}" }
-        logger.info { "buffer:" }
-        logger.info { buffer.toString() }
-        logger.info { "jsString:" }
-        logger.info { jsString }
-        logger.info { "base64:" }
-        logger.info { window.btoa(jsString) }
-    }
 }

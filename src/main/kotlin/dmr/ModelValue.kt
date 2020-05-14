@@ -48,7 +48,9 @@ abstract class ModelValue<T>(val value: T, val type: ModelType) {
 
     override fun equals(other: Any?): Boolean = if (other is ModelValue<*>) value == other.value else false
     override fun hashCode(): Int = value.hashCode()
-    override fun toString(): String = format(StringBuilder(), 0).toString()
+    override fun toString(): String = buildString {
+        format(this, 0)
+    }
 
     abstract fun write(out: DataOutput)
 
@@ -127,8 +129,8 @@ internal class BytesValue(value: ByteArray) : ModelValue<ByteArray>(value, Model
         return v
     }
 
-    override fun asString(): String = value.joinToString(", ", "bytes { ", " }", 12) {
-        "0x" + (0xff and it.toInt()).toString(16).padStart(2, '0')
+    override fun asString(): String = buildString {
+        format(this, 0, false)
     }
 
     override fun write(out: DataOutput) {
@@ -229,6 +231,10 @@ internal class ListValue(value: MutableList<ModelNode> = mutableListOf()) :
         return properties.toList()
     }
 
+    override fun asString(): String = buildString {
+        format(this, 0, false)
+    }
+
     override fun format(builder: Appendable, indent: Int, multiLine: Boolean) {
         builder.append('[')
         val ml = multiLine && value.size > 1
@@ -323,6 +329,10 @@ internal class ObjectValue(value: MutableMap<String, ModelNode> = mutableMapOf()
 
     override fun asPropertyList(): List<Property> = value.map { Property(it.key, it.value) }.toList()
 
+    override fun asString(): String = buildString {
+        format(this, 0, false)
+    }
+
     override fun format(builder: Appendable, indent: Int, multiLine: Boolean) {
         builder.append('{')
         val ml = multiLine && value.size > 1
@@ -370,11 +380,7 @@ internal class PropertyValue(value: Property) : ModelValue<Property>(value, Mode
     override fun asProperty(): Property = value
     override fun asPropertyList(): List<Property> = listOf(value)
     override fun asString(): String = buildString {
-        append("(")
-        appendQuoted(value.name)
-        append(" => ")
-        append(value.value.asString())
-        append(")")
+        "(${appendQuoted(value.name)} => ${value.value})"
     }
 
     override fun write(out: DataOutput) {
@@ -392,6 +398,7 @@ internal class StringValue(value: String) : StringBasedValue(value, ModelType.ST
 
 internal class TypeValue(value: ModelType) : ModelValue<ModelType>(value, ModelType.TYPE) {
     override fun asBoolean(): Boolean = value != ModelType.UNDEFINED
+    override fun asString(): String = value.name
     override fun asType(): ModelType = value
 
     override fun write(out: DataOutput) {
