@@ -1,6 +1,6 @@
-package org.wildfly.halos.dmr
+package org.wildfly.dmr
 
-class DataInput(val bytes: ByteArray) {
+class DataInput(private val bytes: ByteArray) {
 
     private var pos: Int = 0
 
@@ -22,7 +22,7 @@ class DataInput(val bytes: ByteArray) {
         return (a shl 8 or b).toChar()
     }
 
-    fun readDouble(): Double = 0.0
+    fun readDouble(): Double = TODO("readDouble() not yet implemented!")
 
     fun readInt(): Int {
         val a: Int = read()

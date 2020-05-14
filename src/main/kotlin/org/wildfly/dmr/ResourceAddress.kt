@@ -1,4 +1,10 @@
-package org.wildfly.halos.dmr
+package org.wildfly.dmr
+
+fun address(block: ResourceAddress.() -> Unit): ResourceAddress {
+    val a = ResourceAddress()
+    a.block()
+    return a
+}
 
 class ResourceAddress() : ModelNode() {
 
@@ -6,22 +12,14 @@ class ResourceAddress() : ModelNode() {
         setEmptyList()
     }
 
-    constructor(address: ModelNode) : this() {
+    private constructor(address: List<ModelNode>) : this() {
         set(address)
     }
 
-    constructor(address: List<ModelNode>) : this() {
-        set(address)
-    }
+    operator fun Pair<String, String>.unaryPlus() = add(this)
 
-    fun add(name: String, value: String) {
-        super.add(name, value)
-    }
-
-    fun add(address: ResourceAddress) {
-        for (segment in address.asPropertyList()) {
-            add(segment.name, segment.value)
-        }
+    fun add(segment: Pair<String, String>) {
+        add().set(segment.first, segment.second)
     }
 
     fun parent(): ResourceAddress = if (this == root()) {
@@ -40,7 +38,8 @@ class ResourceAddress() : ModelNode() {
     }
 
     companion object {
-        fun root(): ResourceAddress = ResourceAddress()
+        fun root(): ResourceAddress =
+            ResourceAddress()
 
         fun from(address: String): ResourceAddress {
             val ra = ResourceAddress()

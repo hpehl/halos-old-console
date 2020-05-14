@@ -1,4 +1,4 @@
-package org.wildfly.halos.dmr
+package org.wildfly.dmr
 
 enum class ModelType(val typeChar: Char) {
     BIG_DECIMAL('d'),

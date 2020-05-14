@@ -1,11 +1,9 @@
-package org.wildfly.halos.dmr
+package org.wildfly.dmr
 
 class DataOutput {
 
     private var pos: Int = 0
     private var bytes: ByteArray = ByteArray(256)
-
-    fun bytes(): ByteArray = bytes.copyOfRange(0, pos)
 
     fun writeBoolean(v: Boolean) {
         growToFit(1)
@@ -84,9 +82,5 @@ class DataOutput {
         }
     }
 
-    override fun toString(): String = jsString(bytes())
-
-    private fun jsString(buffer: ByteArray): String = js(
-        "var s='';var b=new Uint8Array(buffer);var l=b.byteLength;for(var i=0;i<l;i++){s+=String.fromCharCode(b[i]);}return s;"
-    ) as String
+    override fun toString(): String = byteArrayToString(bytes.copyOfRange(0, pos))
 }

@@ -1,4 +1,4 @@
-package org.wildfly.halos.dmr
+package org.wildfly.dmr
 
 import kotlin.math.min
 
@@ -319,7 +319,10 @@ internal class ObjectValue(value: MutableMap<String, ModelNode> = mutableMapOf()
     }
 
     override fun asLong(): Long = value.size.toLong()
-    override fun asObject(): ModelNode = ModelNode(ObjectValue(value))
+    override fun asObject(): ModelNode =
+        ModelNode(
+            ObjectValue(value)
+        )
 
     override fun asProperty(): Property = if (value.size == 1) {
         asPropertyList()[0]
@@ -327,7 +330,9 @@ internal class ObjectValue(value: MutableMap<String, ModelNode> = mutableMapOf()
         super.asProperty()
     }
 
-    override fun asPropertyList(): List<Property> = value.map { Property(it.key, it.value) }.toList()
+    override fun asPropertyList(): List<Property> = value.map {
+        Property(it.key, it.value)
+    }.toList()
 
     override fun asString(): String = buildString {
         format(this, 0, false)
@@ -368,14 +373,17 @@ internal class ObjectValue(value: MutableMap<String, ModelNode> = mutableMapOf()
 }
 
 internal class PropertyValue(value: Property) : ModelValue<Property>(value, ModelType.PROPERTY) {
-    constructor(name: String, value: ModelNode) : this(Property(name, value))
+    constructor(name: String, value: ModelNode) : this(
+        Property(name, value)
+    )
 
     override fun contains(name: String): Boolean = value.name == name
     override fun get(name: String): ModelNode = if (value.name == name) value.value else super.get(name)
-    override fun asObject(): ModelNode = ModelNode().apply {
-        val pv = this@PropertyValue
-        this[pv.value.name].set(pv.value.value)
-    }
+    override fun asObject(): ModelNode = ModelNode()
+        .apply {
+            val pv = this@PropertyValue
+            this[pv.value.name].set(pv.value.value)
+        }
 
     override fun asProperty(): Property = value
     override fun asPropertyList(): List<Property> = listOf(value)

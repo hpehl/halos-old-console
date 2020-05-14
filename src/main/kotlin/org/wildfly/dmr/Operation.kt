@@ -1,7 +1,7 @@
-package org.wildfly.halos.dmr
+package org.wildfly.dmr
 
-import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.ADDRESS
-import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.OP
+import org.wildfly.dmr.ModelDescriptionConstants.Companion.ADDRESS
+import org.wildfly.dmr.ModelDescriptionConstants.Companion.OP
 
 fun operation(address: ResourceAddress, name: String, block: Operation.() -> Unit): Operation {
     val op = Operation(address, name)
@@ -16,7 +16,9 @@ class Operation(val address: ResourceAddress, val name: String) : ModelNode() {
         get(OP).set(name)
     }
 
-    fun param(name: String, value: Any) = get(name).set(value)
+    operator fun Pair<String, Any>.unaryPlus() = param(this)
+
+    fun param(p: Pair<String, Any>) = get(p.first).set(p.second)
 
     override fun toString(): String = buildString {
         append(address).append(":").append(name)

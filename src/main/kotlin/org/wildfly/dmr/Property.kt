@@ -1,4 +1,4 @@
-package org.wildfly.halos.dmr
+package org.wildfly.dmr
 
 data class Property(val name: String, val value: ModelNode) {
     companion object {

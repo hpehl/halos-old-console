@@ -1,17 +1,20 @@
 package org.wildfly.halos
 
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.html.*
 import kotlinx.html.dom.append
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
 import mu.KotlinLogging
-import org.wildfly.halos.dmr.Dispatcher
-import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
-import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_OPERATION
-import org.wildfly.halos.dmr.ResourceAddress
-import org.wildfly.halos.dmr.operation
+import org.wildfly.dmr.Dispatcher
+import org.wildfly.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
+import org.wildfly.dmr.ModelDescriptionConstants.Companion.INCLUDE_RUNTIME
+import org.wildfly.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_OPERATION
+import org.wildfly.dmr.ResourceAddress
+import org.wildfly.dmr.address
+import org.wildfly.dmr.operation
+import org.wildfly.halos.config.Endpoint
 import kotlin.browser.document
 
 private val logger = KotlinLogging.logger("main")
@@ -51,7 +54,6 @@ fun main() {
                     p { +"WildFly management console for OpenShift." }
                     p {
                         +"Execute "
-//<button class="pf-c-button pf-m-link pf-m-inline pf-m-inline" type="button">Inline link</button>
                         button {
                             classes = setOf("pf-c-button", "pf-m-link", "pf-m-inline", "pf-m-inline")
                             type = ButtonType.button
@@ -76,11 +78,17 @@ fun main() {
 }
 
 private fun readResource() {
-    val operation = operation(ResourceAddress.root(), READ_RESOURCE_OPERATION) {
-        param(ATTRIBUTES_ONLY, true)
-    }
-    GlobalScope.async {
-        val node = Dispatcher.execute(operation)
+    GlobalScope.launch {
+        val address = address {
+            +("subsystem" to "undertow")
+            +("server" to "default-server")
+        }
+        val operation = operation(address, READ_RESOURCE_OPERATION) {
+            +(ATTRIBUTES_ONLY to true)
+            +(INCLUDE_RUNTIME to true)
+        }
+        val dispatcher = Dispatcher(Endpoint.management, true)
+        val node = dispatcher.execute(operation)
         document.querySelector("#out")!!.textContent = node.toString()
     }
 }

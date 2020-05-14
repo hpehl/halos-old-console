@@ -1,14 +1,12 @@
-package org.wildfly.halos.dmr
+package org.wildfly.dmr
 
 import kotlinx.coroutines.await
 import org.w3c.fetch.Headers
 import org.w3c.fetch.RequestInit
 import org.w3c.fetch.RequestMode
-import org.wildfly.halos.config.Endpoint
-import org.wildfly.halos.config.Environment
 import kotlin.browser.window
 
-object Dispatcher {
+class Dispatcher(private val endpoint: String, private val cors: Boolean = false) {
 
     suspend fun execute(operation: Operation): ModelNode {
         val request = RequestInit().apply {
@@ -18,12 +16,12 @@ object Dispatcher {
                 append("Content-Type", "application/dmr-encoded")
             }
             body = operation.toBase64()
-            if (Environment.cors) {
+            if (cors) {
                 mode = "cors".asDynamic().unsafeCast<RequestMode>()
             }
         }
 
-        val payload = window.fetch(Endpoint.management, request)
+        val payload = window.fetch(endpoint, request)
             .await()
             .text()
             .await()

@@ -1,4 +1,4 @@
-package org.wildfly.halos.dmr
+package org.wildfly.dmr
 
 import kotlin.browser.window
 
@@ -41,11 +41,11 @@ open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
 
     // ------------------------------------------------------ add
 
-    fun add(): ModelNode = if (!defined()) {
-        value = ListValue()
-        value.add()
-    } else {
-        UNDEFINED
+    fun add(): ModelNode {
+        if (!defined()) {
+            value = ListValue()
+        }
+        return value.add()
     }
 
     fun add(value: Any): ModelNode = add().apply {
@@ -130,7 +130,8 @@ open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
     }
 
     fun read(input: DataInput) {
-        val t = ModelType.forChar((input.readByte() and 0xFF).toChar())
+        val t =
+            ModelType.forChar((input.readByte() and 0xFF).toChar())
         value = when (t) {
             ModelType.BIG_DECIMAL, ModelType.BIG_INTEGER -> {
                 console.error("ModelType $t not supported. Fall back to undefined.")
@@ -189,13 +190,8 @@ open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
         fun fromBase64(encoded: String): ModelNode {
             val node = ModelNode()
             val decoded = window.atob(encoded)
-            node.read(DataInput(bytes(decoded)))
+            node.read(DataInput(stringToBytes(decoded)))
             return node
         }
-
-        @Suppress("UNUSED_PARAMETER")
-        private fun bytes(s: String): ByteArray = js(
-            "var b = [];for (var i = 0; i < s.length; i++) {b.push(s.charCodeAt(i));}return b;"
-        ) as ByteArray
     }
 }

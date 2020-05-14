@@ -1,4 +1,4 @@
-package org.wildfly.halos.dmr
+package org.wildfly.dmr
 
 interface ModelDescriptionConstants {
     companion object {
