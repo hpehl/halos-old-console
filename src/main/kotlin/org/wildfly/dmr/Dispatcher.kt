@@ -6,7 +6,7 @@ import org.w3c.fetch.RequestInit
 import org.w3c.fetch.RequestMode
 import kotlin.browser.window
 
-class Dispatcher(private val endpoint: String, private val cors: Boolean = false) {
+class Dispatcher(private val endpoint: String, private val cors: Boolean = true) {
 
     suspend fun execute(operation: Operation): ModelNode {
         val request = RequestInit().apply {

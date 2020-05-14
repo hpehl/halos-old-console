@@ -81,7 +81,7 @@ fun main() {
 
 private fun readResource() {
     GlobalScope.launch {
-        val operation = ("/subsystem=undertow" exe READ_RESOURCE_OPERATION) params {
+        val op1 = ("/subsystem=undertow" exe READ_RESOURCE_OPERATION) params {
             +INCLUDE_RUNTIME
             +(RECURSIVE_DEPTH to 1)
         }
@@ -90,7 +90,7 @@ private fun readResource() {
             +(ACCESS_CONSTRAINTS to NONE)
         }
         val dispatcher = Dispatcher(Endpoint.management, true)
-        val node = dispatcher.execute(operation)
+        val node = dispatcher.execute(op1)
         document.querySelector("#out")!!.textContent = node.toString()
     }
 }
