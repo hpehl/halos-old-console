@@ -9,6 +9,11 @@ fun operation(address: ResourceAddress, name: String, block: Operation.() -> Uni
     return op
 }
 
+infix fun Operation.params(block: Operation.() -> Unit): Operation {
+    block()
+    return this
+}
+
 class Operation(val address: ResourceAddress, val name: String) : ModelNode() {
 
     init {
@@ -16,6 +21,7 @@ class Operation(val address: ResourceAddress, val name: String) : ModelNode() {
         get(OP).set(name)
     }
 
+    operator fun String.unaryPlus() = param(this to true)
     operator fun Pair<String, Any>.unaryPlus() = param(this)
 
     fun param(p: Pair<String, Any>) = get(p.first).set(p.second)

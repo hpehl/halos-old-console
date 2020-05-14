@@ -7,13 +7,15 @@ import kotlinx.html.dom.append
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
 import mu.KotlinLogging
-import org.wildfly.dmr.Dispatcher
-import org.wildfly.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
+import org.wildfly.dmr.*
+import org.wildfly.dmr.ModelDescriptionConstants.Companion.ACCESS_CONSTRAINTS
 import org.wildfly.dmr.ModelDescriptionConstants.Companion.INCLUDE_RUNTIME
+import org.wildfly.dmr.ModelDescriptionConstants.Companion.NONE
+import org.wildfly.dmr.ModelDescriptionConstants.Companion.OPERATIONS
+import org.wildfly.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_DESCRIPTION_OPERATION
 import org.wildfly.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_OPERATION
-import org.wildfly.dmr.ResourceAddress
-import org.wildfly.dmr.address
-import org.wildfly.dmr.operation
+import org.wildfly.dmr.ModelDescriptionConstants.Companion.RECURSIVE_DEPTH
+import org.wildfly.dmr.ResourceAddress.Companion.root
 import org.wildfly.halos.config.Endpoint
 import kotlin.browser.document
 
@@ -79,13 +81,13 @@ fun main() {
 
 private fun readResource() {
     GlobalScope.launch {
-        val address = address {
-            +("subsystem" to "undertow")
-            +("server" to "default-server")
+        val operation = ("/subsystem=undertow" exe READ_RESOURCE_OPERATION) params {
+            +INCLUDE_RUNTIME
+            +(RECURSIVE_DEPTH to 1)
         }
-        val operation = operation(address, READ_RESOURCE_OPERATION) {
-            +(ATTRIBUTES_ONLY to true)
-            +(INCLUDE_RUNTIME to true)
+        val op2 = (root() exe READ_RESOURCE_DESCRIPTION_OPERATION) params {
+            +OPERATIONS
+            +(ACCESS_CONSTRAINTS to NONE)
         }
         val dispatcher = Dispatcher(Endpoint.management, true)
         val node = dispatcher.execute(operation)
