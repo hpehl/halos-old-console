@@ -130,8 +130,7 @@ open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
     }
 
     fun read(input: DataInput) {
-        val t =
-            ModelType.forChar((input.readByte() and 0xFF).toChar())
+        val t = ModelType.forChar((input.readByte() and 0xFF).toChar())
         value = when (t) {
             ModelType.BIG_DECIMAL, ModelType.BIG_INTEGER -> {
                 console.error("ModelType $t not supported. Fall back to undefined.")

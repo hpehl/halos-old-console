@@ -1,8 +1,8 @@
 package org.wildfly.dmr
 
-infix fun String.exe(operation: String): Operation = Operation(ResourceAddress.from(this), operation)
+infix fun String.op(operation: String): Operation = Operation(ResourceAddress.from(this), operation)
 
-infix fun ResourceAddress.exe(operation: String): Operation = Operation(this, operation)
+infix fun ResourceAddress.op(operation: String): Operation = Operation(this, operation)
 
 fun String.adr(): ResourceAddress = ResourceAddress.from(this)
 

@@ -7,23 +7,18 @@ import kotlinx.html.dom.append
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
 import mu.KotlinLogging
-import org.wildfly.dmr.*
-import org.wildfly.dmr.ModelDescriptionConstants.Companion.ACCESS_CONSTRAINTS
+import org.wildfly.cdi
 import org.wildfly.dmr.ModelDescriptionConstants.Companion.INCLUDE_RUNTIME
-import org.wildfly.dmr.ModelDescriptionConstants.Companion.NONE
-import org.wildfly.dmr.ModelDescriptionConstants.Companion.OPERATIONS
-import org.wildfly.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_DESCRIPTION_OPERATION
 import org.wildfly.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_OPERATION
 import org.wildfly.dmr.ModelDescriptionConstants.Companion.RECURSIVE_DEPTH
-import org.wildfly.dmr.ResourceAddress.Companion.root
-import org.wildfly.halos.config.Endpoint
+import org.wildfly.dmr.op
+import org.wildfly.dmr.params
 import kotlin.browser.document
 
 private val logger = KotlinLogging.logger("main")
 
 fun main() {
     kotlinext.js.require("@patternfly/patternfly/patternfly.css")
-    logger.info { "halOS console starting up..." }
 
     document.body!!.append.div {
         classes += "pf-c-page"
@@ -79,18 +74,13 @@ fun main() {
     }
 }
 
-private fun readResource() {
+fun readResource() {
     GlobalScope.launch {
-        val op1 = ("/subsystem=undertow" exe READ_RESOURCE_OPERATION) params {
+        val operation = ("/subsystem=ee" op READ_RESOURCE_OPERATION) params {
             +INCLUDE_RUNTIME
             +(RECURSIVE_DEPTH to 1)
         }
-        val op2 = (root() exe READ_RESOURCE_DESCRIPTION_OPERATION) params {
-            +OPERATIONS
-            +(ACCESS_CONSTRAINTS to NONE)
-        }
-        val dispatcher = Dispatcher(Endpoint.management, true)
-        val node = dispatcher.execute(op1)
+        val node = cdi().dispatcher.execute(operation)
         document.querySelector("#out")!!.textContent = node.toString()
     }
 }

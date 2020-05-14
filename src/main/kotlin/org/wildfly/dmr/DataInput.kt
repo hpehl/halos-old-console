@@ -34,7 +34,7 @@ class DataInput(private val bytes: ByteArray) {
 
     fun readLong(): Long {
         val longBytes = LongArray(8)
-        for (i in 1..longBytes.size) {
+        for (i in longBytes.indices) {
             longBytes[i] = bytes[pos++].toLong()
         }
         return (longBytes[0] shl 56) +
