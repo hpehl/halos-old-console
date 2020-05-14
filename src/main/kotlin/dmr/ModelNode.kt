@@ -4,10 +4,6 @@ import kotlin.browser.window
 
 open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
 
-    // ------------------------------------------------------ properties & constructors
-
-    constructor(node: ModelNode) : this(node.value)
-
     // ------------------------------------------------------ operators & get
 
     operator fun contains(name: String): Boolean = name in value

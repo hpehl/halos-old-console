@@ -1,5 +1,10 @@
 package org.wildfly.halos.dmr
 
+import mu.KotlinLogging
+import kotlin.browser.window
+
+private val logger = KotlinLogging.logger("dmr")
+
 class DataOutput {
 
     private var pos: Int = 0
@@ -80,7 +85,20 @@ class DataOutput {
         }
     }
 
-    override fun toString(): String = jsString(bytes())
+    override fun toString(): String {
+        val buffer = bytes()
+        val jsString = jsString(buffer)
+        logger.info { "pos:         $pos" }
+        logger.info { "buffer.size: ${buffer.size}" }
+        logger.info { "buffer:" }
+        logger.info { buffer.toString() }
+        logger.info { "jsString:" }
+        logger.info { jsString }
+        logger.info { "base64:" }
+        logger.info { window.btoa(jsString) }
+        return jsString
+    }
+
     private fun jsString(buffer: ByteArray): String = js(
         "var s='';var b=new Uint8Array(buffer);var l=b.byteLength;for(var i=0;i<l;i++){s+=String.fromCharCode(b[i]);}return s;"
     ) as String

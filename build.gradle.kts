@@ -19,6 +19,7 @@ dependencies {
     implementation("org.jetbrains:kotlin-react:16.13.0-pre.94-kotlin-1.3.70")
     implementation("org.jetbrains:kotlin-react-dom:16.13.0-pre.94-kotlin-1.3.70")
     implementation("org.jetbrains:kotlin-styled:1.0.0-pre.94-kotlin-1.3.70")
+    implementation("io.github.microutils:kotlin-logging-js:1.7.9")
 
     implementation(npm("styled-components"))
     implementation(npm("inline-style-prefixer"))
