@@ -21,14 +21,14 @@ dependencies {
     implementation("org.jetbrains:kotlin-styled:1.0.0-pre.94-kotlin-1.3.70")
     implementation("io.github.microutils:kotlin-logging-js:1.7.9")
 
-    implementation(npm("styled-components"))
-    implementation(npm("inline-style-prefixer"))
+    implementation(npm("@patternfly/patternfly", "2.71.6"))
     implementation(npm("css-loader", "3.5.3"))
+    implementation(npm("inline-style-prefixer"))
     implementation(npm("file-loader", "6.0.0"))
-    implementation(npm("style-loader", "1.2.1"))
     implementation(npm("react", "16.13.1"))
     implementation(npm("react-dom", "16.13.1"))
-    implementation(npm("@patternfly/patternfly", "2.71.6"))
+    implementation(npm("style-loader", "1.2.1"))
+    implementation(npm("styled-components"))
 }
 
 kotlin.target.browser {
