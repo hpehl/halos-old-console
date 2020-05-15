@@ -8,7 +8,7 @@ import org.khronos.webgl.get
 class DataOutput {
 
     private var pos: Int = 0
-    private var bytes: ByteArray = ByteArray(64)
+    private var bytes: ByteArray = ByteArray(256)
 
     fun writeBoolean(v: Boolean) {
         growToFit(1)

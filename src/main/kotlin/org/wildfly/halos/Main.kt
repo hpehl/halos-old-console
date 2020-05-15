@@ -4,10 +4,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.html.*
 import kotlinx.html.dom.append
-import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
-import mu.KotlinLogging
-import org.wildfly.cdi
+import org.patternfly.brand
+import org.patternfly.component
+import org.patternfly.header
+import org.patternfly.page
 import org.wildfly.dmr.ModelDescriptionConstants.Companion.INCLUDE_RUNTIME
 import org.wildfly.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_OPERATION
 import org.wildfly.dmr.ModelDescriptionConstants.Companion.RECURSIVE_DEPTH
@@ -15,22 +16,15 @@ import org.wildfly.dmr.op
 import org.wildfly.dmr.params
 import kotlin.browser.document
 
-private val logger = KotlinLogging.logger("main")
-
 fun main() {
     kotlinext.js.require("@patternfly/patternfly/patternfly.css")
 
-    document.body!!.append.div {
-        classes += "pf-c-page"
+    document.body!!.append.page {
         header {
-            classes += "pf-c-page__header"
-            attributes["role"] = "banner"
-            div {
-                classes += "pf-c-page__header-brand"
-                a("#") {
-                    classes += "pf-c-page__header-brand-link"
+            brand {
+                a("#", classes = component("page", "header", "brand", "link")) {
                     img(src = "https://www.patternfly.org/assets/images/PF-Masthead-Logo.svg") {
-                        classes += "pf-c-brand"
+                        classes += component("brand")
                     }
                 }
             }
@@ -76,7 +70,7 @@ fun main() {
 
 fun readResource() {
     GlobalScope.launch {
-        val operation = ("/subsystem=ee" op READ_RESOURCE_OPERATION) params {
+        val operation = ("subsystem=ee" op READ_RESOURCE_OPERATION) params {
             +INCLUDE_RUNTIME
             +(RECURSIVE_DEPTH to 1)
         }

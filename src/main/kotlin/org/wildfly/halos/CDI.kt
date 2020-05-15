@@ -1,4 +1,4 @@
-package org.wildfly
+package org.wildfly.halos
 
 import org.wildfly.dmr.Dispatcher
 import org.wildfly.halos.config.Endpoint
