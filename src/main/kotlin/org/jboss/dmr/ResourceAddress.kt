@@ -1,4 +1,4 @@
-package org.wildfly.dmr
+package org.jboss.dmr
 
 infix fun String.op(operation: String): Operation = Operation(ResourceAddress.from(this), operation)
 

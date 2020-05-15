@@ -1,4 +1,4 @@
-package org.wildfly.dmr
+package org.jboss.dmr
 
 import kotlin.browser.window
 

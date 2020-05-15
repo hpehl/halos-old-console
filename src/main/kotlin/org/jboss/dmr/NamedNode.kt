@@ -1,7 +1,7 @@
-package org.wildfly.dmr
+package org.jboss.dmr
 
 import kotlinx.html.currentTimeMillis
-import org.wildfly.dmr.ModelDescriptionConstants.Companion.NAME
+import org.jboss.dmr.ModelDescriptionConstants.Companion.NAME
 
 /** A model node with a name. */
 class NamedNode(name: String, node: ModelNode) : ModelNode() {

@@ -1,7 +1,7 @@
-package org.wildfly.dmr
+package org.jboss.dmr
 
-import org.wildfly.dmr.ModelDescriptionConstants.Companion.ADDRESS
-import org.wildfly.dmr.ModelDescriptionConstants.Companion.OP
+import org.jboss.dmr.ModelDescriptionConstants.Companion.ADDRESS
+import org.jboss.dmr.ModelDescriptionConstants.Companion.OP
 
 fun operation(address: ResourceAddress, name: String, block: Operation.() -> Unit): Operation {
     val op = Operation(address, name)

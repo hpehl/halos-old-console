@@ -1,4 +1,4 @@
-package org.wildfly.dmr
+package org.jboss.dmr
 
 import kotlinx.coroutines.await
 import org.w3c.fetch.Headers

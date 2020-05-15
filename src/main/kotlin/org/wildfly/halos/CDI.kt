@@ -1,6 +1,6 @@
 package org.wildfly.halos
 
-import org.wildfly.dmr.Dispatcher
+import org.jboss.dmr.Dispatcher
 import org.wildfly.halos.config.Endpoint
 
 fun cdi(): CDI = CDIInstance

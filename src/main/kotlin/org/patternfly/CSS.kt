@@ -7,3 +7,5 @@ fun component(component: String, vararg elements: String): String = buildString 
         elements.joinTo(this, "-", "__")
     }
 }
+
+fun modifier(modifier: String) = "pf-m-$modifier"

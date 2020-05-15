@@ -1,4 +1,4 @@
-package org.wildfly.dmr
+package org.jboss.dmr
 
 @Suppress("UNUSED_PARAMETER")
 internal fun stringToBytes(s: String): ByteArray = js(
