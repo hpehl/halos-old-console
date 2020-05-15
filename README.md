@@ -8,7 +8,12 @@ halOS stands for HAL on OpenShift. It's a special [HAL](https://hal.github.io/) 
 
 halOS consists of two parts:
 
-1. Proxy
+1. [Proxy](https://github.com/hal/halos-proxy)
 2. Console
 
-This repository contains the console.  The is a [RIA](https://en.wikipedia.org/wiki/Rich_web_application) / [SPA](https://en.wikipedia.org/wiki/Single-page_application). The UI follows the design guidelines from [PatternFly](https://www.patternfly.org/v4/). 
+This repository contains the console. The console is a [RIA](https://en.wikipedia.org/wiki/Rich_web_application) / [SPA](https://en.wikipedia.org/wiki/Single-page_application) following the design guidelines from [PatternFly](https://www.patternfly.org/v4/). 
+
+#### Technical Stack
+
+- Kotlin/JS
+- PatternFly
