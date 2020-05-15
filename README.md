@@ -15,5 +15,5 @@ This repository contains the console. The console is a [RIA](https://en.wikipedi
 
 #### Technical Stack
 
-- Kotlin/JS
+- [Kotlin/JS](https://kotlinlang.org/docs/tutorials/javascript/kotlin-to-javascript/kotlin-to-javascript.html)
 - PatternFly
