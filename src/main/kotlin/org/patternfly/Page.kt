@@ -26,20 +26,20 @@ fun PfMain.pfSection(block: PfSection.() -> Unit = {}) = PfSection(consumer).vis
 
 class PfBrand(consumer: TagConsumer<*>) :
     DIV(
-        attributesMapOf("class", component("page", "header", "brand")),
+        attributesMapOf("class", "page".component("header", "brand")),
         consumer
     )
 
 class PfContent(consumer: TagConsumer<*>) :
     DIV(
-        attributesMapOf("class", component("content")),
+        attributesMapOf("class", "content".component()),
         consumer
     )
 
 class PfHeader(consumer: TagConsumer<*>) :
     HEADER(
         attributesMapOf(
-            "class", component("page", "header"),
+            "class", "page".component("header"),
             "role", "banner"
         ),
         consumer
@@ -48,7 +48,7 @@ class PfHeader(consumer: TagConsumer<*>) :
 class PfMain(id: String, consumer: TagConsumer<*>) :
     MAIN(
         attributesMapOf(
-            "class", component("page", "main"),
+            "class", "page".component("main"),
             "id", id,
             "role", "main",
             "tabindex", "-1"
@@ -58,12 +58,12 @@ class PfMain(id: String, consumer: TagConsumer<*>) :
 
 class PfPage(consumer: TagConsumer<*>) :
     DIV(
-        attributesMapOf("class", component("page")),
+        attributesMapOf("class", "page".component()),
         consumer
     )
 
 class PfSection(consumer: TagConsumer<*>) :
     kotlinx.html.SECTION(
-        attributesMapOf("class", component("page", "main-section")),
+        attributesMapOf("class", "page".component("main-section")),
         consumer
     )

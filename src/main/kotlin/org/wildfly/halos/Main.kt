@@ -20,16 +20,16 @@ fun main() {
     document.body!!.append.pfPage {
         pfHeader {
             pfBrand {
-                a("#", classes = component("page", "header", "brand", "link")) {
+                a("#", classes = "page".component("header", "brand", "link")) {
                     img(src = "https://www.patternfly.org/assets/images/PF-Masthead-Logo.svg") {
-                        classes += component("brand")
+                        classes += "brand".component()
                     }
                 }
             }
         }
         pfMain("halos-main") {
             pfSection {
-                classes += modifier("light")
+                classes += "light".modifier()
                 pfContent {
                     h1 {
                         classes += "pf-c-title"
@@ -37,13 +37,25 @@ fun main() {
                     }
                     p { +"WildFly management console for OpenShift." }
                     p {
-                        +"Execute "
-                        pfLinkButton("read-resource", true) {
+                        +"Execute an "
+                        pfLinkButton(text = "operation", inline = true) {
                             onClickFunction = { _ -> readResource() }
                         }
-                        +" operation on root resource"
+                        +"."
                     }
                 }
+            }
+            pfSection() {
+                classes += "light".modifier()
+                pfControlButton() {
+                    span("button".component("icon")) { pfIcon("plus-circle".fas()) }
+                    span("button".component("text")) { +"Text" }
+                }
+                +"  "
+                pfControlButton(text = "Text 2", iconClass = "plus-circle".fas())
+                +"  "
+                pfControlButton(text = "Text 3", iconClass = "plus-circle".fas(), iconRight = true)
+
             }
             pfSection {
                 pfContent {
