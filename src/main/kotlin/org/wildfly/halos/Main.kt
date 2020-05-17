@@ -11,9 +11,9 @@ import org.jboss.dmr.ModelDescriptionConstants.Companion.RECURSIVE_DEPTH
 import org.jboss.dmr.op
 import org.jboss.dmr.params
 import org.patternfly.*
-import org.patternfly.pfHeader
 import kotlin.browser.document
 
+@ExperimentalStdlibApi
 fun main() {
     kotlinext.js.require("@patternfly/patternfly/patternfly.css")
 
@@ -38,11 +38,8 @@ fun main() {
                     p { +"WildFly management console for OpenShift." }
                     p {
                         +"Execute "
-                        button {
-                            classes = setOf("pf-c-button", "pf-m-link", "pf-m-inline", "pf-m-inline")
-                            type = ButtonType.button
+                        pfLinkButton("read-resource", true) {
                             onClickFunction = { _ -> readResource() }
-                            +"read-resource"
                         }
                         +" operation on root resource"
                     }

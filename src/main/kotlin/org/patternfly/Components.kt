@@ -1,7 +1,6 @@
 package org.patternfly
 
 import kotlinx.html.*
-import org.w3c.dom.HTMLDivElement
 
 // ------------------------------------------------------ component functions (a-z)
 
@@ -18,8 +17,7 @@ fun PfPage.pfHeader(block: PfHeader.() -> Unit = {}) = PfHeader(consumer).visit(
 fun PfPage.pfMain(id: String, block: PfMain.() -> Unit = {}) = PfMain(id, consumer).visit(block)
 
 @HtmlTagMarker
-fun <T> TagConsumer<T>.pfPage(block: PfPage.() -> Unit = {}): HTMLDivElement =
-    PfPage(this).visitAndFinalize(this, block) as HTMLDivElement
+fun <T, C : TagConsumer<T>> C.pfPage(block: PfPage.() -> Unit = {}): T = PfPage(this).visitAndFinalize(this, block)
 
 @HtmlTagMarker
 fun PfMain.pfSection(block: PfSection.() -> Unit = {}) = PfSection(consumer).visit(block)
