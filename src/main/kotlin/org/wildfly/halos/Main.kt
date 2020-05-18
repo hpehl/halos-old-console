@@ -48,6 +48,7 @@ fun main() {
             pfSection() {
                 classes += "light".modifier()
                 pfControlButton() {
+//                    aria["foo"] = "bar"
                     span("button".component("icon")) { pfIcon("plus-circle".fas()) }
                     span("button".component("text")) { +"Text" }
                 }
