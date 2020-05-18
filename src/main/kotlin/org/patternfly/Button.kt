@@ -21,8 +21,7 @@ fun FlowOrInteractiveOrPhrasingContent.pfButton(
         },
         consumer
     ).visit {
-        block(this)
-        textOrIcon(text, iconClass, iconRight)
+        init(text, iconClass, iconRight, block)
     }
 }
 
@@ -35,8 +34,7 @@ fun FlowOrInteractiveOrPhrasingContent.pfControlButton(
     block: PfButton.() -> Unit = {}
 ) {
     PfButton(setOf("control".modifier()), consumer).visit {
-        block(this)
-        textOrIcon(text, iconClass, iconRight)
+        init(text, iconClass, iconRight, block)
     }
 }
 
@@ -56,8 +54,7 @@ fun FlowOrInteractiveOrPhrasingContent.pfLinkButton(
         },
         consumer
     ).visit {
-        block(this)
-        textOrIcon(text, iconClass, iconRight)
+        init(text, iconClass, iconRight, block)
     }
 }
 
@@ -70,8 +67,7 @@ fun FlowOrInteractiveOrPhrasingContent.pfPlainButton(
     block: PfButton.() -> Unit = {}
 ) {
     PfButton(setOf("plain".modifier()), consumer).visit {
-        block(this)
-        textOrIcon(text, iconClass, iconRight)
+        init(text, iconClass, iconRight, block)
     }
 }
 
@@ -84,14 +80,21 @@ class PfButton(modifier: Set<String>, consumer: TagConsumer<*>) :
             if (modifier.isNotEmpty()) modifier.joinTo(this, " ", " ")
         }),
         consumer
-    ) {
+    ), Aria, Ouia {
 
+/*
     init {
-        // This line causes an IllegalStateException
-//        classes += modifier
+        classes += modifier // throws an IllegalStateException
+    }
+*/
+
+    fun init(text: String?, iconClass: String?, iconRight: Boolean, block: PfButton.() -> Unit) {
+        block(this)
+        ouiaComponent("Button")
+        textOrIcon(text, iconClass, iconRight)
     }
 
-    fun textOrIcon(text: String?, iconClass: String?, iconRight: Boolean = false) {
+    private fun textOrIcon(text: String?, iconClass: String?, iconRight: Boolean = false) {
         when {
             text != null && iconClass != null -> if (iconRight) {
                 span("button".component("text")) { +text }

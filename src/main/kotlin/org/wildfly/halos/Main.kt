@@ -11,6 +11,8 @@ import org.jboss.dmr.ModelDescriptionConstants.Companion.RECURSIVE_DEPTH
 import org.jboss.dmr.op
 import org.jboss.dmr.params
 import org.patternfly.*
+import org.patternfly.Style.primary
+import org.patternfly.Style.secondary
 import kotlin.browser.document
 
 @ExperimentalStdlibApi
@@ -44,19 +46,6 @@ fun main() {
                         +"."
                     }
                 }
-            }
-            pfSection() {
-                classes += "light".modifier()
-                pfControlButton() {
-//                    aria["foo"] = "bar"
-                    span("button".component("icon")) { pfIcon("plus-circle".fas()) }
-                    span("button".component("text")) { +"Text" }
-                }
-                +"  "
-                pfControlButton(text = "Text 2", iconClass = "plus-circle".fas())
-                +"  "
-                pfControlButton(text = "Text 3", iconClass = "plus-circle".fas(), iconRight = true)
-
             }
             pfSection {
                 pfContent {

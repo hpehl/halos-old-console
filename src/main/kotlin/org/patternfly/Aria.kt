@@ -2,10 +2,13 @@ package org.patternfly
 
 import kotlinx.html.Tag
 
-//interface Aria : Tag {
-//    val aria: AriaAccessor(this)
-//}
+val Aria.aria: AriaAccessor
+    get() = AriaAccessor(this)
 
-class AriaAccessor(private val tag: Tag) {
-    operator fun set(key: String, value: String) = tag.attributes.put("aria-$key", value)
+interface Aria : Tag
+
+class AriaAccessor(private val aria: Aria) {
+    operator fun set(key: String, value: Any) {
+        aria.attributes["aria-$key"] = value.toString()
+    }
 }
