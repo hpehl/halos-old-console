@@ -77,16 +77,18 @@ class PfButton(modifier: Set<String>, consumer: TagConsumer<*>) :
     BUTTON(
         attributesMapOf("class", buildString {
             append("button".component())
-            if (modifier.isNotEmpty()) modifier.joinTo(this, " ", " ")
+//            if (modifier.isNotEmpty()) modifier.joinTo(this, " ", " ")
         }),
         consumer
     ), Aria, Ouia {
 
-/*
     init {
-        classes += modifier // throws an IllegalStateException
+        if (modifier.isNotEmpty()) {
+            console.log("Adding $modifier to CSS classes...")
+            classes += modifier
+            console.log("DONE")
+        }
     }
-*/
 
     fun init(text: String?, iconClass: String?, iconRight: Boolean, block: PfButton.() -> Unit) {
         block(this)
