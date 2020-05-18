@@ -85,6 +85,12 @@ class PfButton(modifier: Set<String>, consumer: TagConsumer<*>) :
         }),
         consumer
     ) {
+
+    init {
+        // This line causes an IllegalStateException
+//        classes += modifier
+    }
+
     fun textOrIcon(text: String?, iconClass: String?, iconRight: Boolean = false) {
         when {
             text != null && iconClass != null -> if (iconRight) {
