@@ -68,8 +68,6 @@ fun readResource() {
             +(RECURSIVE_DEPTH to 1)
         }
         val node = cdi().dispatcher.execute(operation)
-        val e = document.getElementById("out") as HTMLPreElement
-
         document.querySelector("#out")!!.textContent = node.toString()
     }
 }

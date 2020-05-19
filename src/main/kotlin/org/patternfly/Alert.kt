@@ -57,7 +57,9 @@ class AlertTag(
                     aria["label"] = "Close ${this@AlertTag.severity.aria.toLowerCase()}: ${this@AlertTag.title}"
                     onClickFunction = { evt ->
                         this@AlertTag.onClose?.invoke()
-                        (evt.currentTarget as HTMLElement).pfComponent<AlertComponent>()!!.close()
+                        val button = evt.currentTarget as HTMLElement
+                        val alert = button.closest("[data-pfc=${ComponentType.Alert.name}]")
+                        alert?.pfComponent<AlertComponent>()?.close()
                     }
                 }
             }
