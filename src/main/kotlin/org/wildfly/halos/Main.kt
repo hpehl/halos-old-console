@@ -11,11 +11,9 @@ import org.jboss.dmr.ModelDescriptionConstants.Companion.RECURSIVE_DEPTH
 import org.jboss.dmr.op
 import org.jboss.dmr.params
 import org.patternfly.*
-import org.patternfly.Style.primary
-import org.patternfly.Style.secondary
+import org.w3c.dom.HTMLPreElement
 import kotlin.browser.document
 
-@ExperimentalStdlibApi
 fun main() {
     kotlinext.js.require("@patternfly/patternfly/patternfly.css")
 
@@ -30,8 +28,7 @@ fun main() {
             }
         }
         pfMain("halos-main") {
-            pfSection {
-                classes += "light".modifier()
+            pfSection("light".modifier()) {
                 pfContent {
                     h1 {
                         classes += "pf-c-title"
@@ -45,6 +42,12 @@ fun main() {
                         }
                         +"."
                     }
+                }
+            }
+            pfSection("light".modifier()) {
+                pfAlert(Severity.warning, "My first warning alert", true) {
+                    pfAlertDescription { +"My description" }
+                    onClose = { console.log("About to close alert...") }
                 }
             }
             pfSection {
@@ -65,6 +68,8 @@ fun readResource() {
             +(RECURSIVE_DEPTH to 1)
         }
         val node = cdi().dispatcher.execute(operation)
+        val e = document.getElementById("out") as HTMLPreElement
+
         document.querySelector("#out")!!.textContent = node.toString()
     }
 }

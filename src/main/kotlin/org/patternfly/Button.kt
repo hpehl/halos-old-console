@@ -1,109 +1,87 @@
 package org.patternfly
 
 import kotlinx.html.*
+import org.w3c.dom.HTMLButtonElement
 
-// ------------------------------------------------------ component functions (a-z)
+// ------------------------------------------------------ dsl functions
 
 @HtmlTagMarker
-@ExperimentalStdlibApi
+@OptIn(ExperimentalStdlibApi::class)
 fun FlowOrInteractiveOrPhrasingContent.pfButton(
     style: Style,
     text: String? = null,
     iconClass: String? = null,
     iconRight: Boolean = false,
     blockLevel: Boolean = false,
-    block: PfButton.() -> Unit = {}
+    block: ButtonTag.() -> Unit = {}
 ) {
-    PfButton(
-        buildSet {
-            add(style.realValue)
-            if (blockLevel) add("block".modifier())
-        },
-        consumer
-    ).visit {
-        init(text, iconClass, iconRight, block)
-    }
+    ButtonTag(buildSet {
+        add(style.realValue)
+        if (blockLevel) add("block".modifier())
+    }, text, iconClass, iconRight, consumer).visit(block)
 }
 
 @HtmlTagMarker
-@ExperimentalStdlibApi
 fun FlowOrInteractiveOrPhrasingContent.pfControlButton(
     text: String? = null,
     iconClass: String? = null,
     iconRight: Boolean = false,
-    block: PfButton.() -> Unit = {}
+    block: ButtonTag.() -> Unit = {}
 ) {
-    PfButton(setOf("control".modifier()), consumer).visit {
-        init(text, iconClass, iconRight, block)
-    }
+    ButtonTag(setOf("control".modifier()), text, iconClass, iconRight, consumer).visit(block)
 }
 
 @HtmlTagMarker
-@ExperimentalStdlibApi
+@OptIn(ExperimentalStdlibApi::class)
 fun FlowOrInteractiveOrPhrasingContent.pfLinkButton(
     text: String? = null,
     iconClass: String? = null,
     iconRight: Boolean = false,
     inline: Boolean = false,
-    block: PfButton.() -> Unit = {}
+    block: ButtonTag.() -> Unit = {}
 ) {
-    PfButton(
-        buildSet {
-            add("link".modifier())
-            if (inline) add("inline".modifier())
-        },
-        consumer
-    ).visit {
-        init(text, iconClass, iconRight, block)
-    }
+    ButtonTag(buildSet {
+        add("link".modifier())
+        if (inline) add("inline".modifier())
+    }, text, iconClass, iconRight, consumer).visit(block)
 }
 
 @HtmlTagMarker
-@ExperimentalStdlibApi
 fun FlowOrInteractiveOrPhrasingContent.pfPlainButton(
     text: String? = null,
     iconClass: String? = null,
     iconRight: Boolean = false,
-    block: PfButton.() -> Unit = {}
+    block: ButtonTag.() -> Unit = {}
 ) {
-    PfButton(setOf("plain".modifier()), consumer).visit {
-        init(text, iconClass, iconRight, block)
-    }
+    ButtonTag(setOf("plain".modifier()), text, iconClass, iconRight, consumer).visit(block)
 }
 
-// ------------------------------------------------------ component classes
+// ------------------------------------------------------ tags
 
-class PfButton(modifier: Set<String>, consumer: TagConsumer<*>) :
-    BUTTON(
-        attributesMapOf("class", buildString {
-            append("button".component())
-//            if (modifier.isNotEmpty()) modifier.joinTo(this, " ", " ")
-        }),
-        consumer
-    ), Aria, Ouia {
+class ButtonTag(
+    modifier: Set<String>,
+    private val text: String? = null,
+    private val iconClass: String? = null,
+    private val iconRight: Boolean = false,
+    consumer: TagConsumer<*>
+) : BUTTON(
+    attributesMapOf("class", buildString {
+        append("button".component())
+        if (modifier.isNotEmpty()) modifier.joinTo(this, " ", " ")
+    }),
+    consumer
+), PatternFlyTag, Aria, Ouia {
 
-    init {
-        if (modifier.isNotEmpty()) {
-            console.log("Adding $modifier to CSS classes...")
-            classes += modifier
-            console.log("DONE")
-        }
-    }
+    override val componentType: ComponentType = ComponentType.Button
 
-    fun init(text: String?, iconClass: String?, iconRight: Boolean, block: PfButton.() -> Unit) {
-        block(this)
-        ouiaComponent("Button")
-        textOrIcon(text, iconClass, iconRight)
-    }
-
-    private fun textOrIcon(text: String?, iconClass: String?, iconRight: Boolean = false) {
+    override fun head() {
         when {
             text != null && iconClass != null -> if (iconRight) {
-                span("button".component("text")) { +text }
-                span("button".component("icon")) { pfIcon(iconClass) }
+                span("button".component("text")) { +this@ButtonTag.text }
+                span("button".component("icon")) { pfIcon(this@ButtonTag.iconClass) }
             } else {
-                span("button".component("icon")) { pfIcon(iconClass) }
-                span("button".component("text")) { +text }
+                span("button".component("icon")) { pfIcon(this@ButtonTag.iconClass) }
+                span("button".component("text")) { +this@ButtonTag.text }
             }
             text != null -> +text
             iconClass != null -> pfIcon(iconClass)
@@ -117,3 +95,7 @@ enum class Style(override val realValue: String) : AttributeEnum {
     tertiary("tertiary".modifier()),
     danger("danger".modifier()),
 }
+
+// ------------------------------------------------------ components
+
+class ButtonComponent(element: HTMLButtonElement) : PatternFlyComponent<HTMLButtonElement>(element)

@@ -1,17 +1,12 @@
 package org.patternfly
 
-import kotlinx.html.Tag
 import org.w3c.dom.get
 import kotlin.browser.window
 
-fun Ouia.ouiaComponent(component: String) {
-    if (isSupported()) attributes["data-ouia-component-type"] = component
-}
-
-fun Ouia.ouiaId(id: String) {
-    if (isSupported()) attributes["data-ouia-component-id"] = id
+internal fun setOuiaType(tag: PatternFlyTag) {
+    if (isSupported()) tag.attributes["data-ouia-component-type"] = tag.componentType.name
 }
 
 private fun isSupported(): Boolean = window.localStorage.get("ouia")?.toBoolean() == true
 
-interface Ouia : Tag
+internal interface Ouia
