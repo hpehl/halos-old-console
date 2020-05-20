@@ -7,4 +7,6 @@ fun String.component(vararg elements: String): String = buildString {
 
 fun String.modifier(): String = "pf-m-$this"
 
+fun String.util(): String = "pf-u-$this"
+
 fun String.fas() = "fas fa-$this"

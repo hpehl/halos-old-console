@@ -5,19 +5,27 @@ import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
 
 // ------------------------------------------------------ dsl
 
+/**
+ * Creates a sidebar component with nested sidebar body.
+ * The provided [block] is executed in the context of the sidebar body.
+ */
 @HtmlTagMarker
-fun FlowContent.pfSidebar(block: SidebarTag.() -> Unit = {}) = SidebarTag(consumer).visit {
-    div("page".component("sidebar", "body")) {
-        this@visit.block()
+fun FlowContent.pfSidebar(dark: Boolean = true, block: SidebarTag.() -> Unit = {}) =
+    SidebarTag(dark, consumer).visit {
+        div("page".component("sidebar", "body")) {
+            this@visit.block()
+        }
     }
-}
 
+/** Creates a sidebar component only w/o a nested sidebar body. */
 @HtmlTagMarker
-fun FlowContent.pfSidebarOnly(block: SidebarTag.() -> Unit = {}) = SidebarTag(consumer).visit(block)
+fun FlowContent.pfSidebarOnly(dark: Boolean = true, block: SidebarTag.() -> Unit = {}) =
+    SidebarTag(dark, consumer).visit(block)
 
 @HtmlTagMarker
 fun SidebarTag.pfSidebarBody(block: DIV.() -> Unit = {}) =
@@ -25,12 +33,18 @@ fun SidebarTag.pfSidebarBody(block: DIV.() -> Unit = {}) =
 
 // ------------------------------------------------------ tag
 
-class SidebarTag(consumer: TagConsumer<*>) :
-    DIV(attributesMapOf("class", "page".component("sidebar")), consumer), PatternFlyTag, Ouia {
+class SidebarTag(internal val dark: Boolean = true, consumer: TagConsumer<*>) :
+    DIV(attributesMapOf("class", buildString {
+        append("page".component("sidebar"))
+        if (dark) append(" ${"dark".modifier()}")
+    }), consumer),
+    PatternFlyTag, Ouia {
     override val componentType: ComponentType = ComponentType.Sidebar
 }
 
 // ------------------------------------------------------ component
+
+fun EventTarget.pfSidebar(): SidebarComponent = (this as Element).pfSidebar()
 
 fun Element.pfSidebar(): SidebarComponent =
     component(this, ComponentType.Sidebar, { document.create.div() }, { it as HTMLDivElement }, ::SidebarComponent)
@@ -38,4 +52,3 @@ fun Element.pfSidebar(): SidebarComponent =
 class SidebarComponent(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element) {
     fun body(): Element? = element.querySelector(".${"page".component("sidebar", "body")}")
 }
-

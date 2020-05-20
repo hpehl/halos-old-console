@@ -6,6 +6,7 @@ import kotlinx.html.js.div
 import org.patternfly.ComponentType.*
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
 
 // ------------------------------------------------------ dsl
@@ -78,14 +79,22 @@ class SectionTag(classes: String? = null, consumer: TagConsumer<*>) :
 
 // ------------------------------------------------------ component
 
+fun EventTarget.pfHeader(): PageHeaderComponent = (this as Element).pfHeader()
+
 fun Element.pfHeader(): PageHeaderComponent =
     component(this, PageHeader, { document.create.div() }, { it as HTMLDivElement }, ::PageHeaderComponent)
+
+fun EventTarget.pfMain(): PageMainComponent = (this as Element).pfMain()
 
 fun Element.pfMain(): PageMainComponent =
     component(this, PageMain, { document.create.div() }, { it as HTMLDivElement }, ::PageMainComponent)
 
+fun EventTarget.pfPage(): PageComponent = (this as Element).pfPage()
+
 fun Element.pfPage(): PageComponent =
     component(this, Page, { document.create.div() }, { it as HTMLDivElement }, ::PageComponent)
+
+fun EventTarget.pfSection(): PageSectionComponent = (this as Element).pfSection()
 
 fun Element.pfSection(): PageSectionComponent =
     component(this, PageSection, { document.create.div() }, { it as HTMLDivElement }, ::PageSectionComponent)

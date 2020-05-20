@@ -7,6 +7,7 @@ import kotlinx.html.js.onClickFunction
 import org.patternfly.ComponentType.Alert
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
 
 // ------------------------------------------------------ dsl
@@ -31,14 +32,15 @@ class AlertTag(
     private val closable: Boolean = false,
     private val inline: Boolean = false,
     consumer: TagConsumer<*>
-) : DIV(
-    attributesMapOf("class", buildString {
-        append("alert".component())
-        append(" ${severity.modifier}")
-        if (inline) append(" inline".modifier())
-    }),
-    consumer
-), PatternFlyTag, Aria, Ouia {
+) :
+    DIV(
+        attributesMapOf("class", buildString {
+            append("alert".component())
+            append(" ${severity.modifier}")
+            if (inline) append(" inline".modifier())
+        }),
+        consumer
+    ), PatternFlyTag, Aria, Ouia {
 
     var onClose: (() -> Unit)? = null
     override val componentType: ComponentType = Alert
@@ -59,9 +61,9 @@ class AlertTag(
             div("alert".component("action")) {
                 pfPlainButton(iconClass = "times".fas()) {
                     aria["label"] = "Close ${this@AlertTag.severity.aria.toLowerCase()}: ${this@AlertTag.title}"
-                    onClickFunction = { evt ->
+                    onClickFunction = {
                         this@AlertTag.onClose?.invoke()
-                        (evt.currentTarget as Element).pfAlert().close()
+                        it.target!!.pfAlert().close()
                     }
                 }
             }
@@ -82,6 +84,8 @@ enum class Severity(
 }
 
 // ------------------------------------------------------ component
+
+fun EventTarget.pfAlert(): AlertComponent = (this as Element).pfAlert()
 
 fun Element.pfAlert(): AlertComponent =
     component(this, Alert, { document.create.div() }, { it as HTMLDivElement }, ::AlertComponent)

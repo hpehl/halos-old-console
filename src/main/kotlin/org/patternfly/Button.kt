@@ -5,6 +5,7 @@ import kotlinx.html.dom.create
 import org.patternfly.ComponentType.Button
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLButtonElement
+import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
 
 // ------------------------------------------------------ dsl
@@ -101,6 +102,8 @@ enum class Style(override val realValue: String) : AttributeEnum {
 }
 
 // ------------------------------------------------------ component
+
+fun EventTarget.pfButton(): ButtonComponent = (this as Element).pfButton()
 
 fun Element.pfButton(): ButtonComponent = component(
     this,

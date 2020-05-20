@@ -28,7 +28,35 @@ fun main() {
         }
         pfSidebar {
             pfVerticalNav {
-                +"Not yet implemented"
+                // simple
+                pfNavItems {
+                    pfNavItem(NavigationItem("server-0", "Server", "#"))
+                    pfNavItem(NavigationItem("mm-0", "Management Model", "#"))
+                }
+                // grouped
+                pfNavGroup("Static Group 1") {
+                    pfNavItems {
+                        pfNavItem(NavigationItem("server-1", "Server", "#"))
+                        pfNavItem(NavigationItem("mm-1", "Management Model", "#"))
+                    }
+                }
+                pfNavGroup("Static Group 2") {
+                    pfNavItems {
+                        pfNavItem(NavigationItem("server-2", "Server", "#"))
+                        pfNavItem(NavigationItem("mm-2", "Management Model", "#"))
+                    }
+                }
+                // expandable
+                pfNavItems {
+                    pfNavExpandableItem("Ex Group 1") {
+                        pfNavItem(NavigationItem("server-3", "Server", "#"))
+                        pfNavItem(NavigationItem("mm-3", "Management Model", "#"))
+                    }
+                    pfNavExpandableItem("Ex Group 2", false) {
+                        pfNavItem(NavigationItem("server-4", "Server", "#"))
+                        pfNavItem(NavigationItem("mm-4", "Management Model", "#"))
+                    }
+                }
             }
         }
         pfMain("halos-main") {
@@ -63,6 +91,8 @@ fun main() {
             }
         }
     }
+
+    document.pfNav().select(NavigationItem("server-0"))
 }
 
 fun readResource() {

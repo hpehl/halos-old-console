@@ -6,6 +6,7 @@ import kotlinx.html.js.div
 import org.patternfly.ComponentType.Content
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
 
 // ------------------------------------------------------ dsl
@@ -23,6 +24,8 @@ class ContentTag(consumer: TagConsumer<*>) :
 }
 
 // ------------------------------------------------------ component
+
+fun EventTarget.pfContent(): ContentComponent = (this as Element).pfContent()
 
 fun Element.pfContent(): ContentComponent =
     component(this, Content, { document.create.div() }, { it as HTMLDivElement }, ::ContentComponent)
