@@ -1,43 +1,42 @@
 package org.patternfly
 
-import org.patternfly.ComponentType.*
-import org.w3c.dom.*
+import org.w3c.dom.Element
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.get
 
-fun <C : PatternFlyComponent<*>> Element.pfComponent(): C? {
-    if (this is HTMLElement) {
-        val name = dataset["pfc"]
-        if (name != null) {
-            try {
-                // TODO Find a way to get rid of unsafe casts
-                val component = when (enumValueOf<ComponentType>(name)) {
-                    Alert -> AlertComponent(this.unsafeCast<HTMLDivElement>())
-                    Button -> ButtonComponent(this.unsafeCast<HTMLButtonElement>())
-                    Content -> ContentComponent(this.unsafeCast<HTMLDivElement>())
-                    Icon -> IconComponent(this)
-                    Page -> PageComponent(this.unsafeCast<HTMLDivElement>())
-                    PageHeader -> PageHeaderComponent(this.unsafeCast<HTMLDivElement>())
-                    PageMain -> PageMainComponent(this.unsafeCast<HTMLDivElement>())
-                    PageSection -> PageSectionComponent(this.unsafeCast<HTMLDivElement>())
-                }
-                return component.unsafeCast<C>()
-            } catch (e: IllegalArgumentException) {
-                console.log("No PatternFly component found for $name")
+internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
+    element: Element,
+    componentType: ComponentType,
+    defaultElement: () -> E,
+    targetElement: (element: HTMLElement) -> E,
+    create: (element: E) -> C
+): C {
+    if (element is HTMLElement) {
+        val id = element.dataset["pfc"]
+        if (componentType.id == id) {
+            return create(targetElement(element))
+        } else {
+            val closest = element.closest("[data-pfc=${componentType.id}]")
+            if (closest != null) {
+                return create(targetElement(closest as HTMLElement))
             }
         }
     }
-    return null
+    return create(defaultElement())
 }
 
 /** Provides access to the PatternFly component in the DOM */
 abstract class PatternFlyComponent<out E : HTMLElement>(val element: E)
 
-enum class ComponentType {
-    Alert,
-    Button,
-    Content,
-    Icon,
-    Page,
-    PageHeader,
-    PageMain,
-    PageSection
+enum class ComponentType(val id: String) {
+    Alert("alrt"),
+    Button("btn"),
+    Content("cnt"),
+    Icon("i"),
+    Navigation("nav"),
+    Page("pg"),
+    PageHeader("pgh"),
+    PageMain("pgm"),
+    PageSection("pgs"),
+    Sidebar("sb")
 }

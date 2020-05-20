@@ -18,7 +18,7 @@ private fun <T : PatternFlyTag> setupTag(tag: T, block: T.() -> Unit) {
     if (tag is Ouia) {
         setOuiaType(tag)
     }
-    tag.attributes["data-pfc"] = tag.componentType.name
+    tag.attributes["data-pfc"] = tag.componentType.id
     tag.head()
     tag.block()
     tag.tail()

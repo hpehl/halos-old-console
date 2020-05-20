@@ -1,11 +1,15 @@
 package org.patternfly
 
 import kotlinx.html.*
+import kotlinx.html.dom.create
+import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
+import org.patternfly.ComponentType.Alert
+import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
-import org.w3c.dom.HTMLElement
+import kotlin.browser.document
 
-// ------------------------------------------------------ dsl functions
+// ------------------------------------------------------ dsl
 
 @HtmlTagMarker
 fun FlowContent.pfAlert(
@@ -19,7 +23,7 @@ fun FlowContent.pfAlert(
 fun AlertTag.pfAlertDescription(block: DIV.() -> Unit = {}): Unit =
     DIV(attributesMapOf("class", "alert".component("description")), consumer).visit(block)
 
-// ------------------------------------------------------ tags
+// ------------------------------------------------------ tag
 
 class AlertTag(
     private val severity: Severity,
@@ -37,7 +41,7 @@ class AlertTag(
 ), PatternFlyTag, Aria, Ouia {
 
     var onClose: (() -> Unit)? = null
-    override val componentType: ComponentType = ComponentType.Alert
+    override val componentType: ComponentType = Alert
 
     override fun head() {
         aria["label"] = severity.aria
@@ -57,9 +61,7 @@ class AlertTag(
                     aria["label"] = "Close ${this@AlertTag.severity.aria.toLowerCase()}: ${this@AlertTag.title}"
                     onClickFunction = { evt ->
                         this@AlertTag.onClose?.invoke()
-                        val button = evt.currentTarget as HTMLElement
-                        val alert = button.closest("[data-pfc=${ComponentType.Alert.name}]")
-                        alert?.pfComponent<AlertComponent>()?.close()
+                        (evt.currentTarget as Element).pfAlert().close()
                     }
                 }
             }
@@ -79,7 +81,10 @@ enum class Severity(
     danger("danger".modifier(), "exclamation-circle".fas(), "Danger alert");
 }
 
-// ------------------------------------------------------ components
+// ------------------------------------------------------ component
+
+fun Element.pfAlert(): AlertComponent =
+    component(this, Alert, { document.create.div() }, { it as HTMLDivElement }, ::AlertComponent)
 
 class AlertComponent(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element) {
     fun close() {

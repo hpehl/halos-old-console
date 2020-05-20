@@ -11,7 +11,6 @@ import org.jboss.dmr.ModelDescriptionConstants.Companion.RECURSIVE_DEPTH
 import org.jboss.dmr.op
 import org.jboss.dmr.params
 import org.patternfly.*
-import org.w3c.dom.HTMLPreElement
 import kotlin.browser.document
 
 fun main() {
@@ -25,6 +24,11 @@ fun main() {
                         classes += "brand".component()
                     }
                 }
+            }
+        }
+        pfSidebar {
+            pfVerticalNav {
+                +"Not yet implemented"
             }
         }
         pfMain("halos-main") {

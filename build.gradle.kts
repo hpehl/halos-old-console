@@ -1,4 +1,5 @@
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevServer
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.kotlin.js") version "1.3.72"
@@ -31,9 +32,13 @@ dependencies {
     implementation(npm("styled-components"))
 }
 
+tasks.withType<KotlinCompile>().all {
+    kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+}
+
 kotlin.target.browser {
     runTask {
-        devServer = KotlinWebpackConfig.DevServer(
+        devServer = DevServer(
             port = 9999,
             contentBase = listOf("$buildDir/processedResources/Js/main")
         )

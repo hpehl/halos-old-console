@@ -1,9 +1,13 @@
 package org.patternfly
 
 import kotlinx.html.*
+import kotlinx.html.dom.create
+import org.patternfly.ComponentType.Button
+import org.w3c.dom.Element
 import org.w3c.dom.HTMLButtonElement
+import kotlin.browser.document
 
-// ------------------------------------------------------ dsl functions
+// ------------------------------------------------------ dsl
 
 @HtmlTagMarker
 @OptIn(ExperimentalStdlibApi::class)
@@ -56,7 +60,7 @@ fun FlowOrInteractiveOrPhrasingContent.pfPlainButton(
     ButtonTag(setOf("plain".modifier()), text, iconClass, iconRight, consumer).visit(block)
 }
 
-// ------------------------------------------------------ tags
+// ------------------------------------------------------ tag
 
 class ButtonTag(
     modifier: Set<String>,
@@ -72,7 +76,7 @@ class ButtonTag(
     consumer
 ), PatternFlyTag, Aria, Ouia {
 
-    override val componentType: ComponentType = ComponentType.Button
+    override val componentType: ComponentType = Button
 
     override fun head() {
         when {
@@ -96,6 +100,14 @@ enum class Style(override val realValue: String) : AttributeEnum {
     danger("danger".modifier()),
 }
 
-// ------------------------------------------------------ components
+// ------------------------------------------------------ component
+
+fun Element.pfButton(): ButtonComponent = component(
+    this,
+    Button,
+    { document.create.button() as HTMLButtonElement },
+    { it as HTMLButtonElement },
+    ::ButtonComponent
+)
 
 class ButtonComponent(element: HTMLButtonElement) : PatternFlyComponent<HTMLButtonElement>(element)
