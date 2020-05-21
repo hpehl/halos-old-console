@@ -1,18 +1,21 @@
 package org.patternfly
 
+import kotlinx.css.Visibility
 import kotlinx.html.*
 import kotlinx.html.dom.create
 import kotlinx.html.js.onClickFunction
+import org.jboss.elemento.aria
+import org.jboss.elemento.hidden
+import org.jboss.elemento.minusAssign
+import org.jboss.elemento.plusAssign
 import org.patternfly.ComponentType.Navigation
+import org.patternfly.Data.NAVIGATION_ITEM
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.asList
 import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
-import kotlin.collections.forEach
-import kotlin.collections.map
-import kotlin.collections.plus
 import kotlin.collections.set
 
 // ------------------------------------------------------ dsl
@@ -28,7 +31,7 @@ fun SidebarTag.pfVerticalNav(block: NavigationTag.() -> Unit = {}) =
 fun NavigationTag.pfNavGroup(title: String, block: NavigationGroupTag.() -> Unit) {
     NavigationGroupTag(consumer).visit {
         val titleId = Id.unique("ns")
-        attributes["aria-labelledby"] = titleId
+        aria["labelledby"] = titleId
         h2("nav".component("section", "title")) {
             id = titleId
             +title
@@ -49,7 +52,7 @@ fun NavigationGroupTag.pfNavItems(block: UL.() -> Unit = {}) {
     }
 }
 
-fun UL.pfNavExpandableItem(title: String, expanded: Boolean = true, block: UL.() -> Unit = {}) {
+fun UL.pfNavExpandableGroup(title: String, expanded: Boolean = true, block: UL.() -> Unit = {}) {
     li(buildString {
         append("nav".component("item")).append(" ").append("expandable".modifier())
         if (expanded) {
@@ -57,11 +60,11 @@ fun UL.pfNavExpandableItem(title: String, expanded: Boolean = true, block: UL.()
         }
     }) {
         a("#", classes = "nav".component("link")) {
-            id = Id.unique("nei")
-            attributes["aria-expanded"] = expanded.toString()
-            onClickFunction = { event ->
-                (event.target as Element).let {
-                    it.pfNav().toggle(it.id)
+            id = Id.unique("neg")
+            aria["expanded"] = expanded.toString()
+            onClickFunction = {
+                with(it.target as Element) {
+                    pfNav().toggle(this)
                 }
             }
             +title
@@ -72,7 +75,7 @@ fun UL.pfNavExpandableItem(title: String, expanded: Boolean = true, block: UL.()
         section("nav".component("subnav")) {
             hidden = !expanded
             val titleId = Id.unique("ns")
-            attributes["aria-labelledby"] = titleId
+            aria["labelledby"] = titleId
             h2("pf-screen-reader") {
                 id = titleId
                 +title
@@ -88,11 +91,11 @@ fun UL.pfNavItem(item: NavigationItem) {
     li("nav".component("item")) {
         a(item.href, classes = "nav".component("link")) {
             id = item.id
-            attributes["data-ni"] = ""
+            attributes[NAVIGATION_ITEM] = "" // marker for navigation items
             +item.title
-            onClickFunction = { event ->
-                (event.target as Element).let {
-                    it.pfNav().select(NavigationItem(it.id))
+            onClickFunction = {
+                with(it.target as Element) {
+                    pfNav().select(item)
                 }
             }
         }
@@ -105,7 +108,7 @@ class NavigationTag(
     private val orientation: Orientation,
     private val tertiary: Boolean = false,
     consumer: TagConsumer<*>
-) : NAV(attributesMapOf("class", "nav".component()), consumer), PatternFlyTag, Aria, Ouia {
+) : NAV(attributesMapOf("class", "nav".component()), consumer), PatternFlyTag, Ouia {
 
     override val componentType: ComponentType = Navigation
 
@@ -139,30 +142,55 @@ fun Element.pfNav(): NavigationComponent =
 
 class NavigationComponent(element: HTMLElement) : PatternFlyComponent<HTMLElement>(element) {
     fun select(item: NavigationItem) {
-        console.log("Select navigation item $item")
-        val selector = ".${"nav".component("link")}[data-ni]"
+        // first (de)select the items
+        val selector = ".${"nav".component("link")}[$NAVIGATION_ITEM]"
         val items = element.querySelectorAll(selector)
         items.asList().map { it as Element }.forEach {
             if (item.id == it.id) {
-                it.classList.add("current".modifier())
-                it.setAttribute("aria-current", "page")
+                it.classList += "current".modifier()
+                it.aria["current"] = "page"
             } else {
-                it.classList.remove("current".modifier())
-                it.removeAttribute("aria-current")
+                it.classList -= "current".modifier()
+                it.aria.remove("current")
             }
         }
 
+        // then (de)select the expandable parents (if any)
         val expandables = element.querySelectorAll(".${"expandable".modifier()}")
         expandables.asList().map { it as Element }.forEach {
             if (it.querySelector("#${item.id}") != null) {
-                it.classList.add("current".modifier())
+                it.classList += "current".modifier()
             } else {
-                it.classList.remove("current".modifier())
+                it.classList -= "current".modifier()
             }
         }
     }
 
-    fun toggle(id: String) {
-        console.log("Toggle expandable group $id")
+    internal fun toggle(element: Element) {
+        if (element.aria["expanded"].toBoolean()) {
+            collapse(element)
+        } else {
+            expand(element)
+        }
+    }
+
+    internal fun collapse(element: Element) {
+        val li = element.parentElement
+        val section = element.nextElementSibling
+        if (li != null && section != null) {
+            li.classList -= "expanded".modifier()
+            element.aria["expanded"] = false
+            section.hidden = true
+        }
+    }
+
+    internal fun expand(element: Element) {
+        val li = element.parentElement
+        val section = element.nextElementSibling
+        if (li != null && section != null) {
+            li.classList += "expanded".modifier()
+            element.aria["expanded"] = true
+            section.removeAttribute("hidden")
+        }
     }
 }

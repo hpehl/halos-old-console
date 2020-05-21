@@ -48,11 +48,11 @@ fun main() {
                 }
                 // expandable
                 pfNavItems {
-                    pfNavExpandableItem("Ex Group 1") {
+                    pfNavExpandableGroup("Ex Group 1") {
                         pfNavItem(NavigationItem("server-3", "Server", "#"))
                         pfNavItem(NavigationItem("mm-3", "Management Model", "#"))
                     }
-                    pfNavExpandableItem("Ex Group 2", false) {
+                    pfNavExpandableGroup("Ex Group 2", false) {
                         pfNavItem(NavigationItem("server-4", "Server", "#"))
                         pfNavItem(NavigationItem("mm-4", "Management Model", "#"))
                     }

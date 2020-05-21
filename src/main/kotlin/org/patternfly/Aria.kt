@@ -2,13 +2,15 @@ package org.patternfly
 
 import kotlinx.html.Tag
 
-val Aria.aria: AriaAccessor
-    get() = AriaAccessor(this)
+val Tag.aria: Aria
+    get() = Aria(this)
 
-interface Aria : Tag
+class Aria(private val tag: Tag) {
 
-class AriaAccessor(private val aria: Aria) {
     operator fun set(key: String, value: Any) {
-        aria.attributes["aria-$key"] = value.toString()
+        tag.attributes[failSafeKey(key)] = value.toString()
     }
+
+    private fun failSafeKey(key: String) =
+        if (key.startsWith("aria-")) key else "aria-$key"
 }

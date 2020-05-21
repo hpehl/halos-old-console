@@ -17,7 +17,7 @@ fun FlowOrPhrasingContent.pfIcon(iconClass: String, block: IconTag.() -> Unit = 
 // ------------------------------------------------------ tag
 
 class IconTag(iconClass: String, consumer: TagConsumer<*>) : I(attributesMapOf("class", iconClass), consumer),
-    PatternFlyTag, Aria, Ouia {
+    PatternFlyTag, Ouia {
     override val componentType: ComponentType = Icon
 
     override fun head() {

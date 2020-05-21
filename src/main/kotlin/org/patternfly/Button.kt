@@ -75,7 +75,7 @@ class ButtonTag(
         if (modifier.isNotEmpty()) modifier.joinTo(this, " ", " ")
     }),
     consumer
-), PatternFlyTag, Aria, Ouia {
+), PatternFlyTag, Ouia {
 
     override val componentType: ComponentType = Button
 

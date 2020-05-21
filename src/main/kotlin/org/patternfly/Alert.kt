@@ -4,6 +4,7 @@ import kotlinx.html.*
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
+import org.jboss.elemento.removeFromParent
 import org.patternfly.ComponentType.Alert
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
@@ -40,7 +41,7 @@ class AlertTag(
             if (inline) append(" inline".modifier())
         }),
         consumer
-    ), PatternFlyTag, Aria, Ouia {
+    ), PatternFlyTag, Ouia {
 
     var onClose: (() -> Unit)? = null
     override val componentType: ComponentType = Alert
@@ -92,6 +93,6 @@ fun Element.pfAlert(): AlertComponent =
 
 class AlertComponent(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element) {
     fun close() {
-        element.parentElement?.removeChild(element)
+        element.removeFromParent()
     }
 }
