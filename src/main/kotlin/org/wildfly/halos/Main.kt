@@ -52,7 +52,7 @@ fun main() {
                         pfNavItem(NavigationItem("server-3", "Server", "#"))
                         pfNavItem(NavigationItem("mm-3", "Management Model", "#"))
                     }
-                    pfNavExpandableGroup("Ex Group 2", false) {
+                    pfNavExpandableGroup("Ex Group 2") {
                         pfNavItem(NavigationItem("server-4", "Server", "#"))
                         pfNavItem(NavigationItem("mm-4", "Management Model", "#"))
                     }
@@ -92,7 +92,7 @@ fun main() {
         }
     }
 
-    document.pfNav().select(NavigationItem("server-0"))
+    document.pfNav().select(NavigationItem("mm-4"))
 }
 
 fun readResource() {

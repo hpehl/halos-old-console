@@ -52,7 +52,7 @@ fun NavigationGroupTag.pfNavItems(block: UL.() -> Unit = {}) {
     }
 }
 
-fun UL.pfNavExpandableGroup(title: String, expanded: Boolean = true, block: UL.() -> Unit = {}) {
+fun UL.pfNavExpandableGroup(title: String, expanded: Boolean = false, block: UL.() -> Unit = {}) {
     li(buildString {
         append("nav".component("item")).append(" ").append("expandable".modifier())
         if (expanded) {
@@ -60,7 +60,6 @@ fun UL.pfNavExpandableGroup(title: String, expanded: Boolean = true, block: UL.(
         }
     }) {
         a("#", classes = "nav".component("link")) {
-            id = Id.unique("neg")
             aria["expanded"] = expanded.toString()
             onClickFunction = {
                 with(it.target as Element) {
@@ -158,8 +157,10 @@ class NavigationComponent(element: HTMLElement) : PatternFlyComponent<HTMLElemen
         // then (de)select the expandable parents (if any)
         val expandables = element.querySelectorAll(".${"expandable".modifier()}")
         expandables.asList().map { it as Element }.forEach {
+            // it = li.pf-c-nav__item.pf-m-expandable
             if (it.querySelector("#${item.id}") != null) {
                 it.classList += "current".modifier()
+                it.firstElementChild?.let { a -> expand(a) }
             } else {
                 it.classList -= "current".modifier()
             }
@@ -174,7 +175,7 @@ class NavigationComponent(element: HTMLElement) : PatternFlyComponent<HTMLElemen
         }
     }
 
-    internal fun collapse(element: Element) {
+    private fun collapse(element: Element) {
         val li = element.parentElement
         val section = element.nextElementSibling
         if (li != null && section != null) {
@@ -184,7 +185,7 @@ class NavigationComponent(element: HTMLElement) : PatternFlyComponent<HTMLElemen
         }
     }
 
-    internal fun expand(element: Element) {
+    private fun expand(element: Element) {
         val li = element.parentElement
         val section = element.nextElementSibling
         if (li != null && section != null) {
