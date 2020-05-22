@@ -32,6 +32,7 @@ enum class ComponentType(val id: String) {
     Alert("alrt"),
     Button("btn"),
     Content("cnt"),
+    DataList("dl"),
     Icon("i"),
     Navigation("nav"),
     Page("pg"),
