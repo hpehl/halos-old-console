@@ -4,6 +4,7 @@ import kotlinx.html.Tag
 import kotlinx.html.TagConsumer
 import kotlinx.html.visitTag
 import kotlinx.html.visitTagAndFinalize
+import org.patternfly.Data.COMPONENT_TYPE
 
 internal fun <T : PatternFlyTag> T.visit(block: T.() -> Unit) = visitTag {
     setupTag(this, block)
@@ -18,7 +19,7 @@ private fun <T : PatternFlyTag> setupTag(tag: T, block: T.() -> Unit) {
     if (tag is Ouia) {
         setOuiaType(tag)
     }
-    tag.attributes["data-pfc"] = tag.componentType.id
+    tag.attributes[COMPONENT_TYPE] = tag.componentType.id
     tag.head()
     tag.block()
     tag.tail()

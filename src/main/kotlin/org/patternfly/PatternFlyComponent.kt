@@ -1,5 +1,6 @@
 package org.patternfly
 
+import org.patternfly.Data.COMPONENT_TYPE
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
@@ -16,7 +17,7 @@ internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
         if (componentType.id == id) {
             return create(targetElement(element))
         } else {
-            val closest = element.closest("[data-pfc=${componentType.id}]")
+            val closest = element.closest("[$COMPONENT_TYPE=${componentType.id}]")
             if (closest != null) {
                 return create(targetElement(closest as HTMLElement))
             }

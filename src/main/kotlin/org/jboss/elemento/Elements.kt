@@ -4,6 +4,8 @@ import org.w3c.dom.DOMTokenList
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 
+// ------------------------------------------------------ token list
+
 operator fun DOMTokenList.plusAssign(value: String) {
     this.add(value)
 }
@@ -12,11 +14,23 @@ operator fun DOMTokenList.minusAssign(value: String) {
     this.remove(value)
 }
 
+// ------------------------------------------------------ node
+
 fun Node?.removeFromParent() {
     if (this != null && this.parentNode != null) {
         this.parentNode!!.removeChild(this)
     }
 }
+
+fun Node?.removeChildren() {
+    if (this != null) {
+        while (this.firstChild != null) {
+            this.removeChild(this.firstChild!!)
+        }
+    }
+}
+
+// ------------------------------------------------------ element
 
 val Element.aria: Aria
     get() = Aria(this)

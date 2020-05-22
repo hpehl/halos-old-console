@@ -76,6 +76,11 @@ fun main() {
                     }
                 }
             }
+            pfSection {
+                pfDataList {
+                    id = "users"
+                }
+            }
             pfSection("light".modifier()) {
                 pfAlert(Severity.warning, "My first warning alert", true) {
                     pfAlertDescription { +"My description" }
@@ -93,6 +98,27 @@ fun main() {
     }
 
     document.pfNav().select(NavigationItem("mm-4"))
+
+    val dataProvider = DataProvider<User> { Id.build("item", it.username) }
+    // TODO Make renderer a DataListTag constructor parameter
+    val renderer: DataListRenderer<User> = { user, dp ->
+        {
+            pfItemRow {
+                pfItemContent {
+                    pfCell {
+                        span {
+                            id = dp.identifier(user)
+                            +user.username
+                        }
+                    }
+                    pfCell { +user.email }
+                }
+            }
+        }
+    }
+    val dataList = document.getElementById("users")!!.pfDataList(dataProvider, renderer)
+    dataProvider.bind(dataList)
+    dataProvider.update(users)
 }
 
 fun readResource() {
@@ -105,3 +131,10 @@ fun readResource() {
         document.querySelector("#out")!!.textContent = node.toString()
     }
 }
+
+data class User(val username: String, val name: String, val email: String)
+
+val users = listOf(
+    User("johndoe", "John Doe", "john@doe.com"),
+    User("hpehl", "Harald Pehl", "harald.pehl@gmakil.com")
+)

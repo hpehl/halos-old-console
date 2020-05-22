@@ -118,6 +118,12 @@ class DataProvider<T>(val identifier: Identifier<T>) {
     private var filteredItems: Map<String, T> = linkedMapOf()
     private var visibleItems: Map<String, T> = linkedMapOf()
 
+    // ------------------------------------------------------ display
+
+    fun bind(display: Display<T>) {
+        displays.add(display)
+    }
+
     // ------------------------------------------------------ items
 
     fun item(id: String): T? = allItems[id]
