@@ -15,6 +15,8 @@ fun <T> Filter<T>.and(other: Filter<in T>): Filter<T> = { this(it) && other(it) 
 
 interface Display<T> {
 
+    val dataProvider: DataProvider<T>
+
     fun showItems(items: List<T>, pageInfo: PageInfo)
 
     fun updateSelection(selectionInfo: SelectionInfo<T>)

@@ -77,14 +77,22 @@ fun main() {
                 }
             }
             pfSection {
-                pfDataList {
-                    id = "users"
-                }
-            }
-            pfSection("light".modifier()) {
-                pfAlert(Severity.warning, "My first warning alert", true) {
-                    pfAlertDescription { +"My description" }
-                    onClose = { console.log("About to close alert...") }
+                pfDataList<User>("users") {
+                    renderer = { user, dataProvider ->
+                        {
+                            pfItemRow {
+                                pfItemContent {
+                                    pfCell {
+                                        span {
+                                            id = dataProvider.identifier(user)
+                                            +user.username
+                                        }
+                                    }
+                                    pfCell { +user.email }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             pfSection {
@@ -100,24 +108,7 @@ fun main() {
     document.pfNav().select(NavigationItem("mm-4"))
 
     val dataProvider = DataProvider<User> { Id.build("item", it.username) }
-    // TODO Make renderer a DataListTag constructor parameter
-    val renderer: DataListRenderer<User> = { user, dp ->
-        {
-            pfItemRow {
-                pfItemContent {
-                    pfCell {
-                        span {
-                            id = dp.identifier(user)
-                            +user.username
-                        }
-                    }
-                    pfCell { +user.email }
-                }
-            }
-        }
-    }
-    val dataList = document.getElementById("users")!!.pfDataList(dataProvider, renderer)
-    dataProvider.bind(dataList)
+    dataProvider.bind(document.getElementById("users")!!.pfDataList(dataProvider))
     dataProvider.update(users)
 }
 
