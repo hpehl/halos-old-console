@@ -52,8 +52,8 @@ fun DataListItemRowTag.pfItemAction(block: DataListItemActionTag.() -> Unit = {}
 
 // ------------------------------------------------------ tag
 
-class DataListTag<T>(id: String, consumer: TagConsumer<*>) :
-    UL(attributesMapOf("class", "data-list".component(), "role", "list"), consumer),
+class DataListTag<T>(private val id: String, consumer: TagConsumer<*>) :
+    UL(attributesMapOf("class", "data-list".component(), "id", id, "role", "list"), consumer),
     PatternFlyTag, Ouia {
 
     override val componentType: ComponentType = DataList

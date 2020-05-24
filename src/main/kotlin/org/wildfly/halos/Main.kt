@@ -20,7 +20,7 @@ fun main() {
         pfHeader {
             pfBrand {
                 a("#", classes = "page".component("header", "brand", "link")) {
-                    img(src = "https://www.patternfly.org/assets/images/PF-Masthead-Logo.svg") {
+                    img(src = "/halos-white.svg", classes = "hal-logo") {
                         classes += "brand".component()
                     }
                 }
