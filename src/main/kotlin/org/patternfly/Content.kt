@@ -25,9 +25,9 @@ class ContentTag(consumer: TagConsumer<*>) :
 
 // ------------------------------------------------------ component
 
-fun EventTarget.pfContent(): ContentComponent = (this as Element).pfContent()
+fun EventTarget?.pfContent(): ContentComponent = (this as Element).pfContent()
 
-fun Element.pfContent(): ContentComponent =
+fun Element?.pfContent(): ContentComponent =
     component(this, Content, { document.create.div() }, { it as HTMLDivElement }, ::ContentComponent)
 
 class ContentComponent(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element)

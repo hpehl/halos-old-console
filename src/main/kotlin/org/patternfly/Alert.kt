@@ -86,9 +86,9 @@ enum class Severity(
 
 // ------------------------------------------------------ component
 
-fun EventTarget.pfAlert(): AlertComponent = (this as Element).pfAlert()
+fun EventTarget?.pfAlert(): AlertComponent = (this as Element).pfAlert()
 
-fun Element.pfAlert(): AlertComponent =
+fun Element?.pfAlert(): AlertComponent =
     component(this, Alert, { document.create.div() }, { it as HTMLDivElement }, ::AlertComponent)
 
 class AlertComponent(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element) {

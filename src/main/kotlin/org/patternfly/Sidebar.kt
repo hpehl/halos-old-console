@@ -44,9 +44,9 @@ class SidebarTag(internal val dark: Boolean = true, consumer: TagConsumer<*>) :
 
 // ------------------------------------------------------ component
 
-fun EventTarget.pfSidebar(): SidebarComponent = (this as Element).pfSidebar()
+fun EventTarget?.pfSidebar(): SidebarComponent = (this as Element).pfSidebar()
 
-fun Element.pfSidebar(): SidebarComponent =
+fun Element?.pfSidebar(): SidebarComponent =
     component(this, ComponentType.Sidebar, { document.create.div() }, { it as HTMLDivElement }, ::SidebarComponent)
 
 class SidebarComponent(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element) {

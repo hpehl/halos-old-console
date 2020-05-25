@@ -27,8 +27,8 @@ class IconTag(iconClass: String, consumer: TagConsumer<*>) : I(attributesMapOf("
 
 // ------------------------------------------------------ component
 
-fun EventTarget.pfIcon(): IconComponent = (this as Element).pfIcon()
+fun EventTarget?.pfIcon(): IconComponent = (this as Element).pfIcon()
 
-fun Element.pfIcon(): IconComponent = component(this, Icon, { document.create.i() }, { it }, ::IconComponent)
+fun Element?.pfIcon(): IconComponent = component(this, Icon, { document.create.i() }, { it }, ::IconComponent)
 
 class IconComponent(element: HTMLElement) : PatternFlyComponent<HTMLElement>(element)

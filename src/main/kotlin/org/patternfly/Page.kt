@@ -27,6 +27,11 @@ fun PageTag.pfMain(id: String, block: MainTag.() -> Unit = {}) {
 }
 
 @HtmlTagMarker
+fun PageTag.pfPage(block: PageTag.() -> Unit = {}) {
+    PageTag(consumer).visit(block)
+}
+
+@HtmlTagMarker
 fun <T, C : TagConsumer<T>> C.pfPage(block: PageTag.() -> Unit = {}): T =
     PageTag(this).visitAndFinalize(this, block)
 
@@ -34,6 +39,11 @@ fun <T, C : TagConsumer<T>> C.pfPage(block: PageTag.() -> Unit = {}): T =
 fun MainTag.pfSection(classes: String? = null, block: SectionTag.() -> Unit = {}) {
     SectionTag(classes, consumer).visit(block)
 }
+
+@HtmlTagMarker
+fun <T, C : TagConsumer<T>> C.pfSection(classes: String? = null, block: SectionTag.() -> Unit = {}): T =
+    SectionTag(classes, this).visitAndFinalize(this, block)
+
 
 // ------------------------------------------------------ tag
 
@@ -79,24 +89,24 @@ class SectionTag(classes: String? = null, consumer: TagConsumer<*>) :
 
 // ------------------------------------------------------ component
 
-fun EventTarget.pfHeader(): PageHeaderComponent = (this as Element).pfHeader()
+fun EventTarget?.pfHeader(): PageHeaderComponent = (this as Element).pfHeader()
 
-fun Element.pfHeader(): PageHeaderComponent =
+fun Element?.pfHeader(): PageHeaderComponent =
     component(this, PageHeader, { document.create.div() }, { it as HTMLDivElement }, ::PageHeaderComponent)
 
-fun EventTarget.pfMain(): PageMainComponent = (this as Element).pfMain()
+fun EventTarget?.pfMain(): PageMainComponent = (this as Element).pfMain()
 
-fun Element.pfMain(): PageMainComponent =
+fun Element?.pfMain(): PageMainComponent =
     component(this, PageMain, { document.create.div() }, { it as HTMLDivElement }, ::PageMainComponent)
 
-fun EventTarget.pfPage(): PageComponent = (this as Element).pfPage()
+fun EventTarget?.pfPage(): PageComponent = (this as Element).pfPage()
 
-fun Element.pfPage(): PageComponent =
+fun Element?.pfPage(): PageComponent =
     component(this, Page, { document.create.div() }, { it as HTMLDivElement }, ::PageComponent)
 
-fun EventTarget.pfSection(): PageSectionComponent = (this as Element).pfSection()
+fun EventTarget?.pfSection(): PageSectionComponent = (this as Element).pfSection()
 
-fun Element.pfSection(): PageSectionComponent =
+fun Element?.pfSection(): PageSectionComponent =
     component(this, PageSection, { document.create.div() }, { it as HTMLDivElement }, ::PageSectionComponent)
 
 class PageComponent(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element)

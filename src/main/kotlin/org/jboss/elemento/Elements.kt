@@ -22,14 +22,6 @@ fun Node?.removeFromParent() {
     }
 }
 
-fun Node?.removeChildren() {
-    if (this != null) {
-        while (this.firstChild != null) {
-            this.removeChild(this.firstChild!!)
-        }
-    }
-}
-
 // ------------------------------------------------------ element
 
 val Element.aria: Aria

@@ -1,6 +1,5 @@
 package org.patternfly
 
-import kotlinx.css.Visibility
 import kotlinx.html.*
 import kotlinx.html.dom.create
 import kotlinx.html.js.onClickFunction
@@ -88,7 +87,7 @@ fun UL.pfNavExpandableGroup(title: String, expanded: Boolean = false, block: UL.
 
 fun UL.pfNavItem(item: NavigationItem) {
     li("nav".component("item")) {
-        a(item.href, classes = "nav".component("link")) {
+        a(item.url, classes = "nav".component("link")) {
             id = item.id
             attributes[NAVIGATION_ITEM] = "" // marker for navigation items
             +item.title
@@ -121,7 +120,9 @@ class NavigationTag(
 class NavigationGroupTag(consumer: TagConsumer<*>) :
     SECTION(attributesMapOf("class", "nav".component("section")), consumer)
 
-data class NavigationItem(val id: String, val title: String = "", val href: String = "")
+data class NavigationItem(val url: String, val title: String = "") {
+    internal val id: String = Id.build("ni", url)
+}
 
 enum class Orientation {
     HORIZONTAL, VERTICAL
@@ -129,17 +130,21 @@ enum class Orientation {
 
 // ------------------------------------------------------ component
 
-fun Document.pfNav(): NavigationComponent {
+private val globalNav: NavigationComponent by lazy {
     val selector = ".${"nav".component()}[aria-label=Global]"
-    return (document.querySelector(selector) ?: document.create.nav()).pfNav()
+    document.querySelector(selector).pfNav()
 }
 
-fun EventTarget.pfNav(): NavigationComponent = (this as Element).pfNav()
+fun Document.pfNav(): NavigationComponent = globalNav
 
-fun Element.pfNav(): NavigationComponent =
+fun EventTarget?.pfNav(): NavigationComponent = (this as Element).pfNav()
+
+fun Element?.pfNav(): NavigationComponent =
     component(this, Navigation, { document.create.nav() }, { it }, ::NavigationComponent)
 
 class NavigationComponent(element: HTMLElement) : PatternFlyComponent<HTMLElement>(element) {
+    fun select(url: String) = select(NavigationItem(url))
+
     fun select(item: NavigationItem) {
         // first (de)select the items
         val selector = ".${"nav".component("link")}[$NAVIGATION_ITEM]"

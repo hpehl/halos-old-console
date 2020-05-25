@@ -4,13 +4,13 @@ import kotlinx.html.*
 import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import org.jboss.elemento.aria
-import org.jboss.elemento.removeChildren
 import org.patternfly.ComponentType.DataList
 import org.patternfly.Data.DATA_LIST_RENDERER
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLUListElement
 import org.w3c.dom.get
 import kotlin.browser.document
+import kotlin.dom.clear
 
 typealias DataListRenderer<T> = (item: T, dataProvider: DataProvider<T>) -> DataListItemTag.() -> Unit
 
@@ -86,7 +86,7 @@ class DataListItemActionTag(consumer: TagConsumer<*>) :
 
 // ------------------------------------------------------ component
 
-fun <T> Element.pfDataList(dataProvider: DataProvider<T>): DataListComponent<T> =
+fun <T> Element?.pfDataList(dataProvider: DataProvider<T>): DataListComponent<T> =
     component(
         this,
         DataList,
@@ -110,17 +110,15 @@ class DataListComponent<T>(element: HTMLUListElement, override val dataProvider:
     }
 
     override fun showItems(items: List<T>, pageInfo: PageInfo) {
-        element.removeChildren()
-        if (renderer != null) {
+        element.clear()
+        renderer?.let {
             for (item in items) {
-                val itemElement = element.append.pfItem(renderer!!.invoke(item, dataProvider))
+                val itemElement = element.append.pfItem(it(item, dataProvider))
                 val itemId = dataProvider.identifier(item)
                 if (itemElement.querySelector("#$itemId") != null) {
                     itemElement.aria["labelledby"] = itemId
                 }
             }
-        } else {
-            console.log("No data list renderer found for $id")
         }
     }
 

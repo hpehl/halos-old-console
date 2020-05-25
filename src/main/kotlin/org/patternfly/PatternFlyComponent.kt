@@ -6,7 +6,7 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 
 internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
-    element: Element,
+    element: Element?,
     componentType: ComponentType,
     defaultElement: () -> E,
     targetElement: (element: HTMLElement) -> E,

@@ -103,9 +103,9 @@ enum class Style(override val realValue: String) : AttributeEnum {
 
 // ------------------------------------------------------ component
 
-fun EventTarget.pfButton(): ButtonComponent = (this as Element).pfButton()
+fun EventTarget?.pfButton(): ButtonComponent = (this as Element).pfButton()
 
-fun Element.pfButton(): ButtonComponent = component(
+fun Element?.pfButton(): ButtonComponent = component(
     this,
     Button,
     { document.create.button() as HTMLButtonElement },
