@@ -1,7 +1,5 @@
-package org.wildfly.halos.mvp
+package org.jboss.mvp
 
-import kotlinx.html.dom.append
-import mu.KotlinLogging
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.PopStateEvent
 import org.w3c.dom.Window
@@ -37,7 +35,6 @@ data class PlaceRequest(val token: String, val params: Map<String, String>) {
 
 class PlaceManager(selector: String, private val defaultPlace: PlaceRequest) {
 
-    private val logger = KotlinLogging.logger("plm")
     private var current: Presenter<*>? = null
     private var element: HTMLElement? = document.querySelector(selector) as HTMLElement
 
@@ -49,7 +46,6 @@ class PlaceManager(selector: String, private val defaultPlace: PlaceRequest) {
             } else {
                 (event.target as Window).location.hash.placeRequest()
             }
-            logger.debug { "Popstate event: navigation to place request $place" }
             navigate(place)
         })
     }
@@ -68,19 +64,19 @@ class PlaceManager(selector: String, private val defaultPlace: PlaceRequest) {
             if (presenter !== current) {
                 current?.hide()
             }
+            presenter.prepareFromRequest(place)
             element?.let {
                 it.clear()
-                presenter.view.elements.invoke(it.append)
-                presenter.prepareFromRequest(place)
-                presenter.show()
-                current = presenter
+                it.append(*presenter.view.elements)
             }
+            presenter.show()
+            current = presenter
         } else {
             if (!defaultPlace.empty) {
-                logger.warn { "Presenter for ${place.token} not found. Going to default place." }
+                console.warn("Unable to navigate to $place. Presenter for ${place.token} not found. Going to default place.")
                 goto(defaultPlace)
             } else {
-                logger.error { "Presenter for ${place.token} not found and no valid default place defined!" }
+                console.error("Unable to navigate to $place. Presenter for ${place.token} not found and no default place defined!")
             }
         }
     }

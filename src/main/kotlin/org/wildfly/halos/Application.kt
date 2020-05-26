@@ -8,7 +8,7 @@ import mu.KotlinLogging
 import org.patternfly.*
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.Window
-import org.wildfly.halos.mvp.placeRequest
+import org.jboss.mvp.placeRequest
 import kotlin.browser.document
 import kotlin.browser.window
 

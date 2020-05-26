@@ -3,17 +3,18 @@ package org.wildfly.halos.server
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.html.*
+import kotlinx.html.dom.create
 import kotlinx.html.js.onClickFunction
 import org.jboss.dmr.ModelDescriptionConstants
 import org.jboss.dmr.op
 import org.jboss.dmr.params
 import org.patternfly.*
-import org.w3c.dom.HTMLElement
 import org.wildfly.halos.cdi
-import org.wildfly.halos.mvp.*
+import org.jboss.mvp.HasPresenter
+import org.jboss.mvp.Presenter
+import org.jboss.mvp.View
+import org.jboss.mvp.bind
 import kotlin.browser.document
-import kotlin.properties.ReadOnlyProperty
-import kotlin.reflect.KProperty
 
 val servers = listOf(
     Server("server-0", "Server 1", "running"),
@@ -46,8 +47,8 @@ class ServerView : View, HasPresenter<ServerPresenter, ServerView> {
 
     override val presenter: ServerPresenter by bind(ServerPresenter.TOKEN)
 
-    override val elements: TagConsumer<HTMLElement>.() -> Unit = {
-        pfSection("light".modifier()) {
+    override val elements = arrayOf(
+        document.create.pfSection("light".modifier()) {
             pfContent {
                 h1 {
                     classes += "pf-c-title"
@@ -62,8 +63,8 @@ class ServerView : View, HasPresenter<ServerPresenter, ServerView> {
                     +"."
                 }
             }
-        }
-        pfSection {
+        },
+        document.create.pfSection {
             pfDataList<Server>("servers") {
                 renderer = { user, dataProvider ->
                     {
@@ -82,7 +83,7 @@ class ServerView : View, HasPresenter<ServerPresenter, ServerView> {
                 }
             }
         }
-    }
+    )
 }
 
 fun readResource() {

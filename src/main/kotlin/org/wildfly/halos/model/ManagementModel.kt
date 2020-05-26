@@ -1,24 +1,28 @@
 package org.wildfly.halos.model
 
-import kotlinx.html.TagConsumer
 import kotlinx.html.classes
+import kotlinx.html.dom.create
 import kotlinx.html.h1
 import kotlinx.html.p
+import org.jboss.mvp.Presenter
+import org.jboss.mvp.View
 import org.patternfly.modifier
 import org.patternfly.pfContent
 import org.patternfly.pfSection
-import org.w3c.dom.HTMLElement
-import org.wildfly.halos.mvp.Presenter
-import org.wildfly.halos.mvp.View
+import kotlin.browser.document
 
 class ManagementModelPresenter : Presenter<ManagementModelView> {
     override val token = "mm"
     override val view = ManagementModelView()
+
+    companion object {
+        const val TOKEN = "mm"
+    }
 }
 
 class ManagementModelView : View {
-    override val elements: TagConsumer<HTMLElement>.() -> Unit = {
-        pfSection("light".modifier()) {
+    override val elements = arrayOf(
+        document.create.pfSection("light".modifier()) {
             pfContent {
                 h1 {
                     classes += "pf-c-title"
@@ -27,5 +31,5 @@ class ManagementModelView : View {
                 p { +"Not yet implemented" }
             }
         }
-    }
+    )
 }
