@@ -24,7 +24,7 @@ object Application {
         })
     }
 
-    fun page(): HTMLElement = document.create.pfPage {
+    fun skeleton(): HTMLElement = document.create.pfPage {
         pfHeader {
             pfBrand {
                 a("#server", classes = "page".component("header", "brand", "link")) {

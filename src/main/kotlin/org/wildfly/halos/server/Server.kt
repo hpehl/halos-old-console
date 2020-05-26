@@ -10,9 +10,10 @@ import org.jboss.dmr.params
 import org.patternfly.*
 import org.w3c.dom.HTMLElement
 import org.wildfly.halos.cdi
-import org.wildfly.halos.mvp.Presenter
-import org.wildfly.halos.mvp.View
+import org.wildfly.halos.mvp.*
 import kotlin.browser.document
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
 val servers = listOf(
     Server("server-0", "Server 1", "running"),
@@ -23,17 +24,27 @@ data class Server(val username: String, val name: String, val status: String)
 
 class ServerPresenter : Presenter<ServerView> {
 
-    override val token = "server"
-    override val view = ServerView()
     private val dataProvider = DataProvider<Server> { Id.build("item", it.username) }
+    override val token = TOKEN
+    override val view = ServerView()
 
     override fun show() {
         dataProvider.bind(document.querySelector("#servers").pfDataList(dataProvider))
         dataProvider.update(servers)
     }
+
+    internal fun doIt() {
+        console.log("Called from view click handler.")
+    }
+
+    companion object {
+        const val TOKEN = "server"
+    }
 }
 
-class ServerView : View {
+class ServerView : View, HasPresenter<ServerPresenter, ServerView> {
+
+    override val presenter: ServerPresenter by bind(ServerPresenter.TOKEN)
 
     override val elements: TagConsumer<HTMLElement>.() -> Unit = {
         pfSection("light".modifier()) {
@@ -46,7 +57,7 @@ class ServerView : View {
                 p {
                     +"Execute an "
                     pfLinkButton(text = "operation", inline = true) {
-                        onClickFunction = { _ -> readResource() }
+                        onClickFunction = { presenter.doIt() }
                     }
                     +"."
                 }

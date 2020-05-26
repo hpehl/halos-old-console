@@ -10,7 +10,7 @@ import kotlin.browser.document
 fun main() {
     KotlinLoggingConfiguration.LOG_LEVEL = KotlinLoggingLevel.DEBUG
     kotlinext.js.require("@patternfly/patternfly/patternfly.css")
-    document.body!!.append(Application.page())
+    document.body!!.append(Application.skeleton())
 
     Presenter.register(ManagementModelPresenter())
     Presenter.register(ServerPresenter())
