@@ -1,6 +1,5 @@
 package org.patternfly
 
-import org.patternfly.Data.COMPONENT_TYPE
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
@@ -13,11 +12,11 @@ internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
     create: (element: E) -> C
 ): C {
     if (element is HTMLElement) {
-        val id = element.dataset["pfc"]
+        val id = element.dataset[Dataset.COMPONENT_TYPE.short]
         if (componentType.id == id) {
             return create(targetElement(element))
         } else {
-            val closest = element.closest("[$COMPONENT_TYPE=${componentType.id}]")
+            val closest = element.closest("[${Dataset.COMPONENT_TYPE.long}=${componentType.id}]")
             if (closest != null) {
                 return create(targetElement(closest as HTMLElement))
             }
@@ -34,6 +33,7 @@ enum class ComponentType(val id: String) {
     Button("btn"),
     Content("cnt"),
     DataList("dl"),
+    Dropdown("dd"),
     Icon("i"),
     Navigation("nav"),
     Page("pg"),

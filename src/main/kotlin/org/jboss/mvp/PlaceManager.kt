@@ -21,7 +21,7 @@ fun String.placeRequest(): PlaceRequest {
     return PlaceRequest(token, params)
 }
 
-data class PlaceRequest(val token: String, val params: Map<String, String>) {
+data class PlaceRequest(val token: String, val params: Map<String, String> = mapOf()) {
 
     val empty: Boolean = token.isEmpty()
 

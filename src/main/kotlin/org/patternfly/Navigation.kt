@@ -8,13 +8,10 @@ import org.jboss.elemento.hidden
 import org.jboss.elemento.minusAssign
 import org.jboss.elemento.plusAssign
 import org.patternfly.ComponentType.Navigation
-import org.patternfly.Data.NAVIGATION_ITEM
-import org.w3c.dom.Document
-import org.w3c.dom.Element
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.asList
+import org.w3c.dom.*
 import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
+import kotlin.browser.window
 import kotlin.collections.set
 
 // ------------------------------------------------------ dsl
@@ -89,7 +86,7 @@ fun UL.pfNavItem(item: NavigationItem) {
     li("nav".component("item")) {
         a(item.url, classes = "nav".component("link")) {
             id = item.id
-            attributes[NAVIGATION_ITEM] = "" // marker for navigation items
+            attributes[Dataset.NAVIGATION_ITEM.long] = "" // marker for navigation items
             +item.title
             onClickFunction = {
                 with(it.target as Element) {
@@ -143,11 +140,17 @@ fun Element?.pfNav(): NavigationComponent =
     component(this, Navigation, { document.create.nav() }, { it }, ::NavigationComponent)
 
 class NavigationComponent(element: HTMLElement) : PatternFlyComponent<HTMLElement>(element) {
-    fun select(url: String) = select(NavigationItem(url))
+
+    fun autoSelect(hashToNavigationItem: (String) -> NavigationItem) {
+        window.addEventListener("popstate", {
+            val navigationItem = hashToNavigationItem((it.target as Window).location.hash)
+            document.pfNav().select(navigationItem)
+        })
+    }
 
     fun select(item: NavigationItem) {
         // first (de)select the items
-        val selector = ".${"nav".component("link")}[$NAVIGATION_ITEM]"
+        val selector = ".${"nav".component("link")}[${Dataset.NAVIGATION_ITEM.long}]"
         val items = element.querySelectorAll(selector)
         items.asList().map { it as Element }.forEach {
             if (item.id == it.id) {

@@ -8,6 +8,7 @@ interface Presenter<V : View> {
     val token: String
     val view: V
 
+    fun bind() {}
     fun prepareFromRequest(place: PlaceRequest) {}
     fun show() {}
     fun hide() {}
@@ -27,6 +28,7 @@ interface Presenter<V : View> {
                 if (token in registry) {
                     registry[token]?.invoke()?.let {
                         instances[token] = it
+                        it.bind()
                         it
                     }
                 } else {

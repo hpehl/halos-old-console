@@ -3,14 +3,6 @@ package org.patternfly
 import kotlin.math.max
 import kotlin.math.min
 
-typealias Identifier<T> = (T) -> String
-
-typealias SelectHandler<T> = (T) -> Unit
-
-typealias Filter<T> = (T) -> Boolean
-
-private val always: Filter<*> = { _ -> true }
-
 fun <T> Filter<T>.and(other: Filter<in T>): Filter<T> = { this(it) && other(it) }
 
 interface Display<T> {

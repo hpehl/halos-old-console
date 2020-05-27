@@ -4,6 +4,7 @@ import kotlinx.html.*
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import org.patternfly.ComponentType.*
+import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.events.EventTarget
@@ -17,8 +18,18 @@ fun HeaderTag.pfBrand(block: DIV.() -> Unit = {}) {
 }
 
 @HtmlTagMarker
+fun FlowContent.pfBrandLink(homeLink: String, block: A.() -> Unit = {}) {
+    A(attributesMapOf("class", "page".component("header", "brand", "link"), "href", homeLink), consumer).visit(block)
+}
+
+@HtmlTagMarker
 fun PageTag.pfHeader(block: HeaderTag.() -> Unit = {}) {
     HeaderTag(consumer).visit(block)
+}
+
+@HtmlTagMarker
+fun HeaderTag.pfHeaderTools(block: DIV.() -> Unit = {}) {
+    DIV(attributesMapOf("page".component("header", "tools")), consumer).visit(block)
 }
 
 @HtmlTagMarker
@@ -43,7 +54,6 @@ fun MainTag.pfSection(classes: String? = null, block: SectionTag.() -> Unit = {}
 @HtmlTagMarker
 fun <T, C : TagConsumer<T>> C.pfSection(classes: String? = null, block: SectionTag.() -> Unit = {}): T =
     SectionTag(classes, this).visitAndFinalize(this, block)
-
 
 // ------------------------------------------------------ tag
 
@@ -88,6 +98,13 @@ class SectionTag(classes: String? = null, consumer: TagConsumer<*>) :
 }
 
 // ------------------------------------------------------ component
+
+private val globalHeader: PageHeaderComponent by lazy {
+    val selector = ".${"page".component("header")}[role=banner]"
+    document.querySelector(selector).pfHeader()
+}
+
+fun Document.pfHeader(): PageHeaderComponent = globalHeader
 
 fun EventTarget?.pfHeader(): PageHeaderComponent = (this as Element).pfHeader()
 

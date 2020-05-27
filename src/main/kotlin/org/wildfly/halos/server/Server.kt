@@ -8,12 +8,17 @@ import kotlinx.html.js.onClickFunction
 import org.jboss.dmr.ModelDescriptionConstants
 import org.jboss.dmr.op
 import org.jboss.dmr.params
-import org.patternfly.*
-import org.wildfly.halos.cdi
 import org.jboss.mvp.HasPresenter
 import org.jboss.mvp.Presenter
 import org.jboss.mvp.View
 import org.jboss.mvp.bind
+import org.patternfly.*
+import org.w3c.dom.EventSource
+import org.w3c.dom.EventSourceInit
+import org.wildfly.halos.cdi
+import org.wildfly.halos.config.Endpoint
+import org.wildfly.halos.config.Environment
+import styled.StyledComponents.css
 import kotlin.browser.document
 
 val servers = listOf(
@@ -25,12 +30,23 @@ data class Server(val username: String, val name: String, val status: String)
 
 class ServerPresenter : Presenter<ServerView> {
 
-    private val dataProvider = DataProvider<Server> { Id.build("item", it.username) }
     override val token = TOKEN
     override val view = ServerView()
+    private val dataProvider = DataProvider<Server> { Id.build("item", it.username) }
+
+    override fun bind() {
+        val eventSource = EventSource(Endpoint.instance + "/subscribe", EventSourceInit(Environment.cors))
+        eventSource.onmessage = {
+            console.log("Message event from ${it.origin}: ${it.data}")
+        }
+    }
 
     override fun show() {
-        dataProvider.bind(document.querySelector("#servers").pfDataList(dataProvider))
+        val dropdown = document.querySelector("#test-dropdown").pfDropdown<String>()
+        val dataList = document.querySelector("#servers").pfDataList(dataProvider)
+
+        dropdown.addAll(listOf("One", "Two", "Three"))
+        dataProvider.bind(dataList)
         dataProvider.update(servers)
     }
 
@@ -63,9 +79,21 @@ class ServerView : View, HasPresenter<ServerPresenter, ServerView> {
                     +"."
                 }
             }
+            pfDropdown<String>("Test Dropdown") {
+                id = "test-dropdown"
+                renderer = {
+                    {
+                        style = "background-color: #c99"
+                        span {
+                            +it.toUpperCase()
+                        }
+                    }
+                }
+            }
         },
         document.create.pfSection {
-            pfDataList<Server>("servers") {
+            pfDataList<Server> {
+                id = "servers"
                 renderer = { user, dataProvider ->
                     {
                         pfItemRow {

@@ -5,31 +5,25 @@ import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import org.jboss.elemento.aria
 import org.patternfly.ComponentType.DataList
-import org.patternfly.Data.DATA_LIST_RENDERER
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLUListElement
-import org.w3c.dom.get
+import org.w3c.dom.asList
 import kotlin.browser.document
+import kotlin.collections.set
 import kotlin.dom.clear
 
-typealias DataListRenderer<T> = (item: T, dataProvider: DataProvider<T>) -> DataListItemTag.() -> Unit
+typealias DataListRenderer<T> = (T, DataProvider<T>) -> DataListItemTag.() -> Unit
 
-private val rendererRegistry: MutableMap<String, DataListRenderer<*>> = mutableMapOf()
-
-private fun <T> noopRenderer(id: String): DataListRenderer<T> = { _, _ ->
-    {
-        console.log("No data list renderer defined for $id")
-    }
-}
+private val dataListRendererRegistry: MutableMap<String, DataListRenderer<*>> = mutableMapOf()
 
 // ------------------------------------------------------ dsl
 
 @HtmlTagMarker
-fun <T> FlowContent.pfDataList(id: String, block: DataListTag<T>.() -> Unit = {}) =
-    DataListTag<T>(id, consumer).visit(block)
+fun <T> FlowContent.pfDataList(block: DataListTag<T>.() -> Unit = {}) =
+    DataListTag<T>(consumer).visit(block)
 
 @HtmlTagMarker
-private fun <T, C : TagConsumer<T>> C.pfItem(block: DataListItemTag.() -> Unit = {}): T =
+private fun <T, C : TagConsumer<T>> C.pfDataListItem(block: DataListItemTag.() -> Unit = {}): T =
     DataListItemTag(this).visitAndFinalize(this, block)
 
 @HtmlTagMarker
@@ -52,17 +46,20 @@ fun DataListItemRowTag.pfItemAction(block: DataListItemActionTag.() -> Unit = {}
 
 // ------------------------------------------------------ tag
 
-class DataListTag<T>(private val id: String, consumer: TagConsumer<*>) :
-    UL(attributesMapOf("class", "data-list".component(), "id", id, "role", "list"), consumer),
+class DataListTag<T>(consumer: TagConsumer<*>) :
+    UL(attributesMapOf("class", "data-list".component(), "role", "list"), consumer),
     PatternFlyTag, Ouia {
 
+    private val id: String = Id.unique()
     override val componentType: ComponentType = DataList
 
-    var renderer: DataListRenderer<T> = noopRenderer(id)
+    var renderer: DataListRenderer<T>? = null
         set(value) {
             field = value
-            attributes[DATA_LIST_RENDERER] = id
-            rendererRegistry[id] = renderer.unsafeCast<DataListRenderer<*>>()
+            if (value != null) {
+                attributes[Dataset.REGISTRY.long] = id
+                dataListRendererRegistry[id] = value.unsafeCast<DataListRenderer<*>>()
+            }
         }
 }
 
@@ -98,26 +95,30 @@ fun <T> Element?.pfDataList(dataProvider: DataProvider<T>): DataListComponent<T>
 class DataListComponent<T>(element: HTMLUListElement, override val dataProvider: DataProvider<T>) :
     PatternFlyComponent<HTMLUListElement>(element), Display<T> {
 
-    private var id: String = "n/a"
-    private var renderer: DataListRenderer<T>? = null
-
-    init {
-        id = element.id
-        val dlrId = element.dataset["dlr"]
-        if (dlrId != null) {
-            renderer = rendererRegistry[dlrId].unsafeCast<DataListRenderer<T>>()
+    private val renderer: DataListRenderer<T> by RegistryLookup<DataListComponent<T>, DataListRenderer<T>>(
+        Dataset.REGISTRY, dataListRendererRegistry
+    ) {
+        { _, _ ->
+            {
+                console.error(
+                    "No renderer defined for data list ${element.tagName}.${element.classList.asList()
+                        .joinToString(".")}"
+                )
+            }
         }
     }
 
     override fun showItems(items: List<T>, pageInfo: PageInfo) {
         element.clear()
-        renderer?.let {
-            for (item in items) {
-                val itemElement = element.append.pfItem(it(item, dataProvider))
-                val itemId = dataProvider.identifier(item)
-                if (itemElement.querySelector("#$itemId") != null) {
-                    itemElement.aria["labelledby"] = itemId
+        for (item in items) {
+            element.append {
+                pfDataListItem {
+                    renderer(item, dataProvider).invoke(this)
                 }
+            }
+            val itemId = dataProvider.identifier(item)
+            element.querySelector("#$itemId")?.let {
+                it.aria["labelledby"] = itemId
             }
         }
     }
