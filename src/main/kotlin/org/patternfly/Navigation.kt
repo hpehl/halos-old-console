@@ -14,6 +14,10 @@ import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.collections.set
 
+data class NavigationItem(val url: String, val title: String = "") {
+    internal val id: String = Id.build("ni", url)
+}
+
 // ------------------------------------------------------ dsl
 
 fun SidebarTag.pfVerticalNav(block: NavigationTag.() -> Unit = {}) =
@@ -116,14 +120,6 @@ class NavigationTag(
 
 class NavigationGroupTag(consumer: TagConsumer<*>) :
     SECTION(attributesMapOf("class", "nav".component("section")), consumer)
-
-data class NavigationItem(val url: String, val title: String = "") {
-    internal val id: String = Id.build("ni", url)
-}
-
-enum class Orientation {
-    HORIZONTAL, VERTICAL
-}
 
 // ------------------------------------------------------ component
 

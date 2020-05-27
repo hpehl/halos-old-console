@@ -2,56 +2,55 @@ package org.wildfly.halos.server
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.html.*
 import kotlinx.html.dom.create
-import kotlinx.html.js.onClickFunction
-import org.jboss.dmr.ModelDescriptionConstants
-import org.jboss.dmr.op
-import org.jboss.dmr.params
-import org.jboss.mvp.HasPresenter
-import org.jboss.mvp.Presenter
-import org.jboss.mvp.View
-import org.jboss.mvp.bind
+import kotlinx.html.id
+import kotlinx.html.span
+import org.jboss.dmr.*
+import org.jboss.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
+import org.jboss.dmr.ModelDescriptionConstants.Companion.INCLUDE_RUNTIME
+import org.jboss.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_OPERATION
+import org.jboss.dmr.ModelDescriptionConstants.Companion.RESULT
+import org.jboss.mvp.*
 import org.patternfly.*
 import org.w3c.dom.EventSource
 import org.w3c.dom.EventSourceInit
+import org.wildfly.halos.Ids
 import org.wildfly.halos.cdi
 import org.wildfly.halos.config.Endpoint
 import org.wildfly.halos.config.Environment
-import styled.StyledComponents.css
 import kotlin.browser.document
 
-val servers = listOf(
-    Server("server-0", "Server 1", "running"),
-    Server("server-1", "Server 2", "suspending")
-)
-
-data class Server(val username: String, val name: String, val status: String)
+class Server(node: ModelNode) : NamedNode(node)
 
 class ServerPresenter : Presenter<ServerView> {
 
     override val token = TOKEN
     override val view = ServerView()
-    private val dataProvider = DataProvider<Server> { Id.build("item", it.username) }
+    internal val dataProvider = DataProvider<Server> { Ids.server(it.name) }
 
     override fun bind() {
         val eventSource = EventSource(Endpoint.instance + "/subscribe", EventSourceInit(Environment.cors))
         eventSource.onmessage = {
             console.log("Message event from ${it.origin}: ${it.data}")
+            updateServer()
         }
     }
 
     override fun show() {
-        val dropdown = document.querySelector("#test-dropdown").pfDropdown<String>()
-        val dataList = document.querySelector("#servers").pfDataList(dataProvider)
-
-        dropdown.addAll(listOf("One", "Two", "Three"))
-        dataProvider.bind(dataList)
-        dataProvider.update(servers)
+        dataProvider.bind(view.dataList)
+        updateServer()
     }
 
-    internal fun doIt() {
-        console.log("Called from view click handler.")
+    private fun updateServer() {
+        GlobalScope.launch {
+            val operation = (ResourceAddress.root() op READ_RESOURCE_OPERATION) params {
+                +ATTRIBUTES_ONLY
+                +INCLUDE_RUNTIME
+            }
+            val node = cdi().dispatcher.execute(operation)
+            val servers = node.asPropertyList().map { Server(it.value[RESULT]) }
+            dataProvider.update(servers)
+        }
     }
 
     companion object {
@@ -62,43 +61,28 @@ class ServerPresenter : Presenter<ServerView> {
 class ServerView : View, HasPresenter<ServerPresenter, ServerView> {
 
     override val presenter: ServerPresenter by bind(ServerPresenter.TOKEN)
+    internal val dataList: DataListComponent<Server> by component("#${Ids.SERVER_LIST}") {
+        it.pfDataList(presenter.dataProvider)
+    }
 
     override val elements = arrayOf(
         document.create.pfSection("light".modifier()) {
-            pfContent {
-                h1 {
-                    classes += "pf-c-title"
-                    +"halOS"
-                }
-                p { +"WildFly management console for OpenShift." }
-                p {
-                    +"Execute an "
-                    pfLinkButton(text = "operation", inline = true) {
-                        onClickFunction = { presenter.doIt() }
-                    }
-                    +"."
-                }
-            }
-            pfDropdown<String>("Test Dropdown") {
-                id = "test-dropdown"
-                classes += "mt-lg".util()
-                onSelect = { console.log("Selected $it") }
-            }
+            pfTitle("Server")
         },
         document.create.pfSection {
             pfDataList<Server> {
-                id = "servers"
-                renderer = { user, dataProvider ->
+                id = Ids.SERVER_LIST
+                renderer = { server, dataProvider ->
                     {
                         pfItemRow {
                             pfItemContent {
                                 pfCell {
                                     span {
-                                        id = dataProvider.identifier(user)
-                                        +user.username
+                                        id = dataProvider.identifier(server)
+                                        +server.name
                                     }
                                 }
-                                pfCell { +user.status }
+                                pfCell { +server["release-version"].asString() }
                             }
                         }
                     }
@@ -110,9 +94,9 @@ class ServerView : View, HasPresenter<ServerPresenter, ServerView> {
 
 fun readResource() {
     GlobalScope.launch {
-        val operation = ("subsystem=ee" op ModelDescriptionConstants.READ_RESOURCE_OPERATION) params {
-            +ModelDescriptionConstants.INCLUDE_RUNTIME
-            +(ModelDescriptionConstants.RECURSIVE_DEPTH to 1)
+        val operation = (ResourceAddress.root() op READ_RESOURCE_OPERATION) params {
+            +ATTRIBUTES_ONLY
+            +INCLUDE_RUNTIME
         }
         val node = cdi().dispatcher.execute(operation)
         console.log(node.toString())

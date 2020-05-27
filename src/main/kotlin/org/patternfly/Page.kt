@@ -29,7 +29,7 @@ fun PageTag.pfHeader(block: HeaderTag.() -> Unit = {}) {
 
 @HtmlTagMarker
 fun HeaderTag.pfHeaderTools(block: DIV.() -> Unit = {}) {
-    DIV(attributesMapOf("page".component("header", "tools")), consumer).visit(block)
+    DIV(attributesMapOf("class", "page".component("header", "tools")), consumer).visit(block)
 }
 
 @HtmlTagMarker

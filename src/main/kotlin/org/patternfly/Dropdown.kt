@@ -20,7 +20,11 @@ private val ddr: MutableMap<String, DropdownRenderer<*>> = mutableMapOf()
 
 @HtmlTagMarker
 fun <T> FlowContent.pfDropdown(title: String, block: DropdownTag<T>.() -> Unit = {}): Unit =
-    DropdownTag<T>(title, consumer).visit(block)
+    DropdownTag<T>(title, null, consumer).visit(block)
+
+@HtmlTagMarker
+fun <T> FlowContent.pfIconDropdown(iconClass: String, block: DropdownTag<T>.() -> Unit = {}): Unit =
+    DropdownTag<T>(null, iconClass, consumer).visit(block)
 
 @HtmlTagMarker
 private fun <T, C : TagConsumer<T>> C.pfDropdownItem(block: DropdownItemTag.() -> Unit = {}): T =
@@ -28,7 +32,7 @@ private fun <T, C : TagConsumer<T>> C.pfDropdownItem(block: DropdownItemTag.() -
 
 // ------------------------------------------------------ tag
 
-class DropdownTag<T>(private val title: String, consumer: TagConsumer<*>) :
+class DropdownTag<T>(private val title: String?, private val iconClass: String?, consumer: TagConsumer<*>) :
     DIV(attributesMapOf("class", "dropdown".component()), consumer),
     PatternFlyTag, Ouia {
 
@@ -78,9 +82,17 @@ class DropdownTag<T>(private val title: String, consumer: TagConsumer<*>) :
             aria["expanded"] = false
             aria["haspopup"] = true
             onClickFunction = { it.target.pfDropdown<T>().ceh.expand() }
-            span("dropdown".component("toggle", "text")) { +this@DropdownTag.title }
-            pfIcon("caret-down".fas()) {
-                classes += "dropdown".component("toggle", "icon")
+            when {
+                this@DropdownTag.title != null -> {
+                    span("dropdown".component("toggle", "text")) { +this@DropdownTag.title }
+                    pfIcon("caret-down".fas()) {
+                        classes += "dropdown".component("toggle", "icon")
+                    }
+                }
+                this@DropdownTag.iconClass != null -> {
+                    classes += "plain".modifier()
+                    pfIcon(this@DropdownTag.iconClass)
+                }
             }
         }
         ul("dropdown".component("menu")) {

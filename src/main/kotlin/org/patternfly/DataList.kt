@@ -53,12 +53,13 @@ class DataListTag<T>(consumer: TagConsumer<*>) :
     private val id: String = Id.unique()
     override val componentType: ComponentType = DataList
 
+    @Suppress("UNCHECKED_CAST")
     var renderer: DataListRenderer<T>? = null
         set(value) {
             field = value
             if (value != null) {
                 attributes[Dataset.REGISTRY.long] = id
-                dlr[id] = value.unsafeCast<DataListRenderer<*>>()
+                dlr[id] = value as DataListRenderer<*>
             }
         }
 }

@@ -27,10 +27,11 @@ internal class RegistryLookup<in R : PatternFlyComponent<HTMLElement>, out T>(
     private val default: () -> T
 ) : ReadOnlyProperty<R, T> {
 
-    override operator fun getValue(thisRef: R, property: KProperty<*>): T {
+    @Suppress("UNCHECKED_CAST")
+    override fun getValue(thisRef: R, property: KProperty<*>): T {
         val id = thisRef.element.dataset[Dataset.REGISTRY.short]
         return if (id != null) {
-            registry.getOrElse(id, default).unsafeCast<T>()
+            registry.getOrElse(id, default) as T
         } else {
             default()
         }
@@ -41,10 +42,11 @@ internal class NullableRegistryLookup<in R : PatternFlyComponent<HTMLElement>, o
     private val registry: Map<String, *>
 ) : ReadOnlyProperty<R, T?> {
 
-    override operator fun getValue(thisRef: R, property: KProperty<*>): T? {
+    @Suppress("UNCHECKED_CAST")
+    override fun getValue(thisRef: R, property: KProperty<*>): T? {
         val id = thisRef.element.dataset[Dataset.REGISTRY.short]
         return if (id != null) {
-            registry[id].unsafeCast<T>()
+            registry[id] as T
         } else {
             null
         }

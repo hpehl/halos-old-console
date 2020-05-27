@@ -3,6 +3,7 @@ package org.wildfly.halos
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.dom.create
+import kotlinx.html.id
 import kotlinx.html.img
 import org.patternfly.*
 import org.w3c.dom.HTMLElement
@@ -22,7 +23,14 @@ object Application {
             }
             pfHeaderTools {
                 div("toolbar".layout()) {
-
+                    div("toolbar".layout("group")) {
+                        div("toolbar".layout("item")) {
+                            pfIconDropdown<String>("server".pfIcon()) {
+                                id = Ids.SERVER_DROPDOWN
+                                onSelect = { console.log("Selected $it") }
+                            }
+                        }
+                    }
                 }
             }
         }

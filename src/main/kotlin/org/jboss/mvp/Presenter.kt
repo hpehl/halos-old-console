@@ -1,6 +1,9 @@
 package org.jboss.mvp
 
+import org.patternfly.PatternFlyComponent
+import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
+import kotlin.browser.document
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -8,28 +11,36 @@ interface Presenter<V : View> {
     val token: String
     val view: V
 
+    /** Called once the presenter is created. */
     fun bind() {}
+
+    /** Called before the presenter is shown. */
     fun prepareFromRequest(place: PlaceRequest) {}
+
+    /** Called after the view has been attached to the DOM. */
     fun show() {}
+
+    /** Called before the view has been removed from the DOM. */
     fun hide() {}
 
     companion object {
-        private val registry: MutableMap<String, () -> Presenter<*>> = mutableMapOf()
-        private val instances: MutableMap<String, Presenter<*>> = mutableMapOf()
+        private val registry: MutableMap<String, () -> Presenter<out View>> = mutableMapOf()
+        private val instances: MutableMap<String, Presenter<out View>> = mutableMapOf()
 
-        fun register(token: String, presenter: () -> Presenter<*>) {
+        fun register(token: String, presenter: () -> Presenter<out View>) {
             registry[token] = presenter
         }
 
-        fun lookup(token: String): Presenter<*>? {
+        @Suppress("UNCHECKED_CAST")
+        fun <P : Presenter<out View>> lookup(token: String): P? {
             return if (token in instances) {
-                instances[token]
+                instances[token] as P
             } else {
                 if (token in registry) {
                     registry[token]?.invoke()?.let {
                         instances[token] = it
                         it.bind()
-                        it
+                        it as P
                     }
                 } else {
                     null
@@ -54,11 +65,23 @@ class BindPresenter<P : Presenter<V>, V : View>(private val token: String) : Rea
 
     override fun getValue(thisRef: V, property: KProperty<*>): P {
         if (presenter == null) {
-            presenter = Presenter.lookup(token).unsafeCast<P>()
+            presenter = Presenter.lookup<P>(token)
             if (presenter == null) {
                 console.error("Unable to bind presenter to view: No presenter registered for $token")
             }
         }
         return presenter!!
     }
+}
+
+fun <V : View, T : PatternFlyComponent<HTMLElement>> component(
+    selector: String,
+    lookup: (Element?) -> T
+): ViewComponent<V, T> = ViewComponent(selector, lookup)
+
+class ViewComponent<V : View, T : PatternFlyComponent<HTMLElement>>(
+    private val selector: String,
+    private val lookup: (Element?) -> T
+) : ReadOnlyProperty<V, T> {
+    override fun getValue(thisRef: V, property: KProperty<*>): T = lookup(document.querySelector(selector))
 }

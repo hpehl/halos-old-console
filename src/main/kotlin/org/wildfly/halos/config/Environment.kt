@@ -7,5 +7,6 @@ object Environment {
     val cors: Boolean = true //process.env.HALOS_CORS.unsafeCast<Boolean>()
     val proxyUrl: String = "http://localhost:8080" //process.env.HALOS_PROXY_URL.unsafeCast<String>()
     val restVersion: String = "v1" //process.env.HALOS_REST_VERSION.unsafeCast<String>()
-    val logLevel: KotlinLoggingLevel = KotlinLoggingLevel.DEBUG //KotlinLoggingLevel.valueOf(process.env.HALOS_LOG_LEVEL)
+    val logLevel: KotlinLoggingLevel =
+        KotlinLoggingLevel.DEBUG //KotlinLoggingLevel.valueOf(process.env.HALOS_LOG_LEVEL)
 }

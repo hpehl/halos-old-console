@@ -1,6 +1,7 @@
 package org.jboss.dmr
 
 import kotlinx.coroutines.await
+import org.w3c.fetch.CORS
 import org.w3c.fetch.Headers
 import org.w3c.fetch.RequestInit
 import org.w3c.fetch.RequestMode
@@ -17,7 +18,7 @@ class Dispatcher(private val endpoint: String, private val cors: Boolean = true)
             }
             body = operation.toBase64()
             if (cors) {
-                mode = "cors".asDynamic().unsafeCast<RequestMode>()
+                mode = RequestMode.CORS
             }
         }
 

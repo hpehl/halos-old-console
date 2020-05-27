@@ -42,7 +42,7 @@ class PlaceManager(selector: String, private val defaultPlace: PlaceRequest) {
         window.addEventListener("popstate", {
             val event = it as PopStateEvent
             val place = if (event.state != null) {
-                event.state.unsafeCast<PlaceRequest>()
+                event.state as PlaceRequest
             } else {
                 (event.target as Window).location.hash.placeRequest()
             }
@@ -59,7 +59,7 @@ class PlaceManager(selector: String, private val defaultPlace: PlaceRequest) {
 
     private fun navigate(place: PlaceRequest) {
         val safePlace = if (place.empty) defaultPlace else place
-        val presenter = Presenter.lookup(safePlace.token)
+        val presenter = Presenter.lookup<Presenter<View>>(safePlace.token)
         if (presenter != null) {
             if (presenter !== current) {
                 current?.hide()

@@ -15,11 +15,14 @@ fun cdi(): CDI = CDIInstance
 interface CDI {
     val dispatcher: Dispatcher
     val placeManager: PlaceManager
-    fun <P : Presenter<V>, V : View> presenter(token: String): P
+    fun <P : Presenter<out View>> presenter(token: String): P
 }
 
 internal object CDIInstance : CDI {
     override val dispatcher = Dispatcher(Endpoint.management, Environment.cors)
     override val placeManager = PlaceManager("#$MAIN", PlaceRequest(ServerPresenter.TOKEN))
-    override fun <P : Presenter<V>, V : View> presenter(token: String): P = Presenter.lookup(token).unsafeCast<P>()
+    override fun <P : Presenter<out View>> presenter(token: String): P =
+        checkNotNull(Presenter.lookup<P>(token)) {
+            "No presenter found for $token"
+        }
 }
