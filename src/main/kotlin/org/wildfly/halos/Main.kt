@@ -13,6 +13,7 @@ import kotlin.browser.document
 fun main() {
     KotlinLoggingConfiguration.LOG_LEVEL = Environment.logLevel
     kotlinext.js.require("@patternfly/patternfly/patternfly.css")
+    kotlinext.js.require("@patternfly/patternfly/patternfly-addons.css")
 
     Presenter.register(ManagementModelPresenter.TOKEN, ::ManagementModelPresenter)
     Presenter.register(ServerPresenter.TOKEN, ::ServerPresenter)

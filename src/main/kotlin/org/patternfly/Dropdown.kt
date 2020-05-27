@@ -4,15 +4,17 @@ import kotlinx.html.*
 import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
+import kotlinx.html.js.onClickFunction
 import org.patternfly.ComponentType.Dropdown
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
 
 typealias DropdownRenderer<T> = (T) -> DropdownItemTag.() -> Unit
 
-private val dropdownRendererRegistry: MutableMap<String, DropdownRenderer<*>> = mutableMapOf()
+private val ddr: MutableMap<String, DropdownRenderer<*>> = mutableMapOf()
 
 // ------------------------------------------------------ dsl
 
@@ -56,20 +58,33 @@ class DropdownTag<T>(private val title: String, consumer: TagConsumer<*>) :
             field = value
             if (value != null) {
                 attributes[Dataset.REGISTRY.long] = id
-                dropdownRendererRegistry[id] = value
+                ddr[id] = value
+            }
+        }
+
+    var onSelect: SelectHandler<T>? = null
+        set(value) {
+            field = value
+            if (value != null) {
+                attributes[Dataset.REGISTRY.long] = id
+                selectRegistry[id] = value
             }
         }
 
     override fun head() {
-        val buttonId = Id.build(Dropdown.name)
+        val buttonId = Id.unique(Dropdown.name)
         button(classes = "dropdown".component("toggle")) {
             id = buttonId
+            aria["expanded"] = false
+            aria["haspopup"] = true
+            onClickFunction = { it.target.pfDropdown<T>().ceh.expand() }
             span("dropdown".component("toggle", "text")) { +this@DropdownTag.title }
             pfIcon("caret-down".fas()) {
                 classes += "dropdown".component("toggle", "icon")
             }
         }
         ul("dropdown".component("menu")) {
+            hidden = true
             role = "menu"
             aria["labelledby"] = buttonId
         }
@@ -88,18 +103,19 @@ fun <T> Element?.pfDropdown(): DropdownComponent<T> =
 
 class DropdownComponent<T>(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element) {
 
+    private val button = element.querySelector(".${"dropdown".component("toggle")}")
+    private val menu = element.querySelector(".${"dropdown".component("menu")}")
+    internal val ceh: CollapseExpandHandler = CollapseExpandHandler(element, button as HTMLElement, menu as HTMLElement)
     private val identifier: Identifier<T> by identifier<DropdownComponent<T>, T>()
     private val asString: AsString<T> by asString<DropdownComponent<T>, T>()
-    private val renderer: DropdownRenderer<T> by RegistryLookup<DropdownComponent<T>, DropdownRenderer<T>>(
-        Dataset.REGISTRY, dropdownRendererRegistry
-    ) {
+    private val onSelect: SelectHandler<T>? by selectHandler<DropdownComponent<T>, T>()
+    private val renderer: DropdownRenderer<T> by RegistryLookup<DropdownComponent<T>, DropdownRenderer<T>>(ddr) {
         {
             {
                 +asString(it)
             }
         }
     }
-    private val menu = element.querySelector(".${"dropdown".component("menu")}")
 
     fun addAll(items: List<T>) {
         for (item in items) {
@@ -114,7 +130,14 @@ class DropdownComponent<T>(element: HTMLDivElement) : PatternFlyComponent<HTMLDi
                     role = "menuitem"
                     pfDropdownItem {
                         attributes[Dataset.DROPDOWN_ITEM.long] = identifier(item)
-                        renderer(item).invoke(this)
+                        onClickFunction = {
+                            ceh.collapse()
+                            this@DropdownComponent.onSelect?.let {
+                                it(item)
+                            }
+                        }
+                        val block = renderer(item)
+                        block(this)
                     }
                 }
             }

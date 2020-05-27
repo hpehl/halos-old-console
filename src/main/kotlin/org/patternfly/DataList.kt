@@ -14,7 +14,7 @@ import kotlin.dom.clear
 
 typealias DataListRenderer<T> = (T, DataProvider<T>) -> DataListItemTag.() -> Unit
 
-private val dataListRendererRegistry: MutableMap<String, DataListRenderer<*>> = mutableMapOf()
+private val dlr: MutableMap<String, DataListRenderer<*>> = mutableMapOf()
 
 // ------------------------------------------------------ dsl
 
@@ -58,7 +58,7 @@ class DataListTag<T>(consumer: TagConsumer<*>) :
             field = value
             if (value != null) {
                 attributes[Dataset.REGISTRY.long] = id
-                dataListRendererRegistry[id] = value.unsafeCast<DataListRenderer<*>>()
+                dlr[id] = value.unsafeCast<DataListRenderer<*>>()
             }
         }
 }
@@ -95,9 +95,7 @@ fun <T> Element?.pfDataList(dataProvider: DataProvider<T>): DataListComponent<T>
 class DataListComponent<T>(element: HTMLUListElement, override val dataProvider: DataProvider<T>) :
     PatternFlyComponent<HTMLUListElement>(element), Display<T> {
 
-    private val renderer: DataListRenderer<T> by RegistryLookup<DataListComponent<T>, DataListRenderer<T>>(
-        Dataset.REGISTRY, dataListRendererRegistry
-    ) {
+    private val renderer: DataListRenderer<T> by RegistryLookup<DataListComponent<T>, DataListRenderer<T>>(dlr) {
         { _, _ ->
             {
                 console.error(
@@ -113,7 +111,8 @@ class DataListComponent<T>(element: HTMLUListElement, override val dataProvider:
         for (item in items) {
             element.append {
                 pfDataListItem {
-                    renderer(item, dataProvider).invoke(this)
+                    val block = renderer(item, dataProvider)
+                    block(this)
                 }
             }
             val itemId = dataProvider.identifier(item)

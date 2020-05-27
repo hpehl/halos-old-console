@@ -81,14 +81,8 @@ class ServerView : View, HasPresenter<ServerPresenter, ServerView> {
             }
             pfDropdown<String>("Test Dropdown") {
                 id = "test-dropdown"
-                renderer = {
-                    {
-                        style = "background-color: #c99"
-                        span {
-                            +it.toUpperCase()
-                        }
-                    }
-                }
+                classes += "mt-lg".util()
+                onSelect = { console.log("Selected $it") }
             }
         },
         document.create.pfSection {
