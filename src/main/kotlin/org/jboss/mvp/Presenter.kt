@@ -3,7 +3,6 @@ package org.jboss.mvp
 import org.patternfly.PatternFlyComponent
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
-import kotlin.browser.document
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -54,16 +53,16 @@ interface View {
     val elements: Array<HTMLElement>
 }
 
-interface HasPresenter<P : Presenter<V>, V : View> {
+interface HasPresenter<P : Presenter<out View>> {
     val presenter: P
 }
 
-fun <P : Presenter<V>, V : View> bind(token: String): BindPresenter<P, V> = BindPresenter(token)
+fun <P : Presenter<out View>> token(token: String): PresenterToken<P> = PresenterToken(token)
 
-class BindPresenter<P : Presenter<V>, V : View>(private val token: String) : ReadOnlyProperty<V, P> {
+class PresenterToken<P : Presenter<out View>>(private val token: String) : ReadOnlyProperty<View, P> {
     private var presenter: P? = null
 
-    override fun getValue(thisRef: V, property: KProperty<*>): P {
+    override fun getValue(thisRef: View, property: KProperty<*>): P {
         if (presenter == null) {
             presenter = Presenter.lookup<P>(token)
             if (presenter == null) {
@@ -83,5 +82,15 @@ class ViewComponent<V : View, T : PatternFlyComponent<HTMLElement>>(
     private val selector: String,
     private val lookup: (Element?) -> T
 ) : ReadOnlyProperty<V, T> {
-    override fun getValue(thisRef: V, property: KProperty<*>): T = lookup(document.querySelector(selector))
+    private var element: Element? = null
+
+    override fun getValue(thisRef: V, property: KProperty<*>): T {
+        if (element == null) {
+            element = thisRef.elements.map { it.querySelector(selector) }.first { it != null }
+            if (element == null) {
+                console.error("Unable to find view component for $selector")
+            }
+        }
+        return lookup(element)
+    }
 }

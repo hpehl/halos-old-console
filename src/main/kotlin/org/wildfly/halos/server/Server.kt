@@ -4,6 +4,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.html.dom.create
 import kotlinx.html.id
+import kotlinx.html.p
 import kotlinx.html.span
 import org.jboss.dmr.*
 import org.jboss.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
@@ -29,6 +30,7 @@ class ServerPresenter : Presenter<ServerView> {
     internal val dataProvider = DataProvider<Server> { Ids.server(it.name) }
 
     override fun bind() {
+        dataProvider.bind(view.dataList)
         val eventSource = EventSource(Endpoint.instance + "/subscribe", EventSourceInit(Environment.cors))
         eventSource.onmessage = {
             console.log("Message event from ${it.origin}: ${it.data}")
@@ -37,7 +39,6 @@ class ServerPresenter : Presenter<ServerView> {
     }
 
     override fun show() {
-        dataProvider.bind(view.dataList)
         updateServer()
     }
 
@@ -58,16 +59,19 @@ class ServerPresenter : Presenter<ServerView> {
     }
 }
 
-class ServerView : View, HasPresenter<ServerPresenter, ServerView> {
+class ServerView : View, HasPresenter<ServerPresenter> {
 
-    override val presenter: ServerPresenter by bind(ServerPresenter.TOKEN)
+    override val presenter: ServerPresenter by token(ServerPresenter.TOKEN)
     internal val dataList: DataListComponent<Server> by component("#${Ids.SERVER_LIST}") {
         it.pfDataList(presenter.dataProvider)
     }
 
     override val elements = arrayOf(
         document.create.pfSection("light".modifier()) {
-            pfTitle("Server")
+            pfContent {
+                pfTitle("Server")
+                p { +"The list of servers managed by the WildFly operator." }
+            }
         },
         document.create.pfSection {
             pfDataList<Server> {

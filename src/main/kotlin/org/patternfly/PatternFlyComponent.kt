@@ -13,16 +13,21 @@ internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
 ): C {
     if (element is HTMLElement) {
         val id = element.dataset[Dataset.COMPONENT_TYPE.short]
-        if (componentType.id == id) {
-            return create(targetElement(element))
+        return if (componentType.id == id) {
+            create(targetElement(element))
         } else {
             val closest = element.closest("[${Dataset.COMPONENT_TYPE.long}=${componentType.id}]")
             if (closest != null) {
-                return create(targetElement(closest as HTMLElement))
+                create(targetElement(closest as HTMLElement))
+            } else {
+                console.error("Unable to find element for $componentType")
+                create(defaultElement())
             }
         }
+    } else {
+        console.error("Unable to find element for $componentType")
+        return create(defaultElement())
     }
-    return create(defaultElement())
 }
 
 /** Provides access to the PatternFly component in the DOM */
