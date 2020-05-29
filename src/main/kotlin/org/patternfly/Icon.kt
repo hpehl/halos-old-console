@@ -11,7 +11,7 @@ import kotlin.browser.document
 // ------------------------------------------------------ dsl
 
 @HtmlTagMarker
-fun FlowOrPhrasingContent.pfIcon(iconClass: String, block: IconTag.() -> Unit = {}): Unit =
+fun FlowOrPhrasingContent.pfIcon(iconClass: String, block: IconTag.() -> Unit = {}) =
     IconTag(iconClass, consumer).visit(block)
 
 // ------------------------------------------------------ tag

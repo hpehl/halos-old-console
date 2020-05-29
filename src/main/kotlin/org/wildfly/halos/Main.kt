@@ -18,7 +18,7 @@ fun main() {
     Presenter.register(ManagementModelPresenter.TOKEN, ::ManagementModelPresenter)
     Presenter.register(ServerPresenter.TOKEN, ::ServerPresenter)
 
-    document.body!!.append(Application.skeleton())
+    document.body!!.append(*Application.skeleton())
     document.pfNav().autoSelect { NavigationItem("#${it.placeRequest()}") }
     cdi().placeManager.gotoCurrent()
 }

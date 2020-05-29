@@ -21,15 +21,17 @@ class ManagementModelPresenter : Presenter<ManagementModelView> {
 }
 
 class ManagementModelView : View {
-    override val elements = arrayOf(
-        document.create.pfSection("light".modifier()) {
-            pfContent {
-                h1 {
-                    classes += "pf-c-title"
-                    +"Management Model"
+    override val elements = with(document.create) {
+        arrayOf(
+            pfSection("light".modifier()) {
+                pfContent {
+                    h1 {
+                        classes += "pf-c-title"
+                        +"Management Model"
+                    }
+                    p { +"Not yet implemented" }
                 }
-                p { +"Not yet implemented" }
             }
-        }
-    )
+        )
+    }
 }

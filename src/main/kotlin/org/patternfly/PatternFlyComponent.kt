@@ -4,6 +4,8 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 
+fun ComponentType.selector(): String = "[${Dataset.COMPONENT_TYPE.long}=${id}]"
+
 internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
     element: Element?,
     componentType: ComponentType,
@@ -16,7 +18,7 @@ internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
         return if (componentType.id == id) {
             create(targetElement(element))
         } else {
-            val closest = element.closest("[${Dataset.COMPONENT_TYPE.long}=${componentType.id}]")
+            val closest = element.closest(componentType.selector())
             if (closest != null) {
                 create(targetElement(closest as HTMLElement))
             } else {
@@ -32,18 +34,3 @@ internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
 
 /** Provides access to the PatternFly component in the DOM */
 abstract class PatternFlyComponent<out E : HTMLElement>(val element: E)
-
-enum class ComponentType(val id: String) {
-    Alert("alrt"),
-    Button("btn"),
-    Content("cnt"),
-    DataList("dl"),
-    Dropdown("dd"),
-    Icon("i"),
-    Navigation("nav"),
-    Page("pg"),
-    PageHeader("pgh"),
-    PageMain("pgm"),
-    PageSection("pgs"),
-    Sidebar("sb")
-}

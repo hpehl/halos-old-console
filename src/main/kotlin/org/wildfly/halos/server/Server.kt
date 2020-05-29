@@ -66,34 +66,36 @@ class ServerView : View, HasPresenter<ServerPresenter> {
         it.pfDataList(presenter.dataProvider)
     }
 
-    override val elements = arrayOf(
-        document.create.pfSection("light".modifier()) {
-            pfContent {
-                pfTitle("Server")
-                p { +"The list of servers managed by the WildFly operator." }
-            }
-        },
-        document.create.pfSection {
-            pfDataList<Server> {
-                id = Ids.SERVER_LIST
-                renderer = { server, dataProvider ->
-                    {
-                        pfItemRow {
-                            pfItemContent {
-                                pfCell {
-                                    span {
-                                        id = dataProvider.identifier(server)
-                                        +server.name
+    override val elements = with(document.create) {
+        arrayOf(
+            pfSection("light".modifier()) {
+                pfContent {
+                    pfTitle("Server")
+                    p { +"The list of servers managed by the WildFly operator." }
+                }
+            },
+            pfSection {
+                pfDataList<Server> {
+                    id = Ids.SERVER_LIST
+                    renderer = { server, dataProvider ->
+                        {
+                            pfItemRow {
+                                pfItemContent {
+                                    pfCell {
+                                        span {
+                                            id = dataProvider.identifier(server)
+                                            +server.name
+                                        }
                                     }
+                                    pfCell { +server["release-version"].asString() }
                                 }
-                                pfCell { +server["release-version"].asString() }
                             }
                         }
                     }
                 }
             }
-        }
-    )
+        )
+    }
 }
 
 fun readResource() {

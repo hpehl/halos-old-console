@@ -3,10 +3,7 @@ package org.patternfly
 import kotlinx.html.*
 import kotlinx.html.dom.create
 import kotlinx.html.js.onClickFunction
-import org.jboss.elemento.aria
-import org.jboss.elemento.hidden
-import org.jboss.elemento.minusAssign
-import org.jboss.elemento.plusAssign
+import org.jboss.elemento.*
 import org.patternfly.ComponentType.Navigation
 import org.w3c.dom.*
 import org.w3c.dom.events.EventTarget
@@ -14,7 +11,9 @@ import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.collections.set
 
-data class NavigationItem(val url: String, val title: String = "") {
+// ------------------------------------------------------ api
+
+data class NavigationItem(val url: String, val text: String = "") {
     internal val id: String = Id.build("ni", url)
 }
 
@@ -28,13 +27,13 @@ fun SidebarTag.pfVerticalNav(block: NavigationTag.() -> Unit = {}) =
         block()
     }
 
-fun NavigationTag.pfNavGroup(title: String, block: NavigationGroupTag.() -> Unit) {
+fun NavigationTag.pfNavGroup(text: String, block: NavigationGroupTag.() -> Unit) {
     NavigationGroupTag(consumer).visit {
         val titleId = Id.unique("ns")
         aria["labelledby"] = titleId
         h2("nav".component("section", "title")) {
             id = titleId
-            +title
+            +text
         }
         block()
     }
@@ -52,7 +51,7 @@ fun NavigationGroupTag.pfNavItems(block: UL.() -> Unit = {}) {
     }
 }
 
-fun UL.pfNavExpandableGroup(title: String, expanded: Boolean = false, block: UL.() -> Unit = {}) {
+fun UL.pfNavExpandableGroup(text: String, expanded: Boolean = false, block: UL.() -> Unit = {}) {
     li(buildString {
         append("nav".component("item")).append(" ").append("expandable".modifier())
         if (expanded) {
@@ -66,7 +65,7 @@ fun UL.pfNavExpandableGroup(title: String, expanded: Boolean = false, block: UL.
                     pfNav().toggle(this)
                 }
             }
-            +title
+            +text
             span("nav".component("toggle")) {
                 pfIcon("angle-right".fas())
             }
@@ -77,7 +76,7 @@ fun UL.pfNavExpandableGroup(title: String, expanded: Boolean = false, block: UL.
             aria["labelledby"] = titleId
             h2("pf-screen-reader") {
                 id = titleId
-                +title
+                +text
             }
             ul("nav".component("simple-list")) {
                 block()
@@ -91,7 +90,7 @@ fun UL.pfNavItem(item: NavigationItem) {
         a(item.url, classes = "nav".component("link")) {
             id = item.id
             attributes[Dataset.NAVIGATION_ITEM.long] = "" // marker for navigation items
-            +item.title
+            +item.text
             onClickFunction = {
                 with(it.target as Element) {
                     pfNav().select(item)
@@ -124,7 +123,7 @@ class NavigationGroupTag(consumer: TagConsumer<*>) :
 // ------------------------------------------------------ component
 
 private val globalNav: NavigationComponent by lazy {
-    val selector = ".${"nav".component()}[aria-label=Global]"
+    val selector = "${Navigation.selector()}[aria-label=Global]"
     document.querySelector(selector).pfNav()
 }
 

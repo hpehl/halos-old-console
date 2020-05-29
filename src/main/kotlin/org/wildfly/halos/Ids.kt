@@ -1,6 +1,6 @@
 package org.wildfly.halos
 
-import org.patternfly.Id
+import org.jboss.elemento.Id
 
 object Ids {
     const val MAIN = "halos-main"

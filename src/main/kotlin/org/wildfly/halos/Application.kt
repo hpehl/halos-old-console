@@ -12,36 +12,42 @@ import kotlin.browser.document
 
 object Application {
 
-    fun skeleton(): HTMLElement = document.create.pfPage {
-        pfHeader {
-            pfBrand {
-                pfBrandLink("#${ServerPresenter.TOKEN}") {
-                    img(src = "/halos-white.svg", classes = "hal-logo") {
-                        classes += "brand".component()
+    fun skeleton(): Array<HTMLElement> = with(document.create) {
+        arrayOf(
+            pfToastAlertGroup(),
+            pfPage {
+                pfHeader {
+                    pfBrand {
+                        pfBrandLink("#${ServerPresenter.TOKEN}") {
+                            img(src = "/halos-white.svg", classes = "${"brand".component()} hal-logo")
+                        }
                     }
-                }
-            }
-            pfHeaderTools {
-                div("toolbar".layout()) {
-                    div("toolbar".layout("group")) {
-                        div("toolbar".layout("item")) {
-                            pfIconDropdown<String>("server".pfIcon()) {
-                                id = Ids.SERVER_DROPDOWN
-                                onSelect = { console.log("Selected $it") }
+                    pfHeaderTools {
+                        div("toolbar".layout()) {
+                            div("toolbar".layout("group")) {
+                                div("toolbar".layout("item")) {
+                                    pfNotificationBadge()
+                                }
+                                div("toolbar".layout("item")) {
+                                    pfIconDropdown<String>("server".pfIcon()) {
+                                        id = Ids.SERVER_DROPDOWN
+                                        onSelect = { console.log("Selected $it") }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
-        pfSidebar {
-            pfVerticalNav {
-                pfNavItems {
-                    pfNavItem(NavigationItem("#server", "Server"))
-                    pfNavItem(NavigationItem("#mm", "Management Model"))
+                pfSidebar {
+                    pfVerticalNav {
+                        pfNavItems {
+                            pfNavItem(NavigationItem("#server", "Server"))
+                            pfNavItem(NavigationItem("#mm", "Management Model"))
+                        }
+                    }
                 }
+                pfMain(Ids.MAIN)
             }
-        }
-        pfMain(Ids.MAIN)
+        )
     }
 }

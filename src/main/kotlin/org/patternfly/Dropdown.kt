@@ -5,12 +5,15 @@ import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
+import org.jboss.elemento.Id
 import org.patternfly.ComponentType.Dropdown
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
+
+// ------------------------------------------------------ api
 
 typealias DropdownRenderer<T> = (T) -> DropdownItemTag.() -> Unit
 
@@ -19,11 +22,11 @@ private val ddr: MutableMap<String, DropdownRenderer<*>> = mutableMapOf()
 // ------------------------------------------------------ dsl
 
 @HtmlTagMarker
-fun <T> FlowContent.pfDropdown(title: String, block: DropdownTag<T>.() -> Unit = {}): Unit =
-    DropdownTag<T>(title, null, consumer).visit(block)
+fun <T> FlowContent.pfDropdown(text: String, block: DropdownTag<T>.() -> Unit = {}) =
+    DropdownTag<T>(text, null, consumer).visit(block)
 
 @HtmlTagMarker
-fun <T> FlowContent.pfIconDropdown(iconClass: String, block: DropdownTag<T>.() -> Unit = {}): Unit =
+fun <T> FlowContent.pfIconDropdown(iconClass: String, block: DropdownTag<T>.() -> Unit = {}) =
     DropdownTag<T>(null, iconClass, consumer).visit(block)
 
 @HtmlTagMarker
@@ -32,7 +35,7 @@ private fun <T, C : TagConsumer<T>> C.pfDropdownItem(block: DropdownItemTag.() -
 
 // ------------------------------------------------------ tag
 
-class DropdownTag<T>(private val title: String?, private val iconClass: String?, consumer: TagConsumer<*>) :
+class DropdownTag<T>(private val text: String?, private val iconClass: String?, consumer: TagConsumer<*>) :
     DIV(attributesMapOf("class", "dropdown".component()), consumer),
     PatternFlyTag, Ouia {
 
@@ -83,8 +86,8 @@ class DropdownTag<T>(private val title: String?, private val iconClass: String?,
             aria["haspopup"] = true
             onClickFunction = { it.target.pfDropdown<T>().ceh.expand() }
             when {
-                this@DropdownTag.title != null -> {
-                    span("dropdown".component("toggle", "text")) { +this@DropdownTag.title }
+                this@DropdownTag.text != null -> {
+                    span("dropdown".component("toggle", "text")) { +this@DropdownTag.text }
                     pfIcon("caret-down".fas()) {
                         classes += "dropdown".component("toggle", "icon")
                     }

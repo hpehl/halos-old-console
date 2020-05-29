@@ -8,6 +8,24 @@ typealias SelectHandler<T> = (T) -> Unit
 
 typealias Filter<T> = (T) -> Boolean
 
+enum class ComponentType(val id: String) {
+    Alert("at"),
+    AlertGroup("ag"),
+    Button("btn"),
+    Content("cnt"),
+    DataList("dl"),
+    Dropdown("dd"),
+    Icon("i"),
+    Navigation("nav"),
+    NotificationBadge("nb"),
+    NotificationDrawer("nd"),
+    Page("p"),
+    PageHeader("ph"),
+    PageMain("pm"),
+    PageSection("ps"),
+    Sidebar("sb");
+}
+
 enum class Direction {
     RIGHT, UP
 }

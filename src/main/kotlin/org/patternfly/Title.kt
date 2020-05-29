@@ -1,17 +1,11 @@
 package org.patternfly
 
 import kotlinx.html.*
-import kotlinx.html.dom.create
-import org.patternfly.ComponentType.Icon
-import org.w3c.dom.Element
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.EventTarget
-import kotlin.browser.document
 
 // ------------------------------------------------------ dsl
 
 @HtmlTagMarker
-fun FlowContent.pfTitle(title: String, level: Int = 1, size: Size = Size._2xl, block: HTMLTag.() -> Unit = {}) {
+fun FlowContent.pfTitle(text: String, level: Int = 1, size: Size = Size._2xl, block: HTMLTag.() -> Unit = {}) {
     val attributes = attributesMapOf("class", "${"title".component()} ${size.modifier}")
     val tag: HTMLTag = when (level) {
         1 -> H1(attributes, consumer)
@@ -23,7 +17,7 @@ fun FlowContent.pfTitle(title: String, level: Int = 1, size: Size = Size._2xl, b
         else -> H1(attributes, consumer)
     }
     tag.visit {
-        +title
+        +text
         block(this)
     }
 }

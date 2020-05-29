@@ -1,5 +1,6 @@
 package org.patternfly
 
+import org.jboss.elemento.Id
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 import kotlin.properties.ReadOnlyProperty

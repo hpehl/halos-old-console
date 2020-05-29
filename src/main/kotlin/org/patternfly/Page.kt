@@ -100,7 +100,7 @@ class SectionTag(classes: String? = null, consumer: TagConsumer<*>) :
 // ------------------------------------------------------ component
 
 private val globalHeader: PageHeaderComponent by lazy {
-    val selector = ".${"page".component("header")}[role=banner]"
+    val selector = "${PageHeader.selector()}[role=banner]"
     document.querySelector(selector).pfHeader()
 }
 
