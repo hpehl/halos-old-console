@@ -15,6 +15,7 @@ import org.jboss.mvp.*
 import org.patternfly.*
 import org.w3c.dom.EventSource
 import org.w3c.dom.EventSourceInit
+import org.w3c.dom.MessageEvent
 import org.wildfly.halos.Ids
 import org.wildfly.halos.cdi
 import org.wildfly.halos.config.Endpoint
@@ -23,17 +24,34 @@ import kotlin.browser.document
 
 class Server(node: ModelNode) : NamedNode(node)
 
+class ServerSubscription() {
+    private val subscriptions: MutableList<(MessageEvent) -> Unit> = mutableListOf()
+
+    init {
+        val eventSource = EventSource("${Endpoint.instance}/subscribe", EventSourceInit(Environment.cors))
+        eventSource.onmessage = {
+            for (subscription in subscriptions) {
+                subscription(it)
+            }
+        }
+    }
+
+    fun subscribe(subscription: (MessageEvent) -> Unit) {
+        subscriptions.add(subscription)
+    }
+}
+
 class ServerPresenter : Presenter<ServerView> {
 
     override val token = TOKEN
     override val view = ServerView()
     internal val dataProvider = DataProvider<Server> { Ids.server(it.name) }
+    private val serverSubscription = cdi().serverSubscription
 
     override fun bind() {
         dataProvider.bind(view.dataList)
-        val eventSource = EventSource(Endpoint.instance + "/subscribe", EventSourceInit(Environment.cors))
-        eventSource.onmessage = {
-            console.log("Message event from ${it.origin}: ${it.data}")
+        serverSubscription.subscribe {
+            Notification.info("${it.origin}: ${it.data}")
             updateServer()
         }
     }

@@ -14,6 +14,7 @@ enum class ComponentType(val id: String) {
     Button("btn"),
     Content("cnt"),
     DataList("dl"),
+    Drawer("dw"),
     Dropdown("dd"),
     Icon("i"),
     Navigation("nav"),
@@ -22,7 +23,6 @@ enum class ComponentType(val id: String) {
     Page("p"),
     PageHeader("ph"),
     PageMain("pm"),
-    PageSection("ps"),
     Sidebar("sb");
 }
 

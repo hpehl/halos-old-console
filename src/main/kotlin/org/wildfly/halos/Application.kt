@@ -1,6 +1,5 @@
 package org.wildfly.halos
 
-import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.dom.create
 import kotlinx.html.id
