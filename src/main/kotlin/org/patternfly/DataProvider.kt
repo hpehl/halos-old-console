@@ -108,9 +108,9 @@ class DataProvider<T>(val identifier: Identifier<T>) {
     private val selectHandler: MutableList<SelectHandler<T>> = mutableListOf()
     private val filters: MutableMap<String, Filter<T>> = mutableMapOf()
     private var sortInfo: SortInfo<T> = SortInfo()
-    private var allItems: Map<String, T> = linkedMapOf()
-    private var filteredItems: Map<String, T> = linkedMapOf()
-    private var visibleItems: Map<String, T> = linkedMapOf()
+    private var allItemsMap: Map<String, T> = linkedMapOf()
+    private var filteredItemsMap: Map<String, T> = linkedMapOf()
+    private var visibleItemsMap: Map<String, T> = linkedMapOf()
 
     // ------------------------------------------------------ display
 
@@ -120,11 +120,20 @@ class DataProvider<T>(val identifier: Identifier<T>) {
 
     // ------------------------------------------------------ items
 
-    fun item(id: String): T? = allItems[id]
+    val items: List<T>
+        get() = allItemsMap.values.toList()
 
-    operator fun contains(item: T): Boolean = identifier(item) in allItems
+    val filteredItems: List<T>
+        get() = filteredItemsMap.values.toList()
 
-    fun visible(item: T) = identifier(item) in visibleItems
+    val visibleItems: List<T>
+        get() = visibleItemsMap.values.toList()
+
+    fun item(id: String): T? = allItemsMap[id]
+
+    operator fun contains(item: T): Boolean = identifier(item) in allItemsMap
+
+    fun visible(item: T) = identifier(item) in visibleItemsMap
 
     fun update(items: List<T>) {
         filters.clear()
@@ -132,12 +141,12 @@ class DataProvider<T>(val identifier: Identifier<T>) {
         selectionInfo.reset()
         sortInfo.reset()
 
-        allItems = items.map { identifier(it) to it }.toMap()
+        allItemsMap = items.map { identifier(it) to it }.toMap()
         updateInternal()
     }
 
     private fun updateInternal() {
-        var items = allItems.values.toList()
+        var items = allItemsMap.values.toList()
         if (filters.isNotEmpty()) {
             val initial: Filter<T> = { _ -> true }
             val combined = filters.values.fold(initial) { f1, f2 -> f1.and(f2) }
@@ -147,18 +156,18 @@ class DataProvider<T>(val identifier: Identifier<T>) {
             items.sortedWith(sortInfo.comparator!!)
         }
         if (items.size > pageInfo.pageSize) {
-            filteredItems = linkedMapOf(*items.map { identifier(it) to it }.toTypedArray())
+            filteredItemsMap = linkedMapOf(*items.map { identifier(it) to it }.toTypedArray())
             items = paged(items)
-            visibleItems = linkedMapOf(*items.map { identifier(it) to it }.toTypedArray())
+            visibleItemsMap = linkedMapOf(*items.map { identifier(it) to it }.toTypedArray())
         } else {
-            filteredItems = linkedMapOf(*items.map { identifier(it) to it }.toTypedArray())
-            visibleItems = filteredItems
+            filteredItemsMap = linkedMapOf(*items.map { identifier(it) to it }.toTypedArray())
+            visibleItemsMap = filteredItemsMap
         }
-        pageInfo.total = filteredItems.size
-        pageInfo.visible = visibleItems.size
+        pageInfo.total = filteredItemsMap.size
+        pageInfo.visible = visibleItemsMap.size
 
         for (display in displays) {
-            display.showItems(visibleItems.values.toList(), pageInfo)
+            display.showItems(visibleItemsMap.values.toList(), pageInfo)
             display.updateSelection(selectionInfo)
             display.updateSortInfo(sortInfo)
         }
@@ -179,7 +188,7 @@ class DataProvider<T>(val identifier: Identifier<T>) {
     /** Selects all items. Does not fire selection events. */
     fun selectAll() {
         selectionInfo.reset()
-        for (item in filteredItems.values) {
+        for (item in filteredItemsMap.values) {
             selectInternal(item, true)
         }
         updateSelection()
@@ -188,7 +197,7 @@ class DataProvider<T>(val identifier: Identifier<T>) {
     /** Selects all visible items. Does not fire selection events. */
     fun selectVisible() {
         selectionInfo.reset()
-        for (item in visibleItems.values) {
+        for (item in visibleItemsMap.values) {
             selectInternal(item, true)
         }
         updateSelection()
@@ -198,7 +207,7 @@ class DataProvider<T>(val identifier: Identifier<T>) {
     fun clearAllSelection() {
         if (selectionInfo.selection.isNotEmpty()) {
             selectionInfo.reset()
-            for (item in filteredItems.values) {
+            for (item in filteredItemsMap.values) {
                 selectInternal(item, false)
             }
             updateSelection()
@@ -209,7 +218,7 @@ class DataProvider<T>(val identifier: Identifier<T>) {
     fun clearVisibleSelection() {
         if (selectionInfo.selection.isNotEmpty()) {
             selectionInfo.reset()
-            for (item in visibleItems.values) {
+            for (item in visibleItemsMap.values) {
                 selectInternal(item, false)
             }
             updateSelection()

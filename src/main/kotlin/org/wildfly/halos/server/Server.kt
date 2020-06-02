@@ -13,6 +13,8 @@ import org.jboss.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_OPERATION
 import org.jboss.dmr.ModelDescriptionConstants.Companion.RESULT
 import org.jboss.mvp.*
 import org.patternfly.*
+import org.patternfly.ComponentType.Drawer
+import org.patternfly.DividerVariant.DIV
 import org.w3c.dom.EventSource
 import org.w3c.dom.EventSourceInit
 import org.w3c.dom.MessageEvent
@@ -24,15 +26,13 @@ import kotlin.browser.document
 
 class Server(node: ModelNode) : NamedNode(node)
 
-class ServerSubscription() {
+class ServerSubscription {
     private val subscriptions: MutableList<(MessageEvent) -> Unit> = mutableListOf()
 
     init {
         val eventSource = EventSource("${Endpoint.instance}/subscribe", EventSourceInit(Environment.cors))
         eventSource.onmessage = {
-            for (subscription in subscriptions) {
-                subscription(it)
-            }
+            subscriptions.forEach { sub -> sub(it) }
         }
     }
 
@@ -50,6 +50,7 @@ class ServerPresenter : Presenter<ServerView> {
 
     override fun bind() {
         dataProvider.bind(view.dataList)
+        dataProvider.onSelect { view.show(it) }
         serverSubscription.subscribe {
             Notification.info("${it.origin}: ${it.data}")
             updateServer()
@@ -83,6 +84,7 @@ class ServerView : View, HasPresenter<ServerPresenter> {
     internal val dataList: DataListComponent<Server> by component("#${Ids.SERVER_LIST}") {
         it.pfDataList(presenter.dataProvider)
     }
+    private val drawer: DrawerComponent by component(Drawer.selector()) { it.pfDrawer() }
 
     override val elements = with(document.create) {
         arrayOf(
@@ -92,37 +94,52 @@ class ServerView : View, HasPresenter<ServerPresenter> {
                     p { +"The list of servers managed by the WildFly operator." }
                 }
             },
-            pfSection {
-                pfDataList<Server> {
-                    id = Ids.SERVER_LIST
-                    renderer = { server, dataProvider ->
-                        {
-                            pfItemRow {
-                                pfItemContent {
-                                    pfCell {
-                                        span {
-                                            id = dataProvider.identifier(server)
-                                            +server.name
+            pfDivider(DIV),
+            pfSection("light".modifier(), "no-padding".modifier()) {
+                pfDrawer {
+                    pfDrawerMain {
+                        pfDrawerContent {
+                            pfDrawerBody {
+                                pfDataList<Server> {
+                                    id = Ids.SERVER_LIST
+                                    renderer = { server, dataProvider ->
+                                        {
+                                            pfItemRow {
+                                                pfItemContent {
+                                                    pfCell {
+                                                        span {
+                                                            id = dataProvider.identifier(server)
+                                                            +server.name
+                                                        }
+                                                    }
+                                                    pfCell { +server["release-version"].asString() }
+                                                }
+                                            }
                                         }
                                     }
-                                    pfCell { +server["release-version"].asString() }
                                 }
                             }
                         }
+                        pfDrawerPanel()
                     }
                 }
             }
         )
     }
-}
 
-fun readResource() {
-    GlobalScope.launch {
-        val operation = (ResourceAddress.root() op READ_RESOURCE_OPERATION) params {
-            +ATTRIBUTES_ONLY
-            +INCLUDE_RUNTIME
+    internal fun show(server: Server) {
+        drawer.show {
+            pfDrawerBody {
+                pfDrawerHead {
+                    pfTitle(server.name)
+                    pfDrawerActions {
+                        pfDrawerClose()
+                    }
+                }
+            }
+            pfDrawerBody {
+                p { +server["release-version"].asString() }
+            }
         }
-        val node = cdi().dispatcher.execute(operation)
-        console.log(node.toString())
     }
 }

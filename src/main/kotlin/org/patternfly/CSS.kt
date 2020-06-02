@@ -12,6 +12,10 @@ fun String.fas() = "fas fa-$this"
 
 fun String.pfIcon() = "pf-icon pf-icon-$this"
 
+fun String.append(vararg classes: String) = this + buildString {
+    classes.joinTo(this, " ", " ")
+}
+
 private fun combine(prefix: String, main: String, vararg elements: String): String = buildString {
     append("$prefix-$main")
     if (elements.isNotEmpty()) elements.joinTo(this, "-", "__")

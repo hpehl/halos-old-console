@@ -30,8 +30,16 @@ enum class Direction {
     RIGHT, UP
 }
 
+enum class DividerVariant {
+    HR, DIV, LI
+}
+
 enum class Orientation {
     HORIZONTAL, VERTICAL
+}
+
+enum class SelectionMode {
+    NONE, SINGLE, MULTIPLE
 }
 
 enum class Size(val modifier: String) {

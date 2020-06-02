@@ -50,25 +50,14 @@ fun <T, C : TagConsumer<T>> C.pfPage(block: PageTag.() -> Unit = {}): T =
     PageTag(this).visitAndFinalize(this, block)
 
 @HtmlTagMarker
-fun MainTag.pfSection(classes: String? = null, block: SECTION.() -> Unit = {}) {
-    SECTION(
-        attributesMapOf("class", buildString {
-            append("page".component("main-section"))
-            if (classes != null) append(" $classes")
-        }),
-        consumer
-    ).visit(block)
+fun MainTag.pfSection(vararg classes: String, block: SECTION.() -> Unit = {}) {
+    SECTION(attributesMapOf("class", "page".component("main-section").append(*classes)), consumer).visit(block)
 }
 
 @HtmlTagMarker
-fun <T, C : TagConsumer<T>> C.pfSection(classes: String? = null, block: SECTION.() -> Unit = {}): T =
-    SECTION(
-        attributesMapOf("class", buildString {
-            append("page".component("main-section"))
-            if (classes != null) append(" $classes")
-        }),
-        this
-    ).visitAndFinalize(this, block)
+fun <T, C : TagConsumer<T>> C.pfSection(vararg classes: String, block: SECTION.() -> Unit = {}): T =
+    SECTION(attributesMapOf("class", "page".component("main-section").append(*classes)), this)
+        .visitAndFinalize(this, block)
 
 // ------------------------------------------------------ tag
 
