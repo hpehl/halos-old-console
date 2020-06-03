@@ -17,10 +17,10 @@ import kotlin.browser.document
 
 object Notification {
 
-    fun error(text: String, details: String? = null) = alert(Severity.danger, text, details)
-    fun info(text: String, details: String? = null) = alert(Severity.info, text, details)
-    fun success(text: String, details: String? = null) = alert(Severity.success, text, details)
-    fun warning(text: String, details: String? = null) = alert(Severity.warning, text, details)
+    fun error(text: String, details: String? = null) = alert(Severity.DANGER, text, details)
+    fun info(text: String, details: String? = null) = alert(Severity.INFO, text, details)
+    fun success(text: String, details: String? = null) = alert(Severity.SUCCESS, text, details)
+    fun warning(text: String, details: String? = null) = alert(Severity.WARNING, text, details)
 
     internal fun alert(severity: Severity, text: String, details: String? = null) {
         val notificationDrawer = document.pfNotificationDrawer()

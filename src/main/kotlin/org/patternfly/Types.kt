@@ -42,6 +42,18 @@ enum class SelectionMode {
     NONE, SINGLE, MULTIPLE
 }
 
+enum class Severity(
+    val modifier: String,
+    val iconClass: String,
+    val aria: String
+) {
+    DEFAULT("", "bell".fas(), "Default alert"),
+    INFO("info".modifier(), "info-circle".fas(), "Info alert"),
+    SUCCESS("success".modifier(), "check-circle".fas(), "Success alert"),
+    WARNING("warning".modifier(), "exclamation-triangle".fas(), "Warning alert"),
+    DANGER("danger".modifier(), "exclamation-circle".fas(), "Danger alert");
+}
+
 enum class Size(val modifier: String) {
     _4xl("4xl".modifier()),
     _3xl("3xl".modifier()),
