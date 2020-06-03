@@ -24,6 +24,7 @@ import org.wildfly.halos.Ids
 import org.wildfly.halos.cdi
 import org.wildfly.halos.config.Endpoint
 import org.wildfly.halos.config.Environment
+import react.dom.createPortal
 import react.dom.p
 import react.dom.render
 import kotlin.browser.document
@@ -149,14 +150,11 @@ class ServerView : View, HasPresenter<ServerPresenter> {
             }
         }
         render(document.getElementById("server-chart")) {
-            p {
-                +"This text was rendered by React"
-            }
             pfcDonut {
                 attrs {
                     constrainToVisibleArea = true
                     data = js("""[{ x: 'Cats', y: 35 }, { x: 'Dogs', y: 55 }, { x: 'Birds', y: 10 }]""")
-                    subTitle = "Pets"
+                    subTitle = server.name
                     title = "100"
                 }
             }
