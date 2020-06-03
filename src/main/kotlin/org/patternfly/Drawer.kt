@@ -52,6 +52,7 @@ fun DrawerHeadTag.pfDrawerActions(block: DrawerActionsTag.() -> Unit = {}) = Dra
 fun DrawerActionsTag.pfDrawerClose() {
     div("drawer".component("close")) {
         pfPlainButton(iconClass = "times".fas()) {
+            tabIndex = "-1"
             aria["label"] = "Close drawer panel"
             onClickFunction = { it.target.pfDrawer().collapse() }
         }

@@ -1,5 +1,7 @@
 package org.jboss.mvp
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.PopStateEvent
 import org.w3c.dom.Window
@@ -21,9 +23,18 @@ fun String.placeRequest(): PlaceRequest {
     return PlaceRequest(token, params)
 }
 
-data class PlaceRequest(val token: String, val params: Map<String, String> = mapOf()) {
+// Will break the JSON (de)serialization if implemented as data class property
+val PlaceRequest.url: String
+    get() = window.location.pathname + toString()
 
-    val empty: Boolean = token.isEmpty()
+@Suppress("EXPERIMENTAL_API_USAGE")
+private var json: Json = Json { prettyPrint = false }
+
+@Suppress("UnsafeCastFromDynamic")
+fun PlaceRequest.toJson(): Any? = json.stringify(PlaceRequest.serializer(), this).asDynamic()
+
+@Serializable
+data class PlaceRequest(val token: String, val params: Map<String, String> = mapOf()) {
 
     override fun toString(): String = buildString {
         append("#$token")
@@ -31,38 +42,58 @@ data class PlaceRequest(val token: String, val params: Map<String, String> = map
             params.map { (key, value) -> "$key=$value" }.joinTo(this, ";", ";")
         }
     }
+
+    companion object {
+        fun fromEvent(event: PopStateEvent) = if (event.state != null) {
+            fromJson(event.state)
+        } else {
+            (event.target as Window).location.hash.placeRequest()
+        }
+
+        fun fromJson(data: Any?): PlaceRequest = json.parse(serializer(), data as String)
+    }
 }
 
 class PlaceManager(selector: String, private val defaultPlace: PlaceRequest) {
 
-    private var current: Presenter<*>? = null
+    private var currentPresenter: Presenter<*>? = null
     private var element: HTMLElement? = document.querySelector(selector) as HTMLElement
+    private val navigationHandler: MutableList<(PlaceRequest) -> Unit> = mutableListOf()
+    private var internalPlace: PlaceRequest? = null
+    val currentPlace: PlaceRequest
+        get() = internalPlace ?: defaultPlace
 
     init {
         window.addEventListener("popstate", {
-            val event = it as PopStateEvent
-            val place = if (event.state != null) {
-                event.state as PlaceRequest
-            } else {
-                (event.target as Window).location.hash.placeRequest()
-            }
-            navigate(place)
+            navigate(PlaceRequest.fromEvent(it as PopStateEvent))
         })
     }
 
-    fun gotoCurrent() = goto(window.location.hash.placeRequest())
-
-    fun goto(place: PlaceRequest) {
-        val url = window.location.pathname + place.toString()
-        window.location.href = url
+    fun onNavigate(handler: (PlaceRequest) -> Unit) {
+        navigationHandler.add(handler)
     }
 
-    private fun navigate(place: PlaceRequest) {
-        val safePlace = if (place.empty) defaultPlace else place
+    fun gotoCurrent() {
+        internalPlace = navigate(window.location.hash.placeRequest())
+        internalPlace?.let {
+            window.history.replaceState(it.toJson(), "", it.url)
+        }
+    }
+
+    fun goto(place: PlaceRequest) {
+        internalPlace = navigate(place)
+        internalPlace?.let {
+            window.history.pushState(it.toJson(), "", it.url)
+        }
+    }
+
+    private fun navigate(place: PlaceRequest): PlaceRequest? {
+        val nonEmptyPlace = if (place.token.isEmpty()) defaultPlace else place
+        val safePlace = if (nonEmptyPlace.token in Presenter) nonEmptyPlace else defaultPlace
         val presenter = Presenter.lookup<Presenter<View>>(safePlace.token)
         if (presenter != null) {
-            if (presenter !== current) {
-                current?.hide()
+            if (presenter !== currentPresenter) {
+                currentPresenter?.hide()
             }
             presenter.prepareFromRequest(place)
             element?.let {
@@ -70,14 +101,12 @@ class PlaceManager(selector: String, private val defaultPlace: PlaceRequest) {
                 it.append(*presenter.view.elements)
             }
             presenter.show()
-            current = presenter
+            currentPresenter = presenter
+            navigationHandler.forEach { it(safePlace) }
+            return safePlace
         } else {
-            if (!defaultPlace.empty) {
-                console.warn("Unable to navigate to $place. Presenter for ${place.token} not found. Going to default place.")
-                goto(defaultPlace)
-            } else {
-                console.error("Unable to navigate to $place. Presenter for ${place.token} not found and no default place defined!")
-            }
+            console.error("No presenter found for $safePlace!")
+            return null
         }
     }
 }

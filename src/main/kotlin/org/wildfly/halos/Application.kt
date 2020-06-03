@@ -4,8 +4,11 @@ import kotlinx.html.div
 import kotlinx.html.dom.create
 import kotlinx.html.id
 import kotlinx.html.img
+import org.jboss.elemento.Id
+import org.jboss.mvp.PlaceRequest
 import org.patternfly.*
 import org.w3c.dom.HTMLElement
+import org.wildfly.halos.model.ManagementModelPresenter
 import org.wildfly.halos.server.ServerPresenter
 import kotlin.browser.document
 
@@ -38,10 +41,14 @@ object Application {
                     }
                 }
                 pfSidebar {
-                    pfVerticalNav {
+                    pfVerticalNav<PlaceRequest> {
+                        identifier = { Id.build(it.token) }
+                        onSelect = {
+                            cdi().placeManager.goto(it)
+                        }
                         pfNavItems {
-                            pfNavItem(NavigationItem("#server", "Server"))
-                            pfNavItem(NavigationItem("#mm", "Management Model"))
+                            pfNavItem("Server", PlaceRequest(ServerPresenter.TOKEN))
+                            pfNavItem("Management Model", PlaceRequest(ManagementModelPresenter.TOKEN))
                         }
                     }
                 }

@@ -126,6 +126,7 @@ class DataListComponent<T>(element: HTMLUListElement, override val dataProvider:
             val itemId = dataProvider.identifier(item)
             element.append {
                 pfDataListItem {
+                    tabIndex = "0"
                     attributes[Dataset.DATA_LIST_ITEM.long] = itemId
                     if (selectionMode != SelectionMode.NONE) {
                         classes += "selectable".modifier()
@@ -151,7 +152,7 @@ class DataListComponent<T>(element: HTMLUListElement, override val dataProvider:
     override fun updateSelection(selectionInfo: SelectionInfo<T>) {
         for (item in dataProvider.visibleItems) {
             val itemId = (dataProvider.identifier)(item)
-            element.querySelector("[${Dataset.DATA_LIST_ITEM.long}]=$itemId")?.let {
+            element.querySelector("[${Dataset.DATA_LIST_ITEM.long}=$itemId]")?.let {
                 if (selectionInfo.selected(item)) {
                     it.classList.add("selected".modifier())
                     it.aria["selected"] = true

@@ -100,7 +100,7 @@ class ServerView : View, HasPresenter<ServerPresenter> {
                     pfDrawerMain {
                         pfDrawerContent {
                             pfDrawerBody {
-                                pfDataList<Server> {
+                                pfDataList<Server>(SelectionMode.SINGLE) {
                                     id = Ids.SERVER_LIST
                                     renderer = { server, dataProvider ->
                                         {

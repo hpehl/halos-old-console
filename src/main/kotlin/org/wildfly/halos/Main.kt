@@ -1,9 +1,8 @@
 package org.wildfly.halos
 
 import mu.KotlinLoggingConfiguration
+import org.jboss.mvp.PlaceRequest
 import org.jboss.mvp.Presenter
-import org.jboss.mvp.placeRequest
-import org.patternfly.NavigationItem
 import org.patternfly.pfNav
 import org.wildfly.halos.config.Environment
 import org.wildfly.halos.model.ManagementModelPresenter
@@ -19,6 +18,7 @@ fun main() {
     Presenter.register(ServerPresenter.TOKEN, ::ServerPresenter)
 
     document.body!!.append(*Application.skeleton())
-    document.pfNav().autoSelect { NavigationItem("#${it.placeRequest()}") }
     cdi().placeManager.gotoCurrent()
+    document.pfNav<PlaceRequest>().select(cdi().placeManager.currentPlace, false)
+    document.pfNav<PlaceRequest>().autoSelect { PlaceRequest.fromEvent(it) }
 }

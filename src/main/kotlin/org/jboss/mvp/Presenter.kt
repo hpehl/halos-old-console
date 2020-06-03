@@ -30,6 +30,8 @@ interface Presenter<V : View> {
             registry[token] = presenter
         }
 
+        operator fun contains(token: String): Boolean = token in registry
+
         @Suppress("UNCHECKED_CAST")
         fun <P : Presenter<out View>> lookup(token: String): P? {
             return if (token in instances) {

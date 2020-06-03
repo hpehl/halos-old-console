@@ -11,24 +11,18 @@ import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.collections.set
 
-// ------------------------------------------------------ api
-
-data class NavigationItem(val url: String, val text: String = "") {
-    internal val id: String = Id.build("ni", url)
-}
-
 // ------------------------------------------------------ dsl
 
-fun SidebarTag.pfVerticalNav(block: NavigationTag.() -> Unit = {}) =
-    NavigationTag(Orientation.VERTICAL, false, consumer).visit {
+fun <T> SidebarTag.pfVerticalNav(block: NavigationTag<T>.() -> Unit = {}) =
+    NavigationTag<T>(Orientation.VERTICAL, false, consumer).visit {
         if (this@pfVerticalNav.dark) {
             classes += "dark".modifier()
         }
         block()
     }
 
-fun NavigationTag.pfNavGroup(text: String, block: NavigationGroupTag.() -> Unit) {
-    NavigationGroupTag(consumer).visit {
+fun <T> NavigationTag<T>.pfNavGroup(text: String, block: NavigationGroupTag<T>.() -> Unit) {
+    NavigationGroupTag(this.identifier, consumer).visit {
         val titleId = Id.unique("ns")
         aria["labelledby"] = titleId
         h2("nav".component("section", "title")) {
@@ -39,19 +33,19 @@ fun NavigationTag.pfNavGroup(text: String, block: NavigationGroupTag.() -> Unit)
     }
 }
 
-fun NavigationTag.pfNavItems(block: UL.() -> Unit = {}) {
-    ul("nav".component("list")) {
+fun <T> NavigationTag<T>.pfNavItems(block: NavigationItemsTag<T>.() -> Unit = {}) {
+    NavigationItemsTag(this.identifier, "nav".component("list"), consumer).visit {
         block()
     }
 }
 
-fun NavigationGroupTag.pfNavItems(block: UL.() -> Unit = {}) {
-    ul("nav".component("list")) {
+fun <T> NavigationGroupTag<T>.pfNavItems(block: NavigationItemsTag<T>.() -> Unit = {}) {
+    NavigationItemsTag(this.identifier, "nav".component("list"), consumer).visit {
         block()
     }
 }
 
-fun UL.pfNavExpandableGroup(text: String, expanded: Boolean = false, block: UL.() -> Unit = {}) {
+fun <T> UL.pfNavExpandableGroup(text: String, expanded: Boolean = false, block: UL.() -> Unit = {}) {
     li(buildString {
         append("nav".component("item")).append(" ").append("expandable".modifier())
         if (expanded) {
@@ -62,7 +56,7 @@ fun UL.pfNavExpandableGroup(text: String, expanded: Boolean = false, block: UL.(
             aria["expanded"] = expanded.toString()
             onClickFunction = {
                 with(it.target as Element) {
-                    pfNav().toggle(this)
+                    pfNav<T>().toggle(this)
                 }
             }
             +text
@@ -78,6 +72,8 @@ fun UL.pfNavExpandableGroup(text: String, expanded: Boolean = false, block: UL.(
                 id = titleId
                 +text
             }
+            // TODO Replace with NavigationItemsTag("nav".component("simple-list"))
+            //  and pass identifier
             ul("nav".component("simple-list")) {
                 block()
             }
@@ -85,30 +81,49 @@ fun UL.pfNavExpandableGroup(text: String, expanded: Boolean = false, block: UL.(
     }
 }
 
-fun UL.pfNavItem(item: NavigationItem) {
+fun <T> NavigationItemsTag<T>.pfNavItem(text: String, item: T) {
     li("nav".component("item")) {
-        a(item.url, classes = "nav".component("link")) {
-            id = item.id
-            attributes[Dataset.NAVIGATION_ITEM.long] = "" // marker for navigation items
-            +item.text
-            onClickFunction = {
-                with(it.target as Element) {
-                    pfNav().select(item)
+        a(classes = "nav".component("link")) {
+            this@pfNavItem.identifier?.let {
+                attributes[Dataset.NAVIGATION_ITEM.long] = it(item)
+                onClickFunction = {
+                    it.target.pfNav<T>().select(item)
                 }
             }
+            +text
         }
     }
 }
 
 // ------------------------------------------------------ tag
 
-class NavigationTag(
+class NavigationTag<T>(
     private val orientation: Orientation,
     private val tertiary: Boolean = false,
     consumer: TagConsumer<*>
 ) : NAV(attributesMapOf("class", "nav".component()), consumer), PatternFlyTag, Ouia {
 
+    private val id: String = Id.unique()
     override val componentType: ComponentType = Navigation
+
+    var identifier: Identifier<T>? = null
+        set(value) {
+            field = value
+            if (value != null) {
+                attributes[Dataset.REGISTRY.long] = id
+                identifierRegistry[id] = value
+            }
+        }
+
+    var onSelect: SelectHandler<T>? = null
+        set(value) {
+            field = value
+            if (value != null) {
+                val id = Id.unique()
+                attributes[Dataset.REGISTRY.long] = id
+                selectRegistry[id] = value
+            }
+        }
 
     override fun head() {
         if (!tertiary) {
@@ -117,40 +132,49 @@ class NavigationTag(
     }
 }
 
-class NavigationGroupTag(consumer: TagConsumer<*>) :
+class NavigationGroupTag<T>(internal val identifier: Identifier<T>?, consumer: TagConsumer<*>) :
     SECTION(attributesMapOf("class", "nav".component("section")), consumer)
+
+class NavigationItemsTag<T>(internal val identifier: Identifier<T>?, classes: String, consumer: TagConsumer<*>) :
+    UL(attributesMapOf("class", classes), consumer)
 
 // ------------------------------------------------------ component
 
-private val globalNav: NavigationComponent by lazy {
+@Suppress("UNCHECKED_CAST")
+fun <T> Document.pfNav(): NavigationComponent<T> {
     val selector = "${Navigation.selector()}[aria-label=Global]"
-    document.querySelector(selector).pfNav()
+    return document.querySelector(selector).pfNav()
 }
 
-fun Document.pfNav(): NavigationComponent = globalNav
+fun <T> EventTarget?.pfNav(): NavigationComponent<T> = (this as Element).pfNav()
 
-fun EventTarget?.pfNav(): NavigationComponent = (this as Element).pfNav()
-
-fun Element?.pfNav(): NavigationComponent =
+fun <T> Element?.pfNav(): NavigationComponent<T> =
     component(this, Navigation, { document.create.nav() }, { it }, ::NavigationComponent)
 
-class NavigationComponent(element: HTMLElement) : PatternFlyComponent<HTMLElement>(element) {
+class NavigationComponent<T>(element: HTMLElement) : PatternFlyComponent<HTMLElement>(element) {
 
-    fun autoSelect(hashToNavigationItem: (String) -> NavigationItem) {
+    private val identifier: Identifier<T> by identifier<NavigationComponent<T>, T>()
+    private val onSelect: SelectHandler<T>? by selectHandler<NavigationComponent<T>, T>()
+
+    fun autoSelect(createItem: (PopStateEvent) -> T) {
         window.addEventListener("popstate", {
-            val navigationItem = hashToNavigationItem((it.target as Window).location.hash)
-            document.pfNav().select(navigationItem)
+            select(createItem(it as PopStateEvent), false)
         })
     }
 
-    fun select(item: NavigationItem) {
+    fun select(item: T, fireEvent: Boolean = true) {
+        val itemId = identifier(item)
+
         // first (de)select the items
         val selector = ".${"nav".component("link")}[${Dataset.NAVIGATION_ITEM.long}]"
         val items = element.querySelectorAll(selector)
-        items.asList().map { it as Element }.forEach {
-            if (item.id == it.id) {
+        items.asList().map { it as HTMLElement }.forEach {
+            if (it.dataset[Dataset.NAVIGATION_ITEM.short] == itemId) {
                 it.classList += "current".modifier()
                 it.aria["current"] = "page"
+                if (fireEvent) {
+                    onSelect?.let { handler -> handler(item) }
+                }
             } else {
                 it.classList -= "current".modifier()
                 it.aria.remove("current")
@@ -161,7 +185,7 @@ class NavigationComponent(element: HTMLElement) : PatternFlyComponent<HTMLElemen
         val expandables = element.querySelectorAll(".${"expandable".modifier()}")
         expandables.asList().map { it as Element }.forEach {
             // it = li.pf-c-nav__item.pf-m-expandable
-            if (it.querySelector("#${item.id}") != null) {
+            if (it.querySelector("#$itemId") != null) {
                 it.classList += "current".modifier()
                 it.firstElementChild?.let { a -> expand(a) }
             } else {
