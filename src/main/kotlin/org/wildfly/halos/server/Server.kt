@@ -1,5 +1,6 @@
 package org.wildfly.halos.server
 
+import kotlinext.js.js
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.html.dom.create
@@ -15,6 +16,7 @@ import org.jboss.mvp.*
 import org.patternfly.*
 import org.patternfly.ComponentType.Drawer
 import org.patternfly.DividerVariant.DIV
+import org.patternfly.charts.pfcDonut
 import org.w3c.dom.EventSource
 import org.w3c.dom.EventSourceInit
 import org.w3c.dom.MessageEvent
@@ -22,6 +24,8 @@ import org.wildfly.halos.Ids
 import org.wildfly.halos.cdi
 import org.wildfly.halos.config.Endpoint
 import org.wildfly.halos.config.Environment
+import react.dom.p
+import react.dom.render
 import kotlin.browser.document
 
 class Server(node: ModelNode) : NamedNode(node)
@@ -139,6 +143,22 @@ class ServerView : View, HasPresenter<ServerPresenter> {
             }
             pfDrawerBody {
                 p { +server["release-version"].asString() }
+            }
+            pfDrawerBody {
+                id = "server-chart"
+            }
+        }
+        render(document.getElementById("server-chart")) {
+            p {
+                +"This text was rendered by React"
+            }
+            pfcDonut {
+                attrs {
+                    constrainToVisibleArea = true
+                    data = js("""[{ x: 'Cats', y: 35 }, { x: 'Dogs', y: 55 }, { x: 'Birds', y: 10 }]""")
+                    subTitle = "Pets"
+                    title = "100"
+                }
             }
         }
     }
