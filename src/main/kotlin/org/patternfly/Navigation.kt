@@ -38,7 +38,7 @@ import kotlin.collections.set
 // ------------------------------------------------------ dsl
 
 fun <T> SidebarTag.pfVerticalNav(block: NavigationTag<T>.() -> Unit = {}) =
-    NavigationTag<T>(Orientation.VERTICAL, false, consumer).visit {
+    NavigationTag<T>(Orientation.VERTICAL, false, consumer).visitPf {
         if (this@pfVerticalNav.dark) {
             classes += "dark".modifier()
         }

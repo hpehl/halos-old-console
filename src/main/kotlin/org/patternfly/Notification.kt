@@ -49,11 +49,11 @@ object Notification {
 
 @HtmlTagMarker
 fun FlowContent.pfNotificationBadge(block: NotificationBadgeTag.() -> Unit = {}) =
-    NotificationBadgeTag(consumer).visit(block)
+    NotificationBadgeTag(consumer).visitPf(block)
 
 @HtmlTagMarker
 fun <T, C : TagConsumer<T>> C.pfNotificationDrawer(block: NotificationDrawerTag.() -> Unit = {}): T =
-    NotificationDrawerTag(this).visitAndFinalize(this, block)
+    NotificationDrawerTag(this).visitPfAndFinalize(this, block)
 
 // ------------------------------------------------------ tag
 

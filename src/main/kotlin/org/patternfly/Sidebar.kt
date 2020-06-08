@@ -22,16 +22,16 @@ import kotlin.browser.document
  */
 @HtmlTagMarker
 fun FlowContent.pfSidebar(dark: Boolean = true, block: SidebarTag.() -> Unit = {}) =
-    SidebarTag(dark, consumer).visit {
+    SidebarTag(dark, consumer).visitPf {
         div("page".component("sidebar", "body")) {
-            this@visit.block()
+            this@visitPf.block()
         }
     }
 
 /** Creates a sidebar component only w/o a nested sidebar body. */
 @HtmlTagMarker
 fun FlowContent.pfSidebarOnly(dark: Boolean = true, block: SidebarTag.() -> Unit = {}) =
-    SidebarTag(dark, consumer).visit(block)
+    SidebarTag(dark, consumer).visitPf(block)
 
 @HtmlTagMarker
 fun SidebarTag.pfSidebarBody(block: DIV.() -> Unit = {}) =

@@ -17,7 +17,7 @@ import kotlin.browser.document
 
 @HtmlTagMarker
 fun FlowOrPhrasingContent.pfIcon(iconClass: String, block: IconTag.() -> Unit = {}) =
-    IconTag(iconClass, consumer).visit(block)
+    IconTag(iconClass, consumer).visitPf(block)
 
 // ------------------------------------------------------ tag
 

@@ -17,7 +17,7 @@ import kotlin.browser.document
 
 @HtmlTagMarker
 fun FlowContent.pfContent(block: ContentTag.() -> Unit = {}) {
-    ContentTag(consumer).visit(block)
+    ContentTag(consumer).visitPf(block)
 }
 
 // ------------------------------------------------------ tag

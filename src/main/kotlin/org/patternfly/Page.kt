@@ -19,6 +19,7 @@ import org.patternfly.ComponentType.PageMain
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
 
@@ -31,12 +32,17 @@ fun HeaderTag.pfBrand(block: DIV.() -> Unit = {}) {
 
 @HtmlTagMarker
 fun FlowContent.pfBrandLink(homeLink: String, block: A.() -> Unit = {}) {
-    A(attributesMapOf("class", "page".component("header", "brand", "link"), "href", homeLink), consumer).visit(block)
+    A(attributesMapOf(
+        "class",
+        "page".component("header", "brand", "link"),
+        "href",
+        homeLink
+    ), consumer).visit(block)
 }
 
 @HtmlTagMarker
 fun PageTag.pfHeader(block: HeaderTag.() -> Unit = {}) {
-    HeaderTag(consumer).visit(block)
+    HeaderTag(consumer).visitPf(block)
 }
 
 @HtmlTagMarker
@@ -45,21 +51,20 @@ fun HeaderTag.pfHeaderTools(block: DIV.() -> Unit = {}) {
 }
 
 @HtmlTagMarker
-fun PageTag.pfMain(id: String, block: MAIN.() -> Unit = {}) {
-    MAIN(
-        attributesMapOf("class", "page".component("main"), "id", id, "role", "main", "tabindex", "-1"),
-        consumer
-    ).visit(block)
+fun PageTag.pfMain(id: String, block: MainTag.() -> Unit = {}) {
+    MainTag(id, consumer).visitPf(block)
 }
 
 @HtmlTagMarker
 fun PageTag.pfPage(block: PageTag.() -> Unit = {}) {
-    PageTag(consumer).visit(block)
+    PageTag(consumer).visitPf(block)
 }
 
 @HtmlTagMarker
-fun <T, C : TagConsumer<T>> C.pfPage(block: PageTag.() -> Unit = {}): T =
-    PageTag(this).visitAndFinalize(this, block)
+fun TagConsumer<HTMLElement>.pfPage(block: PageTag.() -> Unit = {}): HTMLElement =
+    PageTag(this).visitPfAndFinalize(this) {
+        block()
+    }
 
 @HtmlTagMarker
 fun MainTag.pfSection(vararg classes: String, block: SECTION.() -> Unit = {}) {
@@ -67,7 +72,7 @@ fun MainTag.pfSection(vararg classes: String, block: SECTION.() -> Unit = {}) {
 }
 
 @HtmlTagMarker
-fun <T, C : TagConsumer<T>> C.pfSection(vararg classes: String, block: SECTION.() -> Unit = {}): T =
+fun TagConsumer<HTMLElement>.pfSection(vararg classes: String, block: SECTION.() -> Unit = {}): HTMLElement =
     SECTION(attributesMapOf("class", "page".component("main-section").append(*classes)), this)
         .visitAndFinalize(this, block)
 
@@ -92,7 +97,7 @@ class MainTag(id: String, consumer: TagConsumer<*>) :
     override val componentType: ComponentType = PageMain
 }
 
-class PageTag(consumer: TagConsumer<*>) :
+class PageTag internal constructor(consumer: TagConsumer<*>) :
     DIV(attributesMapOf("class", "page".component()), consumer), PatternFlyTag, Ouia {
     override val componentType: ComponentType = Page
 }

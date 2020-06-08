@@ -16,6 +16,7 @@ enum class ComponentType(val id: String) {
     DataList("dl"),
     Drawer("dw"),
     Dropdown("dd"),
+    EmptyState("es"),
     Icon("i"),
     Navigation("nav"),
     NotificationBadge("nb"),

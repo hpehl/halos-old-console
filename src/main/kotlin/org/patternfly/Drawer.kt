@@ -25,7 +25,7 @@ import kotlin.dom.clear
 // ------------------------------------------------------ dsl
 
 @HtmlTagMarker
-fun FlowContent.pfDrawer(block: DrawerTag.() -> Unit = {}) = DrawerTag(consumer).visit(block)
+fun FlowContent.pfDrawer(block: DrawerTag.() -> Unit = {}) = DrawerTag(consumer).visitPf(block)
 
 @HtmlTagMarker
 fun DrawerTag.pfDrawerSection(block: DIV.() -> Unit = {}) =

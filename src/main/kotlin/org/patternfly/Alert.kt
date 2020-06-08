@@ -40,15 +40,15 @@ import kotlin.collections.set
  * Use [Document.pfToastAlertGroup] to get the toast [AlertGroupComponent].
  */
 @HtmlTagMarker
-fun <T, C : TagConsumer<T>> C.pfToastAlertGroup(): T =
-    AlertGroupTag(true, this).visitAndFinalize(this) {}
+fun TagConsumer<HTMLElement>.pfToastAlertGroup(): HTMLElement =
+    AlertGroupTag(true, this).visitPfAndFinalize(this) {}
 
 /**
  * Creates an alert group.
  * Use [EventTarget.pfAlertGroup] or [Element.pfAlertGroup] to get the related [AlertGroupComponent].
  */
 @HtmlTagMarker
-fun FlowContent.pfAlertGroup(block: AlertGroupTag.() -> Unit = {}) = AlertGroupTag(false, consumer).visit(block)
+fun FlowContent.pfAlertGroup(block: AlertGroupTag.() -> Unit = {}) = AlertGroupTag(false, consumer).visitPf(block)
 
 /**
  * Creates a standalone alert which is not part of an alert group.
@@ -61,7 +61,7 @@ fun FlowContent.pfAlert(
     closable: Boolean = false,
     inline: Boolean = false,
     block: AlertTag.() -> Unit = {}
-) = AlertTag(severity, text, closable, inline, consumer).visit(block)
+) = AlertTag(severity, text, closable, inline, consumer).visitPf(block)
 
 /**
  * Creates an alert which is part of the given group.

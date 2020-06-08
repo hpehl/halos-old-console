@@ -52,7 +52,7 @@ interface Presenter<V : View> {
 }
 
 interface View {
-    val elements: Array<HTMLElement>
+    val elements: Array<out HTMLElement>
 }
 
 interface HasPresenter<P : Presenter<out View>> {
@@ -77,22 +77,22 @@ class PresenterToken<P : Presenter<out View>>(private val token: String) : ReadO
 
 fun <V : View, T : PatternFlyComponent<HTMLElement>> component(
     selector: String,
-    lookup: (Element?) -> T
-): ViewComponent<V, T> = ViewComponent(selector, lookup)
+    supplier: (Element?) -> T
+): ViewComponent<V, T> = ViewComponent(selector, supplier)
 
 class ViewComponent<V : View, T : PatternFlyComponent<HTMLElement>>(
     private val selector: String,
-    private val lookup: (Element?) -> T
+    private val supplier: (Element?) -> T
 ) : ReadOnlyProperty<V, T> {
     private var element: Element? = null
 
     override fun getValue(thisRef: V, property: KProperty<*>): T {
         if (element == null) {
-            element = thisRef.elements.map { it.querySelector(selector) }.first { it != null }
+            element = thisRef.elements.map { it.querySelector(selector) }.firstOrNull { it != null }
             if (element == null) {
                 console.error("Unable to find view component for $selector")
             }
         }
-        return lookup(element)
+        return supplier(element)
     }
 }

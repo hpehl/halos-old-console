@@ -37,11 +37,11 @@ private val ddr: MutableMap<String, DropdownRenderer<*>> = mutableMapOf()
 
 @HtmlTagMarker
 fun <T> FlowContent.pfDropdown(text: String, block: DropdownTag<T>.() -> Unit = {}) =
-    DropdownTag<T>(text, null, consumer).visit(block)
+    DropdownTag<T>(text, null, consumer).visitPf(block)
 
 @HtmlTagMarker
 fun <T> FlowContent.pfIconDropdown(iconClass: String, block: DropdownTag<T>.() -> Unit = {}) =
-    DropdownTag<T>(null, iconClass, consumer).visit(block)
+    DropdownTag<T>(null, iconClass, consumer).visitPf(block)
 
 @HtmlTagMarker
 private fun <T, C : TagConsumer<T>> C.pfDropdownItem(block: DropdownItemTag.() -> Unit = {}): T =

@@ -8,11 +8,15 @@ import kotlinx.html.LI
 import kotlinx.html.TagConsumer
 import kotlinx.html.attributesMapOf
 import kotlinx.html.visitAndFinalize
+import org.w3c.dom.HTMLElement
 
 // ------------------------------------------------------ dsl
 
 @HtmlTagMarker
-fun <T, C : TagConsumer<T>> C.pfDivider(variant: DividerVariant = DividerVariant.HR, vararg classes: String): T =
+fun TagConsumer<HTMLElement>.pfDivider(
+    variant: DividerVariant = DividerVariant.HR,
+    vararg classes: String
+): HTMLElement =
     when (variant) {
         DividerVariant.HR ->
             HR(

@@ -33,7 +33,6 @@ dependencies {
 }
 
 ktlint {
-    ignoreFailures.set(true)
     disabledRules.set(setOf("import-ordering"))
 }
 

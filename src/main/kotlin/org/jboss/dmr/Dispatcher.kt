@@ -22,10 +22,21 @@ class Dispatcher(private val endpoint: String, private val cors: Boolean = true)
             }
         }
 
-        val payload = window.fetch(endpoint, request)
+        return window.fetch(endpoint, request)
+            .then {
+                if (!it.ok) {
+                    error("${it.status} ${it.statusText}")
+                } else {
+                    it.text()
+                }
+            }
+            .then {
+                ModelNode.fromBase64(it)
+            }
+            .catch {
+                console.error("Unable to execute $operation: ${it.message ?: "unknown error"}")
+                ModelNode()
+            }
             .await()
-            .text()
-            .await()
-        return ModelNode.fromBase64(payload)
     }
 }

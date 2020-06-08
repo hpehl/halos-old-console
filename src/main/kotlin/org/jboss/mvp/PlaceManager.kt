@@ -35,7 +35,7 @@ data class PlaceRequest(val token: String, val params: Map<String, String> = map
 
     companion object {
         fun fromEvent(event: PopStateEvent) = if (event.state != null) {
-            event.state.unsafeCast<PlaceRequest>() // fromJson(event.state)
+            event.state.unsafeCast<PlaceRequest>()
         } else {
             (event.target as Window).location.hash.placeRequest()
         }

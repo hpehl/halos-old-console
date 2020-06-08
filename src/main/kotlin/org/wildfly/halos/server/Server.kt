@@ -4,6 +4,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.html.dom.create
 import kotlinx.html.id
+import kotlinx.html.js.onClickFunction
 import kotlinx.html.p
 import kotlinx.html.span
 import org.jboss.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
@@ -20,15 +21,21 @@ import org.jboss.mvp.Presenter
 import org.jboss.mvp.View
 import org.jboss.mvp.component
 import org.jboss.mvp.token
+import org.patternfly.ComponentType.DataList
 import org.patternfly.ComponentType.Drawer
+import org.patternfly.ComponentType.EmptyState
 import org.patternfly.DataListComponent
 import org.patternfly.DataProvider
-import org.patternfly.DividerVariant.DIV
+import org.patternfly.DividerVariant
 import org.patternfly.DrawerComponent
+import org.patternfly.EmptyStateComponent
 import org.patternfly.Notification
 import org.patternfly.SelectionMode
+import org.patternfly.Style
 import org.patternfly.charts.pfcDonut
+import org.patternfly.fas
 import org.patternfly.modifier
+import org.patternfly.pfButton
 import org.patternfly.pfCell
 import org.patternfly.pfContent
 import org.patternfly.pfDataList
@@ -41,6 +48,8 @@ import org.patternfly.pfDrawerContent
 import org.patternfly.pfDrawerHead
 import org.patternfly.pfDrawerMain
 import org.patternfly.pfDrawerPanel
+import org.patternfly.pfEmptyState
+import org.patternfly.pfEmptyStateBody
 import org.patternfly.pfItemContent
 import org.patternfly.pfItemRow
 import org.patternfly.pfSection
@@ -77,23 +86,21 @@ class ServerPresenter : Presenter<ServerView> {
 
     override val token = TOKEN
     override val view = ServerView()
-    internal val dataProvider = DataProvider<Server> { Ids.server(it.name) }
     private val serverSubscription = cdi().serverSubscription
 
     override fun bind() {
-        dataProvider.bind(view.dataList)
-        dataProvider.onSelect { view.show(it) }
         serverSubscription.subscribe {
             Notification.info("${it.origin}: ${it.data}")
             updateServer()
         }
+        view.init()
     }
 
     override fun show() {
         updateServer()
     }
 
-    private fun updateServer() {
+    internal fun updateServer() {
         GlobalScope.launch {
             val operation = (ResourceAddress.root() op READ_RESOURCE_OPERATION) params {
                 +ATTRIBUTES_ONLY
@@ -101,7 +108,7 @@ class ServerPresenter : Presenter<ServerView> {
             }
             val node = cdi().dispatcher.execute(operation)
             val servers = node.asPropertyList().map { Server(it.value[RESULT]) }
-            dataProvider.update(servers)
+            view.update(servers)
         }
     }
 
@@ -113,11 +120,6 @@ class ServerPresenter : Presenter<ServerView> {
 class ServerView : View, HasPresenter<ServerPresenter> {
 
     override val presenter: ServerPresenter by token(ServerPresenter.TOKEN)
-    internal val dataList: DataListComponent<Server> by component("#${Ids.SERVER_LIST}") {
-        it.pfDataList(presenter.dataProvider)
-    }
-    private val drawer: DrawerComponent by component(Drawer.selector()) { it.pfDrawer() }
-
     override val elements = with(document.create) {
         arrayOf(
             pfSection("light".modifier()) {
@@ -126,14 +128,21 @@ class ServerView : View, HasPresenter<ServerPresenter> {
                     p { +"The list of servers managed by the WildFly operator." }
                 }
             },
-            pfDivider(DIV),
+            pfDivider(DividerVariant.DIV),
             pfSection("light".modifier(), "no-padding".modifier()) {
                 pfDrawer {
                     pfDrawerMain {
                         pfDrawerContent {
                             pfDrawerBody {
+                                pfEmptyState("server".fas(), "No Servers") {
+                                    pfEmptyStateBody {
+                                        +"No servers found. Lorem ipsum..."
+                                    }
+                                    pfButton(Style.primary, "Refresh") {
+                                        onClickFunction = { presenter.updateServer() }
+                                    }
+                                }
                                 pfDataList<Server>(SelectionMode.SINGLE) {
-                                    id = Ids.SERVER_LIST
                                     renderer = { server, dataProvider ->
                                         {
                                             pfItemRow {
@@ -159,7 +168,33 @@ class ServerView : View, HasPresenter<ServerPresenter> {
         )
     }
 
-    internal fun show(server: Server) {
+    private val drawer: DrawerComponent by component(Drawer.selector()) { it.pfDrawer() }
+    private val dataProvider = DataProvider<Server> { Ids.server(it.name) }
+    private val dataList: DataListComponent<Server> by component(DataList.selector()) {
+        it.pfDataList(dataProvider)
+    }
+    private val emptyState: EmptyStateComponent by component(EmptyState.selector()) { it.pfEmptyState() }
+
+    internal fun init() {
+        dataProvider.bind(dataList)
+        dataProvider.onSelect { show(it) }
+
+        emptyState.element.style.display = "none"
+        dataList.element.style.display = "none"
+    }
+
+    internal fun update(servers: List<Server>) {
+        if (servers.isEmpty()) {
+            emptyState.element.style.display = "inherit"
+            dataList.element.style.display = "none"
+        } else {
+            emptyState.element.style.display = "none"
+            dataList.element.style.display = "inherit"
+            dataProvider.update(servers)
+        }
+    }
+
+    private fun show(server: Server) {
         drawer.show {
             pfDrawerBody {
                 pfDrawerHead {

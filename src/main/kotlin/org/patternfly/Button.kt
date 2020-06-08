@@ -30,7 +30,7 @@ fun FlowOrInteractiveOrPhrasingContent.pfButton(
     ButtonTag(buildSet {
         add(style.realValue)
         if (blockLevel) add("block".modifier())
-    }, text, iconClass, iconRight, consumer).visit(block)
+    }, text, iconClass, iconRight, consumer).visitPf(block)
 }
 
 @HtmlTagMarker
@@ -40,7 +40,7 @@ fun FlowOrInteractiveOrPhrasingContent.pfControlButton(
     iconRight: Boolean = false,
     block: ButtonTag.() -> Unit = {}
 ) {
-    ButtonTag(setOf("control".modifier()), text, iconClass, iconRight, consumer).visit(block)
+    ButtonTag(setOf("control".modifier()), text, iconClass, iconRight, consumer).visitPf(block)
 }
 
 @HtmlTagMarker
@@ -55,7 +55,7 @@ fun FlowOrInteractiveOrPhrasingContent.pfLinkButton(
     ButtonTag(buildSet {
         add("link".modifier())
         if (inline) add("inline".modifier())
-    }, text, iconClass, iconRight, consumer).visit(block)
+    }, text, iconClass, iconRight, consumer).visitPf(block)
 }
 
 @HtmlTagMarker
@@ -65,7 +65,7 @@ fun FlowOrInteractiveOrPhrasingContent.pfPlainButton(
     iconRight: Boolean = false,
     block: ButtonTag.() -> Unit = {}
 ) {
-    ButtonTag(setOf("plain".modifier()), text, iconClass, iconRight, consumer).visit(block)
+    ButtonTag(setOf("plain".modifier()), text, iconClass, iconRight, consumer).visitPf(block)
 }
 
 // ------------------------------------------------------ tag

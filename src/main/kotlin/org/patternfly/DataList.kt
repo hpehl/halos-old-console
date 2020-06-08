@@ -38,7 +38,7 @@ private val dlr: MutableMap<String, DataListRenderer<*>> = mutableMapOf()
 fun <T> FlowContent.pfDataList(
     selectionMode: SelectionMode = SelectionMode.NONE,
     block: DataListTag<T>.() -> Unit = {}
-) = DataListTag<T>(selectionMode, consumer).visit(block)
+) = DataListTag<T>(selectionMode, consumer).visitPf(block)
 
 @HtmlTagMarker
 private fun <T, C : TagConsumer<T>> C.pfDataListItem(block: DataListItemTag.() -> Unit = {}): T =
