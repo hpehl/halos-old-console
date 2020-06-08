@@ -1,19 +1,37 @@
 package org.patternfly
 
-import kotlinx.html.*
+import kotlinx.html.DIV
+import kotlinx.html.FlowContent
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.TagConsumer
+import kotlinx.html.UL
+import kotlinx.html.attributesMapOf
+import kotlinx.html.classes
+import kotlinx.html.div
 import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import kotlinx.html.dom.prepend
+import kotlinx.html.h4
+import kotlinx.html.id
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
+import kotlinx.html.li
+import kotlinx.html.span
+import kotlinx.html.ul
+import kotlinx.html.visit
 import org.jboss.elemento.Id
 import org.jboss.elemento.removeFromParent
 import org.patternfly.ComponentType.Alert
 import org.patternfly.ComponentType.AlertGroup
-import org.w3c.dom.*
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLUListElement
 import org.w3c.dom.events.EventTarget
 import kotlin.browser.document
 import kotlin.browser.window
+import kotlin.collections.set
 
 // ------------------------------------------------------ dsl
 

@@ -38,18 +38,5 @@ object Id {
             .map { it.toLowerCase() }
             .filter { it.isNotEmpty() }
             .joinToString()
-//        val parts = text.split("[-\\s]").toTypedArray()
-//        val sanitized = mutableListOf<String>()
-//        for (part in parts) {
-//            var s = part.replace("\\s+".toRegex(), "")
-//            s = s.replace("[^a-zA-Z0-9-_]".toRegex(), "")
-//            s = s.replace('_', '-')
-//            if (s.isNotEmpty()) sanitized.add(s)
-//        }
-//        return if (sanitized.isEmpty()) {
-//            ""
-//        } else {
-//            sanitized.filter(String::isNotEmpty).joinToString(transform = String::toLowerCase)
-//        }
     }
 }

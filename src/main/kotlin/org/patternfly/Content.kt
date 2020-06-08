@@ -1,6 +1,10 @@
 package org.patternfly
 
-import kotlinx.html.*
+import kotlinx.html.DIV
+import kotlinx.html.FlowContent
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.TagConsumer
+import kotlinx.html.attributesMapOf
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import org.patternfly.ComponentType.Content

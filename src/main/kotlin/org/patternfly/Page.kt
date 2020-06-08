@@ -1,9 +1,21 @@
 package org.patternfly
 
-import kotlinx.html.*
+import kotlinx.html.A
+import kotlinx.html.DIV
+import kotlinx.html.FlowContent
+import kotlinx.html.HEADER
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.MAIN
+import kotlinx.html.SECTION
+import kotlinx.html.TagConsumer
+import kotlinx.html.attributesMapOf
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
-import org.patternfly.ComponentType.*
+import kotlinx.html.visit
+import kotlinx.html.visitAndFinalize
+import org.patternfly.ComponentType.Page
+import org.patternfly.ComponentType.PageHeader
+import org.patternfly.ComponentType.PageMain
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement

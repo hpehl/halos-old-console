@@ -1,6 +1,13 @@
 package org.patternfly
 
-import kotlinx.html.*
+import kotlinx.html.DIV
+import kotlinx.html.FlowContent
+import kotlinx.html.HR
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.LI
+import kotlinx.html.TagConsumer
+import kotlinx.html.attributesMapOf
+import kotlinx.html.visitAndFinalize
 
 // ------------------------------------------------------ dsl
 
@@ -53,5 +60,3 @@ fun FlowContent.pfVerticalDivider(vararg classes: String) {
         ), consumer
     )
 }
-
-

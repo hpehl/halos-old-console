@@ -1,9 +1,20 @@
 package org.patternfly
 
-import kotlinx.html.*
+import kotlinx.html.DIV
+import kotlinx.html.FlowContent
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.LI
+import kotlinx.html.TagConsumer
+import kotlinx.html.UL
+import kotlinx.html.attributesMapOf
+import kotlinx.html.classes
 import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import kotlinx.html.js.onClickFunction
+import kotlinx.html.js.ul
+import kotlinx.html.tabIndex
+import kotlinx.html.visit
+import kotlinx.html.visitAndFinalize
 import org.jboss.elemento.Id
 import org.jboss.elemento.aria
 import org.patternfly.ComponentType.DataList
@@ -165,6 +176,5 @@ class DataListComponent<T>(element: HTMLUListElement, override val dataProvider:
     }
 
     override fun updateSortInfo(sortInfo: SortInfo<T>) {
-
     }
 }

@@ -1,7 +1,5 @@
 package org.jboss.mvp
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.PopStateEvent
 import org.w3c.dom.Window
@@ -23,17 +21,9 @@ fun String.placeRequest(): PlaceRequest {
     return PlaceRequest(token, params)
 }
 
-// Will break the JSON (de)serialization if implemented as data class property
 val PlaceRequest.url: String
     get() = window.location.pathname + toString()
 
-@Suppress("EXPERIMENTAL_API_USAGE")
-private var json: Json = Json { prettyPrint = false }
-
-@Suppress("UnsafeCastFromDynamic")
-fun PlaceRequest.toJson(): Any? = json.stringify(PlaceRequest.serializer(), this).asDynamic()
-
-@Serializable
 data class PlaceRequest(val token: String, val params: Map<String, String> = mapOf()) {
 
     override fun toString(): String = buildString {
@@ -45,12 +35,10 @@ data class PlaceRequest(val token: String, val params: Map<String, String> = map
 
     companion object {
         fun fromEvent(event: PopStateEvent) = if (event.state != null) {
-            fromJson(event.state)
+            event.state.unsafeCast<PlaceRequest>() // fromJson(event.state)
         } else {
             (event.target as Window).location.hash.placeRequest()
         }
-
-        fun fromJson(data: Any?): PlaceRequest = json.parse(serializer(), data as String)
     }
 }
 
@@ -76,14 +64,14 @@ class PlaceManager(selector: String, private val defaultPlace: PlaceRequest) {
     fun gotoCurrent() {
         internalPlace = navigate(window.location.hash.placeRequest())
         internalPlace?.let {
-            window.history.replaceState(it.toJson(), "", it.url)
+            window.history.replaceState(it, "", it.url)
         }
     }
 
     fun goto(place: PlaceRequest) {
         internalPlace = navigate(place)
         internalPlace?.let {
-            window.history.pushState(it.toJson(), "", it.url)
+            window.history.pushState(it, "", it.url)
         }
     }
 

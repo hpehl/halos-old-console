@@ -1,6 +1,16 @@
 package org.patternfly
 
-import kotlinx.html.*
+import kotlinx.html.FlowContent
+import kotlinx.html.H1
+import kotlinx.html.H2
+import kotlinx.html.H3
+import kotlinx.html.H4
+import kotlinx.html.H5
+import kotlinx.html.H6
+import kotlinx.html.HTMLTag
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.attributesMapOf
+import kotlinx.html.visit
 
 // ------------------------------------------------------ dsl
 

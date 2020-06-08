@@ -1,7 +1,12 @@
 package org.patternfly
 
-import kotlinx.html.*
+import kotlinx.html.FlowOrPhrasingContent
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.I
+import kotlinx.html.TagConsumer
+import kotlinx.html.attributesMapOf
 import kotlinx.html.dom.create
+import kotlinx.html.i
 import org.patternfly.ComponentType.Icon
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement

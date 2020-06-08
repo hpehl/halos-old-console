@@ -50,13 +50,13 @@ class DataInput(private val bytes: ByteArray) {
             longBytes[i] = bytes[pos++].toLong()
         }
         return (longBytes[0] shl 56) +
-                ((longBytes[1] and 255) shl 48) +
-                ((longBytes[2] and 255) shl 40) +
-                ((longBytes[3] and 255) shl 32) +
-                ((longBytes[4] and 255) shl 24) +
-                (longBytes[5] and 255 shl 16) +
-                (longBytes[6] and 255 shl 8) +
-                (longBytes[7] and 255 shl 0)
+            ((longBytes[1] and 255) shl 48) +
+            ((longBytes[2] and 255) shl 40) +
+            ((longBytes[3] and 255) shl 32) +
+            ((longBytes[4] and 255) shl 24) +
+            (longBytes[5] and 255 shl 16) +
+            (longBytes[6] and 255 shl 8) +
+            (longBytes[7] and 255 shl 0)
     }
 
     fun readUTF(): String {

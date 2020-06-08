@@ -4,7 +4,7 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 
-fun ComponentType.selector(): String = "[${Dataset.COMPONENT_TYPE.long}=${id}]"
+fun ComponentType.selector(): String = "[${Dataset.COMPONENT_TYPE.long}=$id]"
 
 internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
     element: Element?,

@@ -1,10 +1,24 @@
 package org.patternfly
 
-import kotlinx.html.*
+import kotlinx.html.A
+import kotlinx.html.DIV
+import kotlinx.html.FlowContent
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.TagConsumer
+import kotlinx.html.attributesMapOf
+import kotlinx.html.button
+import kotlinx.html.classes
 import kotlinx.html.dom.append
 import kotlinx.html.dom.create
+import kotlinx.html.hidden
+import kotlinx.html.id
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
+import kotlinx.html.li
+import kotlinx.html.role
+import kotlinx.html.span
+import kotlinx.html.ul
+import kotlinx.html.visitAndFinalize
 import org.jboss.elemento.Id
 import org.patternfly.ComponentType.Dropdown
 import org.w3c.dom.Element

@@ -1,7 +1,14 @@
 package org.patternfly
 
-import kotlinx.html.*
+import kotlinx.html.AttributeEnum
+import kotlinx.html.BUTTON
+import kotlinx.html.FlowOrInteractiveOrPhrasingContent
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.TagConsumer
+import kotlinx.html.attributesMapOf
+import kotlinx.html.button
 import kotlinx.html.dom.create
+import kotlinx.html.span
 import org.patternfly.ComponentType.Button
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLButtonElement

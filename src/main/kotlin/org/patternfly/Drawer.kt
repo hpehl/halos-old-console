@@ -1,10 +1,18 @@
 package org.patternfly
 
-import kotlinx.html.*
+import kotlinx.html.DIV
+import kotlinx.html.FlowContent
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.TagConsumer
+import kotlinx.html.attributesMapOf
+import kotlinx.html.div
 import kotlinx.html.dom.append
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import kotlinx.html.js.onClickFunction
+import kotlinx.html.tabIndex
+import kotlinx.html.visit
+import kotlinx.html.visitAndFinalize
 import org.jboss.elemento.aria
 import org.patternfly.ComponentType.Drawer
 import org.w3c.dom.Element
