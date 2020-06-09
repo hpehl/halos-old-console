@@ -15,12 +15,15 @@ import org.wildfly.halos.server.ServerUpdate
 import org.wildfly.halos.server.Servers
 
 interface BootstrapTask {
+    val name: String
     suspend fun execute()
 }
 
 class ReadServerTask : BootstrapTask {
     private val dispatcher = cdi().dispatcher
     private val eventBus = cdi().eventBus
+
+    override val name = "read servers"
 
     override suspend fun execute() {
         val operation = (ResourceAddress.root() op READ_RESOURCE_OPERATION) params {
@@ -34,6 +37,8 @@ class ReadServerTask : BootstrapTask {
 
 class ServerSubscriptionTask : BootstrapTask {
     private val eventBus = cdi().eventBus
+
+    override val name = "subscribe to server updates"
 
     override suspend fun execute() {
         val eventSource = EventSource("${Endpoint.instance}/subscribe", EventSourceInit(Environment.cors))

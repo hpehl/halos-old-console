@@ -2,6 +2,7 @@ package org.wildfly.halos
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import mu.KotlinLogging
 import mu.KotlinLoggingConfiguration
 import org.jboss.mvp.PlaceRequest
 import org.patternfly.pfNav
@@ -19,8 +20,10 @@ fun main() {
 
     cdi().placeManager.gotoCurrent()
     GlobalScope.launch {
+        val logger = KotlinLogging.logger("bootstrap")
         cdi().bootstrapTasks.forEach {
             val bootstrapTask = it()
+            logger.info { "Execute ${bootstrapTask.name}" }
             bootstrapTask.execute()
         }
     }
