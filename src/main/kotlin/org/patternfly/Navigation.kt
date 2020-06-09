@@ -143,7 +143,6 @@ class NavigationTag<T>(
         set(value) {
             field = value
             if (value != null) {
-                val id = Id.unique()
                 attributes[Dataset.REGISTRY.long] = id
                 selectRegistry[id] = value
             }

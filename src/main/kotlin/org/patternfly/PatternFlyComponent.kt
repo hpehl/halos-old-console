@@ -1,10 +1,27 @@
 package org.patternfly
 
+import org.jboss.elemento.hide
+import org.jboss.elemento.show
+import org.jboss.elemento.visible
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 
 fun ComponentType.selector(): String = "[${Dataset.COMPONENT_TYPE.long}=$id]"
+
+var PatternFlyComponent<*>.visible
+    get() = this.element.visible
+    set(value) {
+        this.element.visible = value
+    }
+
+fun PatternFlyComponent<*>.hide() {
+    this.element.hide()
+}
+
+fun PatternFlyComponent<*>.show() {
+    this.element.show()
+}
 
 internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
     element: Element?,

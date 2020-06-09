@@ -34,6 +34,7 @@ import org.patternfly.SelectionMode
 import org.patternfly.Style
 import org.patternfly.charts.pfcDonut
 import org.patternfly.fas
+import org.patternfly.hide
 import org.patternfly.modifier
 import org.patternfly.pfButton
 import org.patternfly.pfCell
@@ -55,42 +56,29 @@ import org.patternfly.pfItemRow
 import org.patternfly.pfSection
 import org.patternfly.pfTitle
 import org.patternfly.selector
-import org.w3c.dom.EventSource
-import org.w3c.dom.EventSourceInit
+import org.patternfly.visible
 import org.w3c.dom.MessageEvent
 import org.wildfly.halos.Ids
 import org.wildfly.halos.cdi
-import org.wildfly.halos.config.Endpoint
-import org.wildfly.halos.config.Environment
 import react.dom.render
 import kotlin.browser.document
 
 class Server(node: ModelNode) : NamedNode(node)
 
-class ServerSubscription {
-    private val subscriptions: MutableList<(MessageEvent) -> Unit> = mutableListOf()
+data class Servers(val servers: List<Server>)
 
-    init {
-        val eventSource = EventSource("${Endpoint.instance}/subscribe", EventSourceInit(Environment.cors))
-        eventSource.onmessage = {
-            subscriptions.forEach { sub -> sub(it) }
-        }
-    }
-
-    fun subscribe(subscription: (MessageEvent) -> Unit) {
-        subscriptions.add(subscription)
-    }
-}
+data class ServerUpdate(val event: MessageEvent)
 
 class ServerPresenter : Presenter<ServerView> {
 
     override val token = TOKEN
     override val view = ServerView()
-    private val serverSubscription = cdi().serverSubscription
+    private val dispatcher = cdi().dispatcher
+    private val eventBus = cdi().eventBus
 
     override fun bind() {
-        serverSubscription.subscribe {
-            Notification.info("${it.origin}: ${it.data}")
+        eventBus.subscribe(ServerUpdate::class) {
+            Notification.info("${it.event.origin}: ${it.event.data}")
             updateServer()
         }
         view.init()
@@ -106,7 +94,7 @@ class ServerPresenter : Presenter<ServerView> {
                 +ATTRIBUTES_ONLY
                 +INCLUDE_RUNTIME
             }
-            val node = cdi().dispatcher.execute(operation)
+            val node = dispatcher.execute(operation)
             val servers = node.asPropertyList().map { Server(it.value[RESULT]) }
             view.update(servers)
         }
@@ -178,18 +166,14 @@ class ServerView : View, HasPresenter<ServerPresenter> {
     internal fun init() {
         dataProvider.bind(dataList)
         dataProvider.onSelect { show(it) }
-
-        emptyState.element.style.display = "none"
-        dataList.element.style.display = "none"
+        emptyState.hide()
+        dataList.hide()
     }
 
     internal fun update(servers: List<Server>) {
-        if (servers.isEmpty()) {
-            emptyState.element.style.display = "inherit"
-            dataList.element.style.display = "none"
-        } else {
-            emptyState.element.style.display = "none"
-            dataList.element.style.display = "inherit"
+        emptyState.visible = servers.isEmpty()
+        dataList.visible = servers.isNotEmpty()
+        if (servers.isNotEmpty()) {
             dataProvider.update(servers)
         }
     }

@@ -1,5 +1,7 @@
 package org.jboss.mvp
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.PopStateEvent
 import org.w3c.dom.Window
@@ -21,9 +23,17 @@ fun String.placeRequest(): PlaceRequest {
     return PlaceRequest(token, params)
 }
 
+// Will break the JSON (de)serialization if implemented as data class property
 val PlaceRequest.url: String
     get() = window.location.pathname + toString()
 
+@Suppress("EXPERIMENTAL_API_USAGE")
+private var json: Json = Json { prettyPrint = false }
+
+@Suppress("UnsafeCastFromDynamic")
+fun PlaceRequest.toJson(): Any? = json.stringify(PlaceRequest.serializer(), this).asDynamic()
+
+@Serializable
 data class PlaceRequest(val token: String, val params: Map<String, String> = mapOf()) {
 
     override fun toString(): String = buildString {
@@ -35,7 +45,7 @@ data class PlaceRequest(val token: String, val params: Map<String, String> = map
 
     companion object {
         fun fromEvent(event: PopStateEvent) = if (event.state != null) {
-            event.state.unsafeCast<PlaceRequest>()
+            json.parse(serializer(), event.state as String)
         } else {
             (event.target as Window).location.hash.placeRequest()
         }
@@ -44,44 +54,46 @@ data class PlaceRequest(val token: String, val params: Map<String, String> = map
 
 class PlaceManager(selector: String, private val defaultPlace: PlaceRequest) {
 
-    private var currentPresenter: Presenter<*>? = null
-    private var element: HTMLElement? = document.querySelector(selector) as HTMLElement
+    private val element: HTMLElement? by lazy { document.querySelector(selector) as HTMLElement }
     private val navigationHandler: MutableList<(PlaceRequest) -> Unit> = mutableListOf()
+    private var internalPresenter: Presenter<*>? = null
     private var internalPlace: PlaceRequest? = null
-    val currentPlace: PlaceRequest
-        get() = internalPlace ?: defaultPlace
 
     init {
         window.addEventListener("popstate", {
-            navigate(PlaceRequest.fromEvent(it as PopStateEvent))
+            navigate(PlaceRequest.fromEvent(it as PopStateEvent)) {
+                // noop
+            }
         })
     }
+
+    val currentPlace: PlaceRequest
+        get() = internalPlace ?: defaultPlace
 
     fun onNavigate(handler: (PlaceRequest) -> Unit) {
         navigationHandler.add(handler)
     }
 
     fun gotoCurrent() {
-        internalPlace = navigate(window.location.hash.placeRequest())
-        internalPlace?.let {
-            window.history.replaceState(it, "", it.url)
+        navigate(window.location.hash.placeRequest()) {
+            window.history.replaceState(it.toJson(), "", it.url)
         }
     }
 
     fun goto(place: PlaceRequest) {
-        internalPlace = navigate(place)
-        internalPlace?.let {
-            window.history.pushState(it, "", it.url)
+        navigate(place) {
+            window.history.pushState(it.toJson(), "", it.url)
         }
     }
 
-    private fun navigate(place: PlaceRequest): PlaceRequest? {
+    private fun navigate(place: PlaceRequest, consumer: (PlaceRequest) -> Unit) {
+        console.log("Navigate to $place")
         val nonEmptyPlace = if (place.token.isEmpty()) defaultPlace else place
         val safePlace = if (nonEmptyPlace.token in Presenter) nonEmptyPlace else defaultPlace
         val presenter = Presenter.lookup<Presenter<View>>(safePlace.token)
         if (presenter != null) {
-            if (presenter !== currentPresenter) {
-                currentPresenter?.hide()
+            if (presenter !== internalPresenter) {
+                internalPresenter?.hide()
             }
             presenter.prepareFromRequest(place)
             element?.let {
@@ -89,12 +101,12 @@ class PlaceManager(selector: String, private val defaultPlace: PlaceRequest) {
                 it.append(*presenter.view.elements)
             }
             presenter.show()
-            currentPresenter = presenter
+            internalPresenter = presenter
+            internalPlace = safePlace
             navigationHandler.forEach { it(safePlace) }
-            return safePlace
+            consumer.invoke(safePlace)
         } else {
             console.error("No presenter found for $safePlace!")
-            return null
         }
     }
 }

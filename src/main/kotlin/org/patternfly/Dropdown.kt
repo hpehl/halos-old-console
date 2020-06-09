@@ -36,12 +36,16 @@ private val ddr: MutableMap<String, DropdownRenderer<*>> = mutableMapOf()
 // ------------------------------------------------------ dsl
 
 @HtmlTagMarker
-fun <T> FlowContent.pfDropdown(text: String, block: DropdownTag<T>.() -> Unit = {}) =
-    DropdownTag<T>(text, null, consumer).visitPf(block)
+fun <T> FlowContent.pfDropdown(text: String, rightAlign: Boolean = false, block: DropdownTag<T>.() -> Unit = {}) =
+    DropdownTag<T>(text, null, rightAlign, consumer).visitPf(block)
 
 @HtmlTagMarker
-fun <T> FlowContent.pfIconDropdown(iconClass: String, block: DropdownTag<T>.() -> Unit = {}) =
-    DropdownTag<T>(null, iconClass, consumer).visitPf(block)
+fun <T> FlowContent.pfIconDropdown(
+    iconClass: String,
+    rightAlign: Boolean = false,
+    block: DropdownTag<T>.() -> Unit = {}
+) =
+    DropdownTag<T>(null, iconClass, rightAlign, consumer).visitPf(block)
 
 @HtmlTagMarker
 private fun <T, C : TagConsumer<T>> C.pfDropdownItem(block: DropdownItemTag.() -> Unit = {}): T =
@@ -49,7 +53,12 @@ private fun <T, C : TagConsumer<T>> C.pfDropdownItem(block: DropdownItemTag.() -
 
 // ------------------------------------------------------ tag
 
-class DropdownTag<T>(private val text: String?, private val iconClass: String?, consumer: TagConsumer<*>) :
+class DropdownTag<T>(
+    private val text: String?,
+    private val iconClass: String?,
+    private val rightAlign: Boolean,
+    consumer: TagConsumer<*>
+) :
     DIV(attributesMapOf("class", "dropdown".component()), consumer),
     PatternFlyTag, Ouia {
 
@@ -116,6 +125,9 @@ class DropdownTag<T>(private val text: String?, private val iconClass: String?, 
             hidden = true
             role = "menu"
             aria["labelledby"] = buttonId
+            if (this@DropdownTag.rightAlign) {
+                classes += "align-right".modifier()
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ import org.patternfly.component
 import org.patternfly.layout
 import org.patternfly.pfBrand
 import org.patternfly.pfBrandLink
+import org.patternfly.pfDropdown
 import org.patternfly.pfHeader
 import org.patternfly.pfHeaderTools
 import org.patternfly.pfIcon
@@ -25,9 +26,19 @@ import org.patternfly.pfVerticalNav
 import org.w3c.dom.HTMLElement
 import org.wildfly.halos.model.ManagementModelPresenter
 import org.wildfly.halos.server.ServerPresenter
+import org.wildfly.halos.server.Servers
 import kotlin.browser.document
 
 object Application {
+
+    private val eventBus = cdi().eventBus
+
+    init {
+        eventBus.subscribe(Servers::class) {
+            document.querySelector("#${Ids.SERVER_DROPDOWN}").pfDropdown<String>()
+                .addAll(it.servers.map { server -> server.name })
+        }
+    }
 
     fun skeleton(): Array<HTMLElement> = with(document.create) {
         arrayOf(
@@ -46,7 +57,7 @@ object Application {
                                     pfNotificationBadge()
                                 }
                                 div("toolbar".layout("item")) {
-                                    pfIconDropdown<String>("server".pfIcon()) {
+                                    pfIconDropdown<String>("server".pfIcon(), true) {
                                         id = Ids.SERVER_DROPDOWN
                                         onSelect = { console.log("Selected $it") }
                                     }

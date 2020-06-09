@@ -2,6 +2,7 @@ package org.jboss.elemento
 
 import org.w3c.dom.DOMTokenList
 import org.w3c.dom.Element
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.Node
 
 // ------------------------------------------------------ token list
@@ -32,6 +33,24 @@ var Element.hidden
     set(value) {
         setAttribute("hidden", value.toString())
     }
+
+var HTMLElement.visible: Boolean
+    get() = this.style.display != "none"
+    set(value) {
+        if (value) {
+            show()
+        } else {
+            hide()
+        }
+    }
+
+fun HTMLElement.hide() {
+    this.style.display = "none"
+}
+
+fun HTMLElement.show() {
+    this.style.display = "unset"
+}
 
 class Aria(private val element: Element) {
 

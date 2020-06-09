@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevSer
 plugins {
     id("org.jetbrains.kotlin.js") version "1.4-M2"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    kotlin("plugin.serialization") version "1.3.70"
 }
 
 group = "org.wildfly.halos"
@@ -19,6 +20,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-js"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.3.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.20.0-1.4-M2")
     implementation("org.jetbrains:kotlin-react:16.13.0-pre.94-kotlin-1.3.70")
     implementation("org.jetbrains:kotlin-react-dom:16.13.0-pre.94-kotlin-1.3.70")
     implementation("org.jetbrains:kotlin-styled:1.0.0-pre.94-kotlin-1.3.70")
