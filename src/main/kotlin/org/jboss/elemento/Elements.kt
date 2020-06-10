@@ -4,6 +4,7 @@ import org.w3c.dom.DOMTokenList
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.Node
+import org.w3c.dom.ParentNode
 
 // ------------------------------------------------------ token list
 
@@ -23,7 +24,7 @@ fun Node?.removeFromParent() {
     }
 }
 
-// ------------------------------------------------------ element
+// ------------------------------------------------------ element et al
 
 val Element.aria: Aria
     get() = Aria(this)
@@ -51,6 +52,14 @@ fun HTMLElement.hide() {
 fun HTMLElement.show() {
     this.style.display = "unset"
 }
+
+fun Element.closest(selector: By): Element? = this.closest(selector.selector)
+
+fun Element.matches(selector: By): Boolean = this.matches(selector.selector)
+
+fun ParentNode.querySelector(selector: By) = this.querySelector(selector.selector)
+
+fun ParentNode.querySelectorAll(selector: By) = this.querySelectorAll(selector.selector)
 
 class Aria(private val element: Element) {
 

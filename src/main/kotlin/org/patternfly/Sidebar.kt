@@ -9,6 +9,8 @@ import kotlinx.html.div
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import kotlinx.html.visit
+import org.jboss.elemento.By
+import org.jboss.elemento.querySelector
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.events.EventTarget
@@ -56,5 +58,5 @@ fun Element?.pfSidebar(): SidebarComponent =
     component(this, ComponentType.Sidebar, { document.create.div() }, { it as HTMLDivElement }, ::SidebarComponent)
 
 class SidebarComponent(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element) {
-    fun body(): Element? = element.querySelector(".${"page".component("sidebar", "body")}")
+    fun body(): Element? = element.querySelector(By.classname("page".component("sidebar", "body")))
 }

@@ -1,6 +1,7 @@
 package org.wildfly.halos
 
 import org.jboss.dmr.Dispatcher
+import org.jboss.elemento.By
 import org.jboss.mvp.EventBus
 import org.jboss.mvp.PlaceManager
 import org.jboss.mvp.PlaceRequest
@@ -31,7 +32,7 @@ internal object CDIInstance : CDI {
     override val bootstrapTasks = listOf(::ReadServerTask, ::ServerSubscriptionTask)
     override val dispatcher = Dispatcher(Endpoint.management, Environment.cors)
     override val eventBus = EventBus()
-    override val placeManager = PlaceManager("#$MAIN", PlaceRequest(ServerPresenter.TOKEN))
+    override val placeManager = PlaceManager(By.id(MAIN).selector, PlaceRequest(ServerPresenter.TOKEN))
 
     override fun <P : Presenter<out View>> presenter(token: String): P =
         checkNotNull(Presenter.lookup<P>(token)) {

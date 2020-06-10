@@ -15,9 +15,12 @@ import kotlinx.html.js.ul
 import kotlinx.html.tabIndex
 import kotlinx.html.visit
 import kotlinx.html.visitAndFinalize
+import org.jboss.elemento.By
 import org.jboss.elemento.Id
 import org.jboss.elemento.aria
+import org.jboss.elemento.querySelector
 import org.patternfly.ComponentType.DataList
+import org.patternfly.Dataset.DATA_LIST_ITEM
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLUListElement
 import org.w3c.dom.asList
@@ -138,7 +141,7 @@ class DataListComponent<T>(element: HTMLUListElement, override val dataProvider:
             element.append {
                 pfDataListItem {
                     tabIndex = "0"
-                    attributes[Dataset.DATA_LIST_ITEM.long] = itemId
+                    attributes[DATA_LIST_ITEM.long] = itemId
                     if (selectionMode != SelectionMode.NONE) {
                         classes += "selectable".modifier()
                         onClickFunction = {
@@ -154,7 +157,7 @@ class DataListComponent<T>(element: HTMLUListElement, override val dataProvider:
                     block(this)
                 }
             }
-            element.querySelector("#$itemId")?.let {
+            element.querySelector(By.id(itemId))?.let {
                 it.aria["labelledby"] = itemId
             }
         }
@@ -163,7 +166,7 @@ class DataListComponent<T>(element: HTMLUListElement, override val dataProvider:
     override fun updateSelection(selectionInfo: SelectionInfo<T>) {
         for (item in dataProvider.visibleItems) {
             val itemId = (dataProvider.identifier)(item)
-            element.querySelector("[${Dataset.DATA_LIST_ITEM.long}=$itemId]")?.let {
+            element.querySelector(By.data(DATA_LIST_ITEM.long, itemId))?.let {
                 if (selectionInfo.selected(item)) {
                     it.classList.add("selected".modifier())
                     it.aria["selected"] = true

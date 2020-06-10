@@ -4,7 +4,9 @@ import kotlinx.html.div
 import kotlinx.html.dom.create
 import kotlinx.html.id
 import kotlinx.html.img
+import org.jboss.elemento.By
 import org.jboss.elemento.Id
+import org.jboss.elemento.querySelector
 import org.jboss.mvp.PlaceRequest
 import org.patternfly.component
 import org.patternfly.layout
@@ -24,6 +26,7 @@ import org.patternfly.pfSidebar
 import org.patternfly.pfToastAlertGroup
 import org.patternfly.pfVerticalNav
 import org.w3c.dom.HTMLElement
+import org.wildfly.halos.Ids.SERVER_DROPDOWN
 import org.wildfly.halos.model.ManagementModelPresenter
 import org.wildfly.halos.server.ServerPresenter
 import org.wildfly.halos.server.Servers
@@ -35,7 +38,7 @@ object Application {
 
     init {
         eventBus.subscribe(Servers::class) {
-            document.querySelector("#${Ids.SERVER_DROPDOWN}").pfDropdown<String>()
+            document.querySelector(By.id(SERVER_DROPDOWN)).pfDropdown<String>()
                 .addAll(it.servers.map { server -> server.name })
         }
     }
@@ -58,7 +61,7 @@ object Application {
                                 }
                                 div("toolbar".layout("item")) {
                                     pfIconDropdown<String>("server".pfIcon(), true) {
-                                        id = Ids.SERVER_DROPDOWN
+                                        id = SERVER_DROPDOWN
                                         onSelect = { console.log("Selected $it") }
                                     }
                                 }

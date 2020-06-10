@@ -13,6 +13,8 @@ import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import kotlinx.html.visit
 import kotlinx.html.visitAndFinalize
+import org.jboss.elemento.By
+import org.jboss.elemento.querySelector
 import org.patternfly.ComponentType.Page
 import org.patternfly.ComponentType.PageHeader
 import org.patternfly.ComponentType.PageMain
@@ -105,7 +107,9 @@ class PageTag internal constructor(consumer: TagConsumer<*>) :
 // ------------------------------------------------------ component
 
 private val globalHeader: PageHeaderComponent by lazy {
-    val selector = "${PageHeader.selector()}[role=banner]"
+    val selector = By
+        .selector(PageHeader.selector())
+        .and(By.attribute("role", "banner"))
     document.querySelector(selector).pfHeader()
 }
 

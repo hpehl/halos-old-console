@@ -18,12 +18,16 @@ import kotlinx.html.section
 import kotlinx.html.span
 import kotlinx.html.ul
 import kotlinx.html.visit
+import org.jboss.elemento.By
 import org.jboss.elemento.Id
 import org.jboss.elemento.aria
 import org.jboss.elemento.hidden
 import org.jboss.elemento.minusAssign
 import org.jboss.elemento.plusAssign
+import org.jboss.elemento.querySelector
+import org.jboss.elemento.querySelectorAll
 import org.patternfly.ComponentType.Navigation
+import org.patternfly.Dataset.NAVIGATION_ITEM
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
@@ -109,7 +113,7 @@ fun <T> NavigationItemsTag<T>.pfNavItem(text: String, item: T) {
     li("nav".component("item")) {
         a(classes = "nav".component("link")) {
             this@pfNavItem.identifier?.let {
-                attributes[Dataset.NAVIGATION_ITEM.long] = it(item)
+                attributes[NAVIGATION_ITEM.long] = it(item)
                 onClickFunction = {
                     it.target.pfNav<T>().select(item)
                 }
@@ -165,7 +169,9 @@ class NavigationItemsTag<T>(internal val identifier: Identifier<T>?, classes: St
 
 @Suppress("UNCHECKED_CAST")
 fun <T> Document.pfNav(): NavigationComponent<T> {
-    val selector = "${Navigation.selector()}[aria-label=Global]"
+    val selector = By
+        .selector(Navigation.selector())
+        .and(By.attribute("aria-label", "Global"))
     return document.querySelector(selector).pfNav()
 }
 
@@ -189,10 +195,10 @@ class NavigationComponent<T>(element: HTMLElement) : PatternFlyComponent<HTMLEle
         val itemId = identifier(item)
 
         // first (de)select the items
-        val selector = ".${"nav".component("link")}[${Dataset.NAVIGATION_ITEM.long}]"
+        val selector = By.classname("nav".component("link")).and(By.data(NAVIGATION_ITEM.long))
         val items = element.querySelectorAll(selector)
         items.asList().map { it as HTMLElement }.forEach {
-            if (it.dataset[Dataset.NAVIGATION_ITEM.short] == itemId) {
+            if (it.dataset[NAVIGATION_ITEM.short] == itemId) {
                 it.classList += "current".modifier()
                 it.aria["current"] = "page"
                 if (fireEvent) {
@@ -205,10 +211,10 @@ class NavigationComponent<T>(element: HTMLElement) : PatternFlyComponent<HTMLEle
         }
 
         // then (de)select the expandable parents (if any)
-        val expandables = element.querySelectorAll(".${"expandable".modifier()}")
+        val expandables = element.querySelectorAll(By.classname("expandable".modifier()))
         expandables.asList().map { it as Element }.forEach {
             // it = li.pf-c-nav__item.pf-m-expandable
-            if (it.querySelector("#$itemId") != null) {
+            if (it.querySelector(By.id(itemId)) != null) {
                 it.classList += "current".modifier()
                 it.firstElementChild?.let { a -> expand(a) }
             } else {

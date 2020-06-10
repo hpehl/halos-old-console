@@ -19,7 +19,9 @@ import kotlinx.html.li
 import kotlinx.html.span
 import kotlinx.html.ul
 import kotlinx.html.visit
+import org.jboss.elemento.By
 import org.jboss.elemento.Id
+import org.jboss.elemento.querySelector
 import org.jboss.elemento.removeFromParent
 import org.patternfly.ComponentType.Alert
 import org.patternfly.ComponentType.AlertGroup
@@ -149,7 +151,9 @@ class AlertTag internal constructor(
 // ------------------------------------------------------ component
 
 private val globalToastAlertGroup: AlertGroupComponent by lazy {
-    val selector = ".${"toast".modifier()}${AlertGroup.selector()}"
+    val selector = By
+        .classname("toast".modifier())
+        .and(By.selector(AlertGroup.selector()))
     document.querySelector(selector).pfAlertGroup()
 }
 
@@ -212,8 +216,12 @@ class AlertGroupComponent internal constructor(element: HTMLUListElement) :
         timeoutHandles[id]?.let { window.clearTimeout(it) }
     }
 
-    private fun alertElement(id: String) =
-        element.querySelector("#$id > ${Alert.selector()}") as HTMLElement
+    private fun alertElement(id: String): HTMLElement {
+        val selector = By
+            .id(id)
+            .child(By.selector(Alert.selector()))
+        return element.querySelector(selector) as HTMLElement
+    }
 }
 
 /** Gets the [AlertComponent] for the given event target. */

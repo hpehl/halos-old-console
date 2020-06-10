@@ -1,5 +1,6 @@
 package org.patternfly
 
+import org.jboss.elemento.By
 import org.jboss.elemento.hide
 import org.jboss.elemento.show
 import org.jboss.elemento.visible
@@ -7,7 +8,7 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 
-fun ComponentType.selector(): String = "[${Dataset.COMPONENT_TYPE.long}=$id]"
+fun ComponentType.selector(): String = By.data(Dataset.COMPONENT_TYPE.long, id).selector
 
 var PatternFlyComponent<*>.visible
     get() = this.element.visible

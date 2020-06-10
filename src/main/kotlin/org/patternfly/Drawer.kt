@@ -13,7 +13,9 @@ import kotlinx.html.js.onClickFunction
 import kotlinx.html.tabIndex
 import kotlinx.html.visit
 import kotlinx.html.visitAndFinalize
+import org.jboss.elemento.By
 import org.jboss.elemento.aria
+import org.jboss.elemento.querySelector
 import org.patternfly.ComponentType.Drawer
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
@@ -107,7 +109,7 @@ fun Element?.pfDrawer(): DrawerComponent =
     component(this, Drawer, { document.create.div() }, { it as HTMLDivElement }, ::DrawerComponent)
 
 class DrawerComponent(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element) {
-    private val panel: HTMLElement = element.querySelector(".${"drawer".component("panel")}") as HTMLElement
+    private val panel: HTMLElement = element.querySelector(By.classname("drawer".component("panel"))) as HTMLElement
 
     fun show(block: TagConsumer<HTMLElement>.() -> Unit) {
         panel.clear()

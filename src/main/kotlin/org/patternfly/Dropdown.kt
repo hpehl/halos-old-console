@@ -19,7 +19,9 @@ import kotlinx.html.role
 import kotlinx.html.span
 import kotlinx.html.ul
 import kotlinx.html.visitAndFinalize
+import org.jboss.elemento.By
 import org.jboss.elemento.Id
+import org.jboss.elemento.querySelector
 import org.patternfly.ComponentType.Dropdown
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
@@ -144,8 +146,8 @@ fun <T> Element?.pfDropdown(): DropdownComponent<T> =
 
 class DropdownComponent<T>(element: HTMLDivElement) : PatternFlyComponent<HTMLDivElement>(element) {
 
-    private val button = element.querySelector(".${"dropdown".component("toggle")}")
-    private val menu = element.querySelector(".${"dropdown".component("menu")}")
+    private val button = element.querySelector(By.classname("dropdown".component("toggle")))
+    private val menu = element.querySelector(By.classname("dropdown".component("menu")))
     internal val ceh: CollapseExpandHandler = CollapseExpandHandler(element, button as HTMLElement, menu as HTMLElement)
     private val identifier: Identifier<T> by identifier<DropdownComponent<T>, T>()
     private val asString: AsString<T> by asString<DropdownComponent<T>, T>()

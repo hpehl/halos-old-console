@@ -12,7 +12,9 @@ import kotlinx.html.dom.create
 import kotlinx.html.h1
 import kotlinx.html.js.div
 import kotlinx.html.span
+import org.jboss.elemento.By
 import org.jboss.elemento.aria
+import org.jboss.elemento.querySelector
 import org.patternfly.ComponentType.NotificationBadge
 import org.patternfly.ComponentType.NotificationDrawer
 import org.w3c.dom.Document
@@ -89,7 +91,9 @@ class NotificationDrawerTag(consumer: TagConsumer<*>) :
 // ------------------------------------------------------ component
 
 private val globalNotificationBadge: NotificationBadgeComponent by lazy {
-    val selector = ".${"page".component("header")} ${NotificationBadge.selector()}"
+    val selector = By
+        .classname("page".component("header"))
+        .desc(By.selector(NotificationBadge.selector()))
     document.querySelector(selector).pfNotificationBadge()
 }
 
@@ -110,7 +114,7 @@ class NotificationBadgeComponent(element: HTMLButtonElement) : PatternFlyCompone
 
     fun markRead() {
         element.aria["label"] = "Notifications"
-        element.querySelector(".${"notification-badge".component()}")?.let {
+        element.querySelector(By.classname("notification-badge".component()))?.let {
             it.classList.add("read".modifier())
             it.classList.remove("unread".modifier())
         }
@@ -118,7 +122,7 @@ class NotificationBadgeComponent(element: HTMLButtonElement) : PatternFlyCompone
 
     fun markUnread() {
         element.aria["label"] = "Unread Notifications"
-        element.querySelector(".${"notification-badge".component()}")?.let {
+        element.querySelector(By.classname("notification-badge".component()))?.let {
             it.classList.add("unread".modifier())
             it.classList.remove("read".modifier())
         }
@@ -126,9 +130,7 @@ class NotificationBadgeComponent(element: HTMLButtonElement) : PatternFlyCompone
 }
 
 private val globalNavigationDrawer: NotificationDrawerComponent by lazy {
-    val selector = NotificationDrawer.selector()
-    val element = document.querySelector(selector)
-    element.pfNotificationDrawer()
+    document.querySelector(NotificationDrawer.selector()).pfNotificationDrawer()
 }
 
 fun Document.pfNotificationDrawer(): NotificationDrawerComponent = globalNavigationDrawer
