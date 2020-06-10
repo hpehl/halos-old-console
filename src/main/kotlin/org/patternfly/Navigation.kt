@@ -28,6 +28,7 @@ import org.jboss.elemento.querySelector
 import org.jboss.elemento.querySelectorAll
 import org.patternfly.ComponentType.Navigation
 import org.patternfly.Dataset.NAVIGATION_ITEM
+import org.patternfly.Dataset.REGISTRY
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
@@ -138,7 +139,7 @@ class NavigationTag<T>(
         set(value) {
             field = value
             if (value != null) {
-                attributes[Dataset.REGISTRY.long] = id
+                attributes[REGISTRY.long] = id
                 identifierRegistry[id] = value
             }
         }
@@ -147,7 +148,7 @@ class NavigationTag<T>(
         set(value) {
             field = value
             if (value != null) {
-                attributes[Dataset.REGISTRY.long] = id
+                attributes[REGISTRY.long] = id
                 selectRegistry[id] = value
             }
         }
@@ -167,13 +168,15 @@ class NavigationItemsTag<T>(internal val identifier: Identifier<T>?, classes: St
 
 // ------------------------------------------------------ component
 
-@Suppress("UNCHECKED_CAST")
-fun <T> Document.pfNav(): NavigationComponent<T> {
+private val globalNavigation: NavigationComponent<Any> by lazy {
     val selector = By
         .selector(Navigation.selector())
         .and(By.attribute("aria-label", "Global"))
-    return document.querySelector(selector).pfNav()
+    document.querySelector(selector).pfNav()
 }
+
+@Suppress("UNCHECKED_CAST")
+fun <T> Document.pfNav(): NavigationComponent<T> = globalNavigation as NavigationComponent<T>
 
 fun <T> EventTarget?.pfNav(): NavigationComponent<T> = (this as Element).pfNav()
 
@@ -195,7 +198,7 @@ class NavigationComponent<T>(element: HTMLElement) : PatternFlyComponent<HTMLEle
         val itemId = identifier(item)
 
         // first (de)select the items
-        val selector = By.classname("nav".component("link")).and(By.data(NAVIGATION_ITEM.long))
+        val selector = By.classname("nav".component("link")).and(By.data(NAVIGATION_ITEM.short))
         val items = element.querySelectorAll(selector)
         items.asList().map { it as HTMLElement }.forEach {
             if (it.dataset[NAVIGATION_ITEM.short] == itemId) {

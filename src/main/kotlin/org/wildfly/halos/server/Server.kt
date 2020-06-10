@@ -95,8 +95,7 @@ class ServerPresenter : Presenter<ServerView> {
                 +INCLUDE_RUNTIME
             }
             val node = dispatcher.execute(operation)
-            val servers = node.asPropertyList().map { Server(it.value[RESULT]) }
-            view.update(servers)
+            view.update(Servers(node.asPropertyList().map { Server(it.value[RESULT]) }))
         }
     }
 
@@ -170,11 +169,13 @@ class ServerView : View, HasPresenter<ServerPresenter> {
         dataList.hide()
     }
 
-    internal fun update(servers: List<Server>) {
-        emptyState.visible = servers.isEmpty()
-        dataList.visible = servers.isNotEmpty()
-        if (servers.isNotEmpty()) {
-            dataProvider.update(servers)
+    internal fun update(servers: Servers) {
+        with(servers.servers) {
+            emptyState.visible = isEmpty()
+            dataList.visible = isNotEmpty()
+            if (isNotEmpty()) {
+                dataProvider.update(this)
+            }
         }
     }
 

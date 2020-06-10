@@ -4,11 +4,12 @@ import org.jboss.elemento.By
 import org.jboss.elemento.hide
 import org.jboss.elemento.show
 import org.jboss.elemento.visible
+import org.patternfly.Dataset.COMPONENT_TYPE
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 
-fun ComponentType.selector(): String = By.data(Dataset.COMPONENT_TYPE.long, id).selector
+fun ComponentType.selector(): String = By.data(COMPONENT_TYPE.short, id).selector
 
 var PatternFlyComponent<*>.visible
     get() = this.element.visible
@@ -32,7 +33,7 @@ internal fun <C : PatternFlyComponent<E>, E : HTMLElement> component(
     create: (element: E) -> C
 ): C {
     if (element is HTMLElement) {
-        val id = element.dataset[Dataset.COMPONENT_TYPE.short]
+        val id = element.dataset[COMPONENT_TYPE.short]
         return if (componentType.id == id) {
             create(targetElement(element))
         } else {

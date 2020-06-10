@@ -1,6 +1,7 @@
 package org.patternfly
 
 import org.jboss.elemento.Id
+import org.patternfly.Dataset.REGISTRY
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 import kotlin.properties.ReadOnlyProperty
@@ -30,7 +31,7 @@ internal class RegistryLookup<in R : PatternFlyComponent<HTMLElement>, out T>(
 
     @Suppress("UNCHECKED_CAST")
     override fun getValue(thisRef: R, property: KProperty<*>): T {
-        val id = thisRef.element.dataset[Dataset.REGISTRY.short]
+        val id = thisRef.element.dataset[REGISTRY.short]
         return if (id != null) {
             registry.getOrElse(id, default) as T
         } else {
@@ -45,7 +46,7 @@ internal class NullableRegistryLookup<in R : PatternFlyComponent<HTMLElement>, o
 
     @Suppress("UNCHECKED_CAST")
     override fun getValue(thisRef: R, property: KProperty<*>): T? {
-        val id = thisRef.element.dataset[Dataset.REGISTRY.short]
+        val id = thisRef.element.dataset[REGISTRY.short]
         return if (id != null) {
             registry[id] as T
         } else {

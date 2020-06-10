@@ -15,10 +15,10 @@ fun main() {
     kotlinext.js.require("@patternfly/patternfly/patternfly-addons.css")
 
     document.body!!.append(*Application.skeleton())
-    document.pfNav<PlaceRequest>().select(cdi().placeManager.currentPlace, false)
-    document.pfNav<PlaceRequest>().autoSelect { PlaceRequest.fromEvent(it) }
-
     cdi().placeManager.gotoCurrent()
+    document.pfNav<PlaceRequest>().autoSelect { PlaceRequest.fromEvent(it) }
+    document.pfNav<PlaceRequest>().select(cdi().placeManager.currentPlace, false)
+
     GlobalScope.launch {
         val logger = KotlinLogging.logger("bootstrap")
         cdi().bootstrapTasks.forEach {

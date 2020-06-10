@@ -21,6 +21,8 @@ import org.jboss.elemento.aria
 import org.jboss.elemento.querySelector
 import org.patternfly.ComponentType.DataList
 import org.patternfly.Dataset.DATA_LIST_ITEM
+import org.patternfly.Dataset.REGISTRY
+import org.patternfly.Dataset.SELECTION_MODE
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLUListElement
 import org.w3c.dom.asList
@@ -79,13 +81,13 @@ class DataListTag<T>(private val selectionMode: SelectionMode = SelectionMode.NO
         set(value) {
             field = value
             if (value != null) {
-                attributes[Dataset.REGISTRY.long] = id
+                attributes[REGISTRY.long] = id
                 dlr[id] = value as DataListRenderer<*>
             }
         }
 
     override fun head() {
-        attributes[Dataset.SELECTION_MODE.long] = selectionMode.name.toLowerCase()
+        attributes[SELECTION_MODE.long] = selectionMode.name.toLowerCase()
     }
 }
 
@@ -122,7 +124,7 @@ class DataListComponent<T>(element: HTMLUListElement, override val dataProvider:
     PatternFlyComponent<HTMLUListElement>(element), Display<T> {
 
     private val selectionMode: SelectionMode =
-        SelectionMode.valueOf(element.dataset[Dataset.SELECTION_MODE.short]?.toUpperCase() ?: SelectionMode.NONE.name)
+        SelectionMode.valueOf(element.dataset[SELECTION_MODE.short]?.toUpperCase() ?: SelectionMode.NONE.name)
     private val renderer: DataListRenderer<T> by RegistryLookup<DataListComponent<T>, DataListRenderer<T>>(dlr) {
         { _, _ ->
             {

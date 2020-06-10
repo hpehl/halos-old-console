@@ -23,6 +23,8 @@ import org.jboss.elemento.By
 import org.jboss.elemento.Id
 import org.jboss.elemento.querySelector
 import org.patternfly.ComponentType.Dropdown
+import org.patternfly.Dataset.DROPDOWN_ITEM
+import org.patternfly.Dataset.REGISTRY
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
@@ -71,7 +73,7 @@ class DropdownTag<T>(
         set(value) {
             field = value
             if (value != null) {
-                attributes[Dataset.REGISTRY.long] = id
+                attributes[REGISTRY.long] = id
                 identifierRegistry[id] = value
             }
         }
@@ -80,7 +82,7 @@ class DropdownTag<T>(
         set(value) {
             field = value
             if (value != null) {
-                attributes[Dataset.REGISTRY.long] = id
+                attributes[REGISTRY.long] = id
                 asStringRegistry[id] = value
             }
         }
@@ -89,7 +91,7 @@ class DropdownTag<T>(
         set(value) {
             field = value
             if (value != null) {
-                attributes[Dataset.REGISTRY.long] = id
+                attributes[REGISTRY.long] = id
                 ddr[id] = value
             }
         }
@@ -98,7 +100,7 @@ class DropdownTag<T>(
         set(value) {
             field = value
             if (value != null) {
-                attributes[Dataset.REGISTRY.long] = id
+                attributes[REGISTRY.long] = id
                 selectRegistry[id] = value
             }
         }
@@ -172,7 +174,7 @@ class DropdownComponent<T>(element: HTMLDivElement) : PatternFlyComponent<HTMLDi
                 li {
                     role = "menuitem"
                     pfDropdownItem {
-                        attributes[Dataset.DROPDOWN_ITEM.long] = identifier(item)
+                        attributes[DROPDOWN_ITEM.long] = identifier(item)
                         onClickFunction = {
                             ceh.collapse()
                             this@DropdownComponent.onSelect?.let {
