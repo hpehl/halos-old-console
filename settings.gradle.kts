@@ -1,4 +1,4 @@
-rootProject.name = "halos"
+rootProject.name = "halos-console"
 
 pluginManagement {
     repositories {
