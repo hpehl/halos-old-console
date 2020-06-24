@@ -51,7 +51,8 @@ object Application {
                 pfSidebar {
                     pfNavigation(cdi().placeManager, VERTICAL) {
                         pfNavItems {
-                            pfNavigationItem("Server", PlaceRequest(Places.server))
+                            pfNavigationItem("Servers", PlaceRequest(Places.server))
+                            pfNavigationItem("Deployment", PlaceRequest(Places.deployment))
                             pfNavigationItem("Management Model", PlaceRequest(Places.management))
                         }
                     }

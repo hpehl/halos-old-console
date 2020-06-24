@@ -63,7 +63,7 @@ class DataList<T : WithId> internal constructor(
                     attr(DATA_LIST_ITEM.long, itemId)
                     if (this@DataList.selectionMode != SelectionMode.NONE) {
                         domNode.classList.add("selectable".modifier())
-                        clicks.map { item } handledBy this@DataList.store.selects
+                        clicks.map { item } handledBy this@DataList.store.selection
                     }
                     val content = this@DataList.display.invoke(item)
                     content.invoke(this)
@@ -76,7 +76,7 @@ class DataList<T : WithId> internal constructor(
 // ------------------------------------------------------ store
 
 class DataListStore<T : WithId> : RootStore<List<T>>(listOf()) {
-    val selects = handleAndEmit<T, T> { items, item ->
+    val selection = handleAndEmit<T, T> { items, item ->
         offer(item)
         items
     }

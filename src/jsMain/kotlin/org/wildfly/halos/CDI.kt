@@ -7,6 +7,7 @@ import org.jboss.mvp.Presenter
 import org.patternfly.DataListStore
 import org.patternfly.pfContent
 import org.patternfly.pfSection
+import org.wildfly.halos.deployment.DeploymentPresenter
 import org.wildfly.halos.model.ManagementModelPresenter
 import org.wildfly.halos.server.Server
 import org.wildfly.halos.server.ServerPresenter
@@ -22,6 +23,7 @@ interface CDI {
 internal object CDIInstance : CDI {
     init {
         Presenter.register(Places.server, ::ServerPresenter)
+        Presenter.register(Places.deployment, ::DeploymentPresenter)
         Presenter.register(Places.management, ::ManagementModelPresenter)
     }
 

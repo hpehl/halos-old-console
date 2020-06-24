@@ -37,6 +37,7 @@ import org.patternfly.Style
 import org.patternfly.chart.pfcDonutUtilization
 import org.patternfly.dd
 import org.patternfly.dt
+import org.patternfly.fas
 import org.patternfly.layout
 import org.patternfly.modifier
 import org.patternfly.pfButton
@@ -54,6 +55,8 @@ import org.patternfly.pfDrawerContent
 import org.patternfly.pfDrawerHead
 import org.patternfly.pfDrawerMain
 import org.patternfly.pfDrawerPanel
+import org.patternfly.pfEmptyState
+import org.patternfly.pfEmptyStateBody
 import org.patternfly.pfSection
 import org.patternfly.pfTitle
 import org.patternfly.util
@@ -86,10 +89,10 @@ class ServerPresenter : Presenter<ServerView> {
     override fun show() {
         readServers()
         view.drawer?.let {
-            cdi().serverStore.selects.map { true } handledBy it.store.update
+            cdi().serverStore.selection.map { true } handledBy it.store.update
         }
         MainScope().launch {
-            cdi().serverStore.selects.collect {
+            cdi().serverStore.selection.collect {
                 render(document.getElementById("server-donut1")) {
                     pfcDonutUtilization {
                         attrs {
@@ -175,16 +178,32 @@ class ServerView : View {
 
     override val elements = renderAll(
         {
+            pfSection("light".modifier(), "fill".modifier()) {
+                classMap = cdi().serverStore.empty.map { noServers -> mapOf("display-none".util() to !noServers) }
+                pfEmptyState("server".fas(), "No Servers", Size.lg) {
+                    pfEmptyStateBody {
+                        p {
+                            text("No servers found. Please manage your servers in OpenShift using the WildFly operator.")
+                        }
+                        p {
+                            text("This view will update automatically, once there are running servers.")
+                        }
+                    }
+                }
+            }
+        },
+        {
             pfSection("light".modifier()) {
+                classMap = cdi().serverStore.empty.map { noServers -> mapOf("display-none".util() to noServers) }
                 pfContent {
-                    h1 { text("Server") }
+                    h1 { text("Servers") }
                     p { text("The list of servers managed by the WildFly operator.") }
                 }
             }
         },
         {
             pfSection("no-padding".modifier(), "padding-on-md".modifier()) {
-                classMap = cdi().serverStore
+                classMap = cdi().serverStore.empty.map { noServers -> mapOf("display-none".util() to noServers) }
                 drawer = pfDrawer {
                     pfDrawerMain {
                         pfDrawerContent {
@@ -197,7 +216,7 @@ class ServerView : View {
                             }
                         }
                         pfDrawerPanel {
-                            val currentServer = cdi().serverStore.selects
+                            val currentServer = cdi().serverStore.selection
                             pfDrawerBody {
                                 pfDrawerHead {
                                     pfTitle(size = Size.lg) {
