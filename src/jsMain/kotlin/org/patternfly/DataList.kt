@@ -8,6 +8,7 @@ import dev.fritz2.dom.html.HtmlElements
 import dev.fritz2.dom.html.Li
 import dev.fritz2.dom.html.render
 import dev.fritz2.lenses.WithId
+import kotlinx.coroutines.flow.map
 import org.jboss.elemento.Id
 import org.patternfly.Dataset.DATA_LIST_ITEM
 import org.w3c.dom.HTMLUListElement
@@ -74,17 +75,15 @@ class DataList<T : WithId> internal constructor(
 
 // ------------------------------------------------------ store
 
-open class DataListStore<T : WithId> : RootStore<List<T>>(listOf()) {
+class DataListStore<T : WithId> : RootStore<List<T>>(listOf()) {
     val selects = handleAndEmit<T, T> { items, item ->
         offer(item)
         items
     }
 
     val remove = handle<String> { items, id ->
-        console.log("Remove $id")
-        console.log("Before remove: ${items.joinToString { it.id }}")
-        val updated = items.filterNot { it.id == id }
-        console.log("After remove: ${updated.joinToString { it.id }}")
-        updated
+        items.filterNot { it.id == id }
     }
+
+    val empty = data.map { it.isEmpty() }
 }

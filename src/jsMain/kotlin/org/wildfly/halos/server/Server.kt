@@ -184,6 +184,7 @@ class ServerView : View {
         },
         {
             pfSection("no-padding".modifier(), "padding-on-md".modifier()) {
+                classMap = cdi().serverStore
                 drawer = pfDrawer {
                     pfDrawerMain {
                         pfDrawerContent {
