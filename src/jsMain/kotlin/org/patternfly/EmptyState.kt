@@ -28,7 +28,9 @@ class EmptyState(iconClass: String, title: String, content: Div.() -> Unit) :
             pfIcon(iconClass).apply {
                 domNode.classList.add("empty-state".component("icon"))
             }
-            pfTitle(title, size = Size.lg)
+            h1 {
+                text(title)
+            }
             content(this)
         }
     }

@@ -31,7 +31,7 @@ fun <T> HtmlElements.pfDropdown(
 class Dropdown<T> internal constructor(private val text: String, private val store: DropdownStore<T>) :
     PatternFlyTag<HTMLDivElement>(ComponentType.Dropdown, "div", "dropdown".component()), Ouia {
 
-    private val ces = CollapseExpanseStore(domNode)
+    private val ces = CollapseExpandStore(domNode)
     var identifier: Identifier<T> = { Id.asId(it.toString()) }
     var asText: AsText<T> = { it.toString() }
     var display: DropdownDisplay<T> = {

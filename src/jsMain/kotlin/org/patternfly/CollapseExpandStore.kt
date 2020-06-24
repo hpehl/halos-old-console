@@ -8,7 +8,7 @@ import org.w3c.dom.Node
 import org.w3c.dom.events.Event
 import kotlin.browser.document
 
-internal class CollapseExpanseStore(private val root: HTMLElement) : RootStore<Boolean>(false) {
+internal class CollapseExpandStore(private val root: HTMLElement) : RootStore<Boolean>(false) {
 
     private val closeHandler: (Event) -> Unit = {
         val clickInside = root.contains(it.target as Node)

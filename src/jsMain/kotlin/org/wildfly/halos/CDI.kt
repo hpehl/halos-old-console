@@ -7,7 +7,6 @@ import org.jboss.mvp.Presenter
 import org.patternfly.DataListStore
 import org.patternfly.pfContent
 import org.patternfly.pfSection
-import org.patternfly.pfTitle
 import org.wildfly.halos.model.ManagementModelPresenter
 import org.wildfly.halos.server.Server
 import org.wildfly.halos.server.ServerPresenter
@@ -31,10 +30,8 @@ internal object CDIInstance : CDI {
         render {
             pfSection {
                 pfContent {
-                    pfTitle("Not Found")
-                    p {
-                        text("The requested page could not be found!")
-                    }
+                    h1 { text("Not Found") }
+                    p { text("The requested page cannot be found!") }
                 }
             }
         }

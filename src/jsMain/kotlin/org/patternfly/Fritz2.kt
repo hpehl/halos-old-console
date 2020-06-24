@@ -1,14 +1,30 @@
 package org.patternfly
 
 import dev.fritz2.binding.SingleMountPoint
-import dev.fritz2.dom.Listener
-import dev.fritz2.dom.html.EventType
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.awaitClose
+import dev.fritz2.dom.Tag
+import dev.fritz2.dom.WithText
+import dev.fritz2.dom.html.Dl
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import org.w3c.dom.Element
-import org.w3c.dom.events.Event
+import org.w3c.dom.HTMLElement
+
+// ------------------------------------------------------ dsl
+
+fun Dl.dt(baseClass: String? = null, id: String? = null, content: Dt.() -> Unit): Dt =
+    register(Dt(id, baseClass), content)
+
+fun Dl.dd(baseClass: String? = null, id: String? = null, content: Dd.() -> Unit): Dd =
+    register(Dd(id, baseClass), content)
+
+// ------------------------------------------------------ tag
+
+class Dt(id: String? = null, baseClass: String? = null) : Tag<HTMLElement>("dt", id, baseClass),
+    WithText<HTMLElement>
+
+class Dd(id: String? = null, baseClass: String? = null) : Tag<HTMLElement>("dd", id, baseClass),
+    WithText<HTMLElement>
+
+// ------------------------------------------------------ helpers
 
 internal fun Flow<Boolean>.bindAttr(name: String, target: Element?) =
     AttributeMountPoint(name, this, target)
@@ -19,14 +35,3 @@ internal class AttributeMountPoint(private val name: String, upstream: Flow<Bool
         target?.setAttribute(name, value.toString())
     }
 }
-
-@OptIn(ExperimentalCoroutinesApi::class)
-internal fun <E : Event, T : Element> T.subscribe(type: EventType<E>): Listener<E, T> =
-    Listener(callbackFlow {
-        val listener: (Event) -> Unit = {
-            offer(it.unsafeCast<E>())
-        }
-        addEventListener(type.name, listener)
-
-        awaitClose { removeEventListener(type.name, listener) }
-    })

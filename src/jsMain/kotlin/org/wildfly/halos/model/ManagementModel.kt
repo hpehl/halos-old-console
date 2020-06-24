@@ -6,7 +6,6 @@ import org.jboss.mvp.renderAll
 import org.patternfly.modifier
 import org.patternfly.pfContent
 import org.patternfly.pfSection
-import org.patternfly.pfTitle
 import org.wildfly.halos.Places
 
 class ManagementModelPresenter : Presenter<ManagementModelView> {
@@ -18,7 +17,7 @@ class ManagementModelView : View {
     override val elements = renderAll({
         pfSection("light".modifier()) {
             pfContent {
-                pfTitle("Management Model")
+                h1 { text("Management Model") }
                 p { text("Not yet implemented") }
             }
         }

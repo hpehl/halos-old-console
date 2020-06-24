@@ -49,7 +49,7 @@ class AlertGroup internal constructor(toast: Boolean) :
         if (toast) {
             domNode.classList.add("toast".modifier())
             MainScope().launch {
-                NotificationStore.latest.collect {
+                Notification.store.latest.collect {
                     val id = Id.unique("alert")
                     val element = pfAlert(it.severity, it.text, true).domNode
                     element.id = id

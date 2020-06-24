@@ -23,11 +23,11 @@ class NotificationBadge : PatternFlyTag<HTMLButtonElement>(
     "${"button".component()} ${"plain".modifier()}"
 ) {
     init {
-        NotificationStore.unread.map { unread ->
+        Notification.store.unread.map { unread ->
             if (unread) "Unread notifications" else "Notifications"
         }.bindAttr("aria-label")
         span(baseClass = "notification-badge".component()) {
-            classMap = NotificationStore.unread.map { unread ->
+            classMap = Notification.store.unread.map { unread ->
                 mapOf("read".modifier() to !unread, "unread".modifier() to unread)
             }
             pfIcon("bell".fas())
@@ -45,15 +45,18 @@ data class Notification(
     internal val timestamp: Long = Date.now().toLong()
 ) {
     companion object {
+        val store = NotificationStore()
+
         fun error(text: String, details: String? = null) = send(Notification(Severity.DANGER, text, details))
         fun info(text: String, details: String? = null) = send(Notification(Severity.INFO, text, details))
         fun success(text: String, details: String? = null) = send(Notification(Severity.SUCCESS, text, details))
         fun warning(text: String, details: String? = null) = send(Notification(Severity.WARNING, text, details))
-        private fun send(notification: Notification) = flowOf(notification) handledBy NotificationStore.add
+
+        private fun send(notification: Notification) = flowOf(notification) handledBy store.add
     }
 }
 
-object NotificationStore : RootStore<List<Notification>>(listOf()) {
+class NotificationStore : RootStore<List<Notification>>(listOf()) {
     val add: SimpleHandler<Notification> = handle { notifications, notification ->
         notifications + notification
     }

@@ -65,7 +65,10 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains:kotlin-extensions:1.0.1-pre.109-kotlin-1.3.72")
                 implementation("io.github.microutils:kotlin-logging-js:1.7.9")
+                implementation("org.jetbrains:kotlin-react:16.13.1-pre.109-kotlin-1.3.72")
+                implementation("org.jetbrains:kotlin-react-dom:16.13.1-pre.109-kotlin-1.3.72")
                 implementation(npm("@patternfly/patternfly", "4.10.31"))
+                implementation(npm("@patternfly/react-charts", "6.3.9"))
                 // dev dependencies
                 implementation(npm("file-loader", "6.0.0"))
             }
