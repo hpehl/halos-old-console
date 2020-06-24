@@ -10,7 +10,6 @@ import dev.fritz2.routing.encodeURIComponent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import kotlin.dom.clear
@@ -61,16 +60,13 @@ class PlaceManager(private val default: PlaceRequest, private val notFound: () -
                     if (presenter !== currentPresenter) {
                         currentPresenter?.hide()
                     }
-                    presenter.prepareFromRequest(place)
                     currentPresenter = presenter
-                    currentPresenter.view.elements
+                    presenter.prepareFromRequest(place)
+                    presenter.view.elements
                 } else {
                     console.error("No presenter found for $safePlace!")
                     listOf(notFound())
                 }
-            }
-            .onCompletion {
-                currentPresenter?.show()
             }
             .bind(this)
     }

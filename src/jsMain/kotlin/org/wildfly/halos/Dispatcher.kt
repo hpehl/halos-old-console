@@ -1,7 +1,6 @@
 package org.wildfly.halos
 
 import dev.fritz2.remote.Request
-import dev.fritz2.remote.onError
 import kotlinx.coroutines.await
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -22,6 +21,6 @@ fun dmr(operation: Operation): Flow<ModelNode> {
         .contentType("application/dmr-encoded")
         .body(operation.toBase64())
         .post()
-        .onError { console.error("Unable to execute $operation: ${it.statusCode} ${it.body}") }
+//        .onError { console.error("Unable to execute $operation: ${it.statusCode} ${it.body}") }
         .map { ModelNode.fromBase64(it.text().await()) }
 }

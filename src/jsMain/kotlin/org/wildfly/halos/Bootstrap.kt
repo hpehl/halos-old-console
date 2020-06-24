@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.collect
 import org.patternfly.Notification
 import org.w3c.dom.EventSource
 import org.w3c.dom.EventSourceInit
+import org.w3c.dom.MessageEvent
 import org.wildfly.halos.config.Endpoint
 import org.wildfly.halos.config.Environment
 import org.wildfly.halos.server.readServers
@@ -23,10 +24,11 @@ class ServerSubscriptionTask : BootstrapTask {
     override suspend fun execute() {
         val eventSource = EventSource("${Endpoint.instance}/subscribe", EventSourceInit(Environment.cors))
         callbackFlow {
-            eventSource.onmessage = { offer(it) }
+            eventSource.onmessage = { offer(it as MessageEvent) }
             awaitClose { eventSource.close() }
         }.collect {
             val (action, server) = it.data.toString().split(',')
+            console.log("Got subscription event: $action $server")
             when (action) {
                 "ADDED" -> {
                     readServers()
