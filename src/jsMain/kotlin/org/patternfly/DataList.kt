@@ -85,9 +85,5 @@ class DataListStore<T : WithId> : RootStore<List<T>>(listOf()) {
         items.filterNot { it.id == id }
     }
 
-    val empty = data.map {
-        console.log("DataListStore<Server>.data: ${it.joinToString { e -> e.id }}")
-        console.log("DataListStore<Server>.empty: ${it.isEmpty()}")
-        it.isEmpty()
-    }
+    val empty = data.map { it.isEmpty() }
 }
