@@ -39,22 +39,17 @@ fun readServers(): Flow<List<Server>> {
         +ATTRIBUTES_ONLY
         +INCLUDE_RUNTIME
     }
-    return dmr(operation).catch {
-        if (it is FetchException) {
-            if (it.statusCode == 404.toShort()) {
-                Notification.info("No servers found")
-                emit(ModelNode()) // no servers found
-            } else {
-                console.error("Unable to execute $operation: ${it.statusCode} ${it.message}")
+    return dmr(operation)
+            .catch {
+                if (it is FetchException && it.statusCode == 404.toShort()) {
+                    emit(ModelNode()) // will end up in an empty server list
+                } else {
+                    console.error("Unable to execute $operation: ${it.message}")
+                }
             }
-        } else {
-            console.error("Unable to execute $operation: ${it.message}")
-        }
-    }.map { result ->
-        result.asPropertyList().map { property ->
-            Server(property.name, property.value[RESULT])
-        }
-    }
+            .map { result ->
+                result.asPropertyList().map { property -> Server(property.name, property.value[RESULT]) }
+            }
 }
 
 class Server(val registeredName: String, node: ModelNode) : NamedNode(node), WithId {
