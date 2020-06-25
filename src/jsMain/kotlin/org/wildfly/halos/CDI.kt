@@ -4,31 +4,30 @@ import dev.fritz2.dom.html.render
 import org.jboss.mvp.PlaceManager
 import org.jboss.mvp.PlaceRequest
 import org.jboss.mvp.Presenter
-import org.patternfly.DataListStore
 import org.patternfly.pfContent
 import org.patternfly.pfSection
 import org.wildfly.halos.deployment.DeploymentPresenter
 import org.wildfly.halos.model.ManagementModelPresenter
-import org.wildfly.halos.server.Server
 import org.wildfly.halos.server.ServerPresenter
+import org.wildfly.halos.server.ServerStore
 
 fun cdi(): CDI = CDIInstance
 
 interface CDI {
     val bootstrapTasks: List<() -> BootstrapTask>
     val placeManager: PlaceManager
-    val serverStore: DataListStore<Server>
+    val serverStore: ServerStore
 }
 
 internal object CDIInstance : CDI {
     init {
-        Presenter.register(Places.server, ::ServerPresenter)
-        Presenter.register(Places.deployment, ::DeploymentPresenter)
-        Presenter.register(Places.management, ::ManagementModelPresenter)
+        Presenter.register(Places.SERVER, ::ServerPresenter)
+        Presenter.register(Places.DEPLOYMENT, ::DeploymentPresenter)
+        Presenter.register(Places.MANAGEMENT, ::ManagementModelPresenter)
     }
 
     override val bootstrapTasks = listOf(::ServerSubscriptionTask)
-    override val placeManager = PlaceManager(PlaceRequest(Places.server)) {
+    override val placeManager = PlaceManager(PlaceRequest(Places.SERVER)) {
         render {
             pfSection {
                 pfContent {
@@ -38,5 +37,5 @@ internal object CDIInstance : CDI {
             }
         }
     }
-    override val serverStore = DataListStore<Server>()
+    override val serverStore = ServerStore()
 }

@@ -18,9 +18,9 @@ fun HtmlElements.pfNotificationBadge() = register(NotificationBadge(), {})
 // ------------------------------------------------------ tag
 
 class NotificationBadge : PatternFlyTag<HTMLButtonElement>(
-    ComponentType.NotificationBadge,
-    "button",
-    "${"button".component()} ${"plain".modifier()}"
+        ComponentType.NotificationBadge,
+        "button",
+        "${"button".component()} ${"plain".modifier()}"
 ) {
     init {
         Notification.store.unread.map { unread ->
@@ -38,11 +38,11 @@ class NotificationBadge : PatternFlyTag<HTMLButtonElement>(
 // ------------------------------------------------------ store
 
 data class Notification(
-    val severity: Severity,
-    val text: String,
-    val details: String? = null,
-    internal val read: Boolean = false,
-    internal val timestamp: Long = Date.now().toLong()
+        val severity: Severity,
+        val text: String,
+        val details: String? = null,
+        internal val read: Boolean = false,
+        internal val timestamp: Long = Date.now().toLong()
 ) {
     companion object {
         val store = NotificationStore()
@@ -61,12 +61,14 @@ class NotificationStore : RootStore<List<Notification>>(listOf()) {
         notifications + notification
     }
 
+    val clear = handle { listOf() }
+
     val latest = data
-        .map {
-            it.maxBy { n -> n.timestamp }
-        }
-        .filterNotNull()
-        .distinctUntilChanged()
+            .map {
+                it.maxBy { n -> n.timestamp }
+            }
+            .filterNotNull()
+            .distinctUntilChanged()
 
     val unread = data.map { it.any { n -> !n.read } }.distinctUntilChanged()
 }

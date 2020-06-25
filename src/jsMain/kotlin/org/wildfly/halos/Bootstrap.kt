@@ -1,16 +1,15 @@
 package org.wildfly.halos
 
+import dev.fritz2.binding.handledBy
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
-import org.patternfly.Notification
+import kotlinx.coroutines.flow.map
 import org.w3c.dom.EventSource
 import org.w3c.dom.EventSourceInit
 import org.w3c.dom.MessageEvent
 import org.wildfly.halos.config.Endpoint
 import org.wildfly.halos.config.Environment
-import org.wildfly.halos.server.readServers
 
 interface BootstrapTask {
     val name: String
@@ -26,23 +25,9 @@ class ServerSubscriptionTask : BootstrapTask {
         callbackFlow {
             eventSource.onmessage = { offer(it as MessageEvent) }
             awaitClose { eventSource.close() }
-        }.collect {
+        }.map {
             val (action, server) = it.data.toString().split(',')
-            console.log("Got subscription event: $action $server")
-            when (action) {
-                "ADDED" -> {
-                    readServers()
-                    Notification.info("Added server $server")
-                }
-                "REMOVED" -> {
-                    // TODO In order for remove handler to work,
-                    //  the WildFly docker container has to be
-                    //  started with -Djboss.server.name=<name>
-//                    flowOf(server) handledBy cdi().serverStore.remove
-                    readServers()
-                    Notification.info("Removed server $server")
-                }
-            }
-        }
+            action to server
+        } handledBy cdi().serverStore.serverEvent
     }
 }

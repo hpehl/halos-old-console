@@ -75,7 +75,7 @@ class DataList<T : WithId> internal constructor(
 
 // ------------------------------------------------------ store
 
-class DataListStore<T : WithId> : RootStore<List<T>>(listOf()) {
+open class DataListStore<T : WithId> : RootStore<List<T>>(listOf()) {
     val selection = handleAndEmit<T, T> { items, item ->
         offer(item)
         items

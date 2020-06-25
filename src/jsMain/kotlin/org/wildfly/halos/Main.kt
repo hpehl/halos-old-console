@@ -8,7 +8,7 @@ fun main() {
     kotlinext.js.require("@patternfly/patternfly/patternfly.css")
     kotlinext.js.require("@patternfly/patternfly/patternfly-addons.css")
 
-    Application.skeleton.forEach {
+    Skeleton.elements.forEach {
         document.body!!.appendChild(it.domNode)
     }
 

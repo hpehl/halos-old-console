@@ -13,10 +13,10 @@ fun HtmlElements.pfDrawer(content: Drawer.() -> Unit = {}): Drawer =
     register(Drawer(), content)
 
 fun Drawer.pfDrawerSection(content: DrawerSection.() -> Unit = {}): DrawerSection =
-    register(DrawerSection(this.store), content)
+    register(DrawerSection(this.expanded), content)
 
 fun Drawer.pfDrawerMain(content: DrawerMain.() -> Unit = {}): DrawerMain =
-    register(DrawerMain(this.store), content)
+        register(DrawerMain(this.expanded), content)
 
 fun DrawerMain.pfDrawerContent(content: DrawerContent.() -> Unit = {}): DrawerContent =
     register(DrawerContent(this.store), content)
@@ -42,9 +42,9 @@ fun DrawerActions.pfDrawerClose(): DrawerClose =
 // ------------------------------------------------------ tag
 
 class Drawer : PatternFlyTag<HTMLDivElement>(ComponentType.Drawer, "div", "drawer".component()) {
-    val store = ExpandedStore()
+    val expanded = ExpandedStore()
     init {
-        classMap = store.data.map { expanded -> mapOf("expanded".modifier() to expanded) }
+        classMap = expanded.data.map { expanded -> mapOf("expanded".modifier() to expanded) }
     }
 }
 

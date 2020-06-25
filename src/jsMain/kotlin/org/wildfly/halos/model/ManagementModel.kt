@@ -9,7 +9,7 @@ import org.patternfly.pfSection
 import org.wildfly.halos.Places
 
 class ManagementModelPresenter : Presenter<ManagementModelView> {
-    override val token = Places.management
+    override val token = Places.MANAGEMENT
     override val view = ManagementModelView()
 }
 

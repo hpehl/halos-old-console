@@ -9,7 +9,7 @@ import org.patternfly.pfSection
 import org.wildfly.halos.Places
 
 class DeploymentPresenter : Presenter<DeploymentView> {
-    override val token = Places.deployment
+    override val token = Places.DEPLOYMENT
     override val view = DeploymentView()
 }
 

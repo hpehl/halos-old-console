@@ -5,6 +5,7 @@ import dev.fritz2.dom.stopPropagation
 import dev.fritz2.lenses.WithId
 import dev.fritz2.remote.FetchException
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -33,36 +34,58 @@ import org.wildfly.halos.dmr
 import react.dom.render
 import kotlin.browser.document
 
-fun readServers() {
-    dmr((ResourceAddress.root() op READ_RESOURCE_OPERATION) params {
+fun readServers(): Flow<List<Server>> {
+    val operation = (ResourceAddress.root() op READ_RESOURCE_OPERATION) params {
         +ATTRIBUTES_ONLY
         +INCLUDE_RUNTIME
-    }).catch {
+    }
+    return dmr(operation).catch {
         if (it is FetchException) {
             if (it.statusCode == 404.toShort()) {
-                emit(ModelNode())
+                Notification.info("No servers found")
+                emit(ModelNode()) // no servers found
+            } else {
+                console.error("Unable to execute $operation: ${it.statusCode} ${it.message}")
             }
+        } else {
+            console.error("Unable to execute $operation: ${it.message}")
         }
     }.map { result ->
         result.asPropertyList().map { property ->
             Server(property.name, property.value[RESULT])
         }
-    } handledBy cdi().serverStore.update
+    }
 }
 
 class Server(val registeredName: String, node: ModelNode) : NamedNode(node), WithId {
     override val id = name
 }
 
+class ServerStore : DataListStore<Server>() {
+    val serverEvent = apply<Pair<String, String>, List<Server>> { event ->
+        val (action, server) = event
+        when (action) {
+            "ADDED" -> "Added server $server"
+            "REMOVED" -> "Removed server $server"
+            else -> null
+        }?.let { Notification.info(it) }
+        readServers()
+    } andThen update
+
+    val refresh = apply<Unit, List<Server>> {
+        readServers()
+    } andThen update
+}
+
 class ServerPresenter : Presenter<ServerView> {
 
-    override val token = Places.server
+    override val token = Places.SERVER
     override val view = ServerView()
 
     override fun show() {
-        readServers()
+        readServers() handledBy cdi().serverStore.update
         view.drawer?.let {
-            cdi().serverStore.selection.map { true } handledBy it.store.update
+            cdi().serverStore.selection.map { true } handledBy it.expanded.update
         }
         MainScope().launch {
             cdi().serverStore.selection.collect {
@@ -159,8 +182,11 @@ class ServerView : View {
                                 text("No servers found. Please manage your servers in OpenShift using the WildFly operator.")
                             }
                             p {
-                                text("This view will update automatically, once there are running servers.")
+                                text("This view will update automatically, once there are servers available.")
                             }
+                        }
+                        pfButton(Style.primary, "Refresh") {
+                            clicks handledBy cdi().serverStore.refresh
                         }
                     }
                 }
