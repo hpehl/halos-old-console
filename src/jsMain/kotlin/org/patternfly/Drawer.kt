@@ -37,7 +37,7 @@ fun DrawerHead.pfDrawerActions(content: DrawerActions.() -> Unit = {}): DrawerAc
     register(DrawerActions(this.store), content)
 
 fun DrawerActions.pfDrawerClose(): DrawerClose =
-    register(DrawerClose(this.store), { })
+    register(DrawerClose(this.store), {})
 
 // ------------------------------------------------------ tag
 
@@ -77,7 +77,7 @@ class DrawerMain(internal val store: ExpandedStore) :
 class DrawerPanel(internal val store: ExpandedStore) :
     Tag<HTMLDivElement>("div", baseClass = "drawer".component("panel")) {
     init {
-        store.data.map { (!it).toString() }.bindAttr("hidden")
+        store.data.bindAttr("hidden", domNode)
     }
 }
 

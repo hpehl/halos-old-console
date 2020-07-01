@@ -26,12 +26,30 @@ class Dd(id: String? = null, baseClass: String? = null) : Tag<HTMLElement>("dd",
 
 // ------------------------------------------------------ helpers
 
-internal fun Flow<Boolean>.bindAttr(name: String, target: Element?) =
-    AttributeMountPoint(name, this, target)
+internal fun Flow<Boolean>.bindAttr(
+    name: String,
+    target: Element?,
+    removeWhenFalse: Boolean = true,
+    value: (Boolean) -> String = { "" }
+) = BooleanAttributeMountPoint(name, this, target, removeWhenFalse, value)
 
-internal class AttributeMountPoint(private val name: String, upstream: Flow<Boolean>, private val target: Element?) :
-    SingleMountPoint<Boolean>(upstream) {
+internal class BooleanAttributeMountPoint(
+    private val name: String,
+    upstream: Flow<Boolean>,
+    private val target: Element?,
+    private val removeWhenFalse: Boolean,
+    private val value: (Boolean) -> String
+) : SingleMountPoint<Boolean>(upstream) {
     override fun set(value: Boolean, last: Boolean?) {
-        target?.setAttribute(name, value.toString())
+        val stringValue = this.value.invoke(value)
+        if (value) {
+            target?.setAttribute(name, stringValue)
+        } else {
+            if (removeWhenFalse) {
+                target?.removeAttribute(name)
+            } else {
+                target?.setAttribute(name, stringValue)
+            }
+        }
     }
 }

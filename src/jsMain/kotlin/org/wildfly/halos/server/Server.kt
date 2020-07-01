@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import org.jboss.dmr.*
 import org.jboss.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
 import org.jboss.dmr.ModelDescriptionConstants.Companion.INCLUDE_RUNTIME
 import org.jboss.dmr.ModelDescriptionConstants.Companion.LAUNCH_TYPE
@@ -22,12 +21,49 @@ import org.jboss.dmr.ModelDescriptionConstants.Companion.RESULT
 import org.jboss.dmr.ModelDescriptionConstants.Companion.RUNNING_MODE
 import org.jboss.dmr.ModelDescriptionConstants.Companion.SERVER_STATE
 import org.jboss.dmr.ModelDescriptionConstants.Companion.SUSPEND_STATE
+import org.jboss.dmr.ModelNode
+import org.jboss.dmr.NamedNode
+import org.jboss.dmr.ResourceAddress
+import org.jboss.dmr.op
+import org.jboss.dmr.params
 import org.jboss.elemento.Id
 import org.jboss.mvp.Presenter
 import org.jboss.mvp.View
 import org.jboss.mvp.renderAll
-import org.patternfly.*
+import org.patternfly.DataListDisplay
+import org.patternfly.DataListStore
+import org.patternfly.Drawer
+import org.patternfly.Notification
+import org.patternfly.SelectionMode
+import org.patternfly.Severity
+import org.patternfly.Size
+import org.patternfly.Style
 import org.patternfly.chart.pfcDonutUtilization
+import org.patternfly.dd
+import org.patternfly.dt
+import org.patternfly.fas
+import org.patternfly.layout
+import org.patternfly.modifier
+import org.patternfly.pfButton
+import org.patternfly.pfContent
+import org.patternfly.pfDataList
+import org.patternfly.pfDataListItemAction
+import org.patternfly.pfDataListItemCell
+import org.patternfly.pfDataListItemContent
+import org.patternfly.pfDataListItemRow
+import org.patternfly.pfDrawer
+import org.patternfly.pfDrawerActions
+import org.patternfly.pfDrawerBody
+import org.patternfly.pfDrawerClose
+import org.patternfly.pfDrawerContent
+import org.patternfly.pfDrawerHead
+import org.patternfly.pfDrawerMain
+import org.patternfly.pfDrawerPanel
+import org.patternfly.pfEmptyState
+import org.patternfly.pfEmptyStateBody
+import org.patternfly.pfSection
+import org.patternfly.pfTitle
+import org.patternfly.util
 import org.wildfly.halos.Places
 import org.wildfly.halos.cdi
 import org.wildfly.halos.dmr
@@ -67,9 +103,7 @@ class ServerStore : DataListStore<Server>() {
         readServers()
     } andThen update
 
-    val refresh = apply<Unit, List<Server>> {
-        readServers()
-    } andThen update
+    val refresh = apply<Unit, List<Server>> { readServers() } andThen update
 }
 
 class ServerPresenter : Presenter<ServerView> {

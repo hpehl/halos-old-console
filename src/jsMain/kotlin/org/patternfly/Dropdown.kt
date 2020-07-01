@@ -43,28 +43,28 @@ class Dropdown<T> internal constructor(private val text: String, private val sto
     init {
         classMap = ces.data.map { expanded -> mapOf("expanded".modifier() to expanded) }
         val buttonId = uniqueId()
-        button(id = buttonId, baseClass = "dropdown".component("toggle")) {
+        button("dropdown".component("toggle"), buttonId) {
             attr("aria-haspopup", true.toString())
-            this@Dropdown.ces.data.bindAttr("aria-expanded", domNode)
+            this@Dropdown.ces.data.bindAttr("aria-expanded", domNode, false) { it.toString() }
             clicks handledBy this@Dropdown.ces.expand
-            span(baseClass = "dropdown".component("toggle", "text")) {
+            span("dropdown".component("toggle", "text")) {
                 text(this@Dropdown.text)
             }
-            span(baseClass = "dropdown".component("toggle", "icon")) {
+            span("dropdown".component("toggle", "icon")) {
                 pfIcon("caret-down".fas()) {
                     classList = const(listOf("dropdown".component("toggle", "icon")))
                 }
             }
         }
-        ul(baseClass = "dropdown".component("menu")) {
+        ul("dropdown".component("menu")) {
             attr("role", "menu")
             attr("aria-labelledby", buttonId)
-            this@Dropdown.ces.data.map { (!it).toString() }.bindAttr("hidden")
+            this@Dropdown.ces.data.bindAttr("hidden", domNode)
             this@Dropdown.store.data.each().map { item ->
                 render {
                     li {
                         attr("role", "menuitem")
-                        a(baseClass = "dropdown".component("menu-item")) {
+                        a("dropdown".component("menu-item")) {
                             attr("tabindex", "-1")
                             attr(DROPDOWN_ITEM.long, this@Dropdown.identifier.invoke(item))
                             clicks.map { item } handledBy this@Dropdown.store.selects
@@ -81,7 +81,7 @@ class Dropdown<T> internal constructor(private val text: String, private val sto
 
 // ------------------------------------------------------ store
 
-class DropdownStore<T> : RootStore<List<T>>(listOf()) {
+open class DropdownStore<T> : RootStore<List<T>>(listOf()) {
     val selects = handleAndEmit<T, T> { items, item ->
         offer(item)
         items

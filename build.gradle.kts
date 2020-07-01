@@ -9,6 +9,7 @@ version = "0.0.1"
 val fritzVersion = "0.5"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     jcenter()
 }
