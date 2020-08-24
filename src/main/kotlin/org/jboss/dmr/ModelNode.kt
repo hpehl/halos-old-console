@@ -1,6 +1,6 @@
 package org.jboss.dmr
 
-import kotlin.browser.window
+import kotlinx.browser.window
 
 open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
 

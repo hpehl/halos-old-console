@@ -1,9 +1,9 @@
 package org.wildfly.halos
 
 import dev.fritz2.dom.html.render
-import org.jboss.mvp.PlaceManager
-import org.jboss.mvp.PlaceRequest
-import org.jboss.mvp.Presenter
+import dev.fritz2.mvp.PlaceManager
+import dev.fritz2.mvp.PlaceRequest
+import dev.fritz2.mvp.Presenter
 import org.patternfly.pfContent
 import org.patternfly.pfSection
 import org.wildfly.halos.deployment.DeploymentPresenter
@@ -31,8 +31,8 @@ internal object CDIInstance : CDI {
         render {
             pfSection {
                 pfContent {
-                    h1 { text("Not Found") }
-                    p { text("The requested page cannot be found!") }
+                    h1 { +"Not Found" }
+                    p { +"The requested page cannot be found!" }
                 }
             }
         }

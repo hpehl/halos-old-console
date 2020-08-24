@@ -1,9 +1,9 @@
 package org.wildfly.halos
 
 import dev.fritz2.remote.Request
-import kotlinx.coroutines.await
+import dev.fritz2.remote.getBody
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOf
 import org.jboss.dmr.ModelNode
 import org.jboss.dmr.Operation
 import org.w3c.fetch.CORS
@@ -11,16 +11,16 @@ import org.w3c.fetch.RequestMode
 import org.wildfly.halos.config.Endpoint
 import org.wildfly.halos.config.Environment
 
-fun dmr(operation: Operation): Flow<ModelNode> {
+suspend fun dmr(operation: Operation): Flow<ModelNode> {
     val request = if (Environment.cors) {
         Request(Endpoint.management, mode = RequestMode.CORS)
     } else {
         Request(Endpoint.management)
     }
-    return request.accept("application/dmr-encoded")
+    val body = request.accept("application/dmr-encoded")
         .contentType("application/dmr-encoded")
         .body(operation.toBase64())
         .post()
-//        .onError { console.error("Unable to execute $operation: ${it.statusCode} ${it.body}") }
-        .map { ModelNode.fromBase64(it.text().await()) }
+        .getBody()
+    return flowOf(ModelNode.fromBase64(body))
 }

@@ -1,8 +1,8 @@
 package org.wildfly.halos
 
+import kotlinx.browser.document
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import kotlin.browser.document
 
 fun main() {
     kotlinext.js.require("@patternfly/patternfly/patternfly.css")
