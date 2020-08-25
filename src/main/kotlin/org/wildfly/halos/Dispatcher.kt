@@ -2,8 +2,6 @@ package org.wildfly.halos
 
 import dev.fritz2.remote.Request
 import dev.fritz2.remote.getBody
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import org.jboss.dmr.ModelNode
 import org.jboss.dmr.Operation
 import org.w3c.fetch.CORS
@@ -11,7 +9,7 @@ import org.w3c.fetch.RequestMode
 import org.wildfly.halos.config.Endpoint
 import org.wildfly.halos.config.Environment
 
-suspend fun dmr(operation: Operation): Flow<ModelNode> {
+suspend fun dmr(operation: Operation): ModelNode {
     val request = if (Environment.cors) {
         Request(Endpoint.management, mode = RequestMode.CORS)
     } else {
@@ -22,5 +20,5 @@ suspend fun dmr(operation: Operation): Flow<ModelNode> {
         .body(operation.toBase64())
         .post()
         .getBody()
-    return flowOf(ModelNode.fromBase64(body))
+    return ModelNode.fromBase64(body)
 }

@@ -6,10 +6,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import org.w3c.dom.EventSource
-import org.w3c.dom.EventSourceInit
-import org.w3c.dom.MessageEvent
 import org.wildfly.halos.config.Endpoint
-import org.wildfly.halos.config.Environment
 
 interface BootstrapTask {
     val name: String
@@ -21,9 +18,9 @@ class ServerSubscriptionTask : BootstrapTask {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun execute() {
-        val eventSource = EventSource("${Endpoint.instance}/subscribe", EventSourceInit(Environment.cors))
+        val eventSource = EventSource("${Endpoint.instance}/subscribe")
         callbackFlow {
-            eventSource.onmessage = { offer(it as MessageEvent) }
+            eventSource.onmessage = { offer(it) }
             awaitClose { eventSource.close() }
         }.map {
             val (action, server) = it.data.toString().split(',')

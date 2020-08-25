@@ -1,16 +1,15 @@
 package org.wildfly.halos.server
 
-import dev.fritz2.binding.SimpleHandler
+import dev.fritz2.binding.action
 import dev.fritz2.binding.handledBy
 import dev.fritz2.dom.html.render
 import dev.fritz2.dom.stopPropagation
 import dev.fritz2.lenses.IdProvider
 import dev.fritz2.mvp.Presenter
 import dev.fritz2.mvp.View
-import dev.fritz2.remote.FetchException
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.jboss.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
@@ -69,17 +68,12 @@ suspend fun readServers(): List<Server> {
         +ATTRIBUTES_ONLY
         +INCLUDE_RUNTIME
     }
-    return dmr(operation)
-        .catch {
-            if (it is FetchException && it.statusCode == 404.toShort()) {
-                emit(ModelNode()) // will end up in an empty server list
-            } else {
-                console.error("Unable to execute $operation: ${it.message}")
-            }
-        }
-        .map { result ->
-            result.asPropertyList().map { property -> Server(property.name, property.value[RESULT]) }
-        }
+    return dmr(operation).asPropertyList().map { Server(it.name, it.value[RESULT]) }
+//    if (it is FetchException && it.statusCode == 404.toShort()) {
+//        emit(ModelNode()) // will end up in an empty server list
+//    } else {
+//        console.error("Unable to execute $operation: ${it.message}")
+//    }
 }
 
 class Server(val registeredName: String, node: ModelNode) : NamedNode(node)
@@ -87,7 +81,6 @@ class Server(val registeredName: String, node: ModelNode) : NamedNode(node)
 val serverId: IdProvider<Server, String> = { Id.build("srv", it.name) }
 
 class ServerStore : DataListStore<Server>(serverId) {
-    val r: SimpleHandler<Unit> = handle { }
 
     val serverEvent = handleAndOffer<Pair<String, String>, List<Server>> { _, event ->
         val (action, server) = event
@@ -96,11 +89,12 @@ class ServerStore : DataListStore<Server>(serverId) {
             "REMOVED" -> "Removed server $server"
             else -> null
         }?.let { Notification.info(it) }
-        listOf()
-//        readServers()
-    } andThen update
+        readServers()
+    }
 
-    val refresh = apply<Unit, List<Server>> { readServers() } andThen update
+    val refresh = handle {
+        readServers()
+    }
 }
 
 @OptIn(InternalCoroutinesApi::class)
@@ -108,14 +102,18 @@ class ServerPresenter : Presenter<ServerView> {
 
     override val view = ServerView()
 
+    override fun bind() {
+
+    }
+
     override fun show() {
-        readServers() handledBy cdi().serverStore.update
         view.drawer?.let {
             cdi().serverStore.selection.map { true } handledBy it.expanded.update
         }
         MainScope().launch {
+            action(readServers()) handledBy cdi().serverStore.update
             cdi().serverStore.selection.collect {
-                console.log("Updating server $it not yet implemented!")
+                console.log("Updating server ${it.name} not yet implemented")
             }
         }
     }
