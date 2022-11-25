@@ -1,6 +1,6 @@
 package org.wildfly.halos.deployment
 
-import dev.fritz2.dom.html.render
+import dev.fritz2.elemento.elements
 import dev.fritz2.mvp.Presenter
 import dev.fritz2.mvp.View
 import org.patternfly.modifier
@@ -12,13 +12,12 @@ class DeploymentPresenter : Presenter<DeploymentView> {
 }
 
 class DeploymentView : View {
-    override val elements = listOf(
-        render {
-            pfSection("light".modifier()) {
-                pfContent {
-                    h1 { +"Deployment" }
-                    p { +"Not yet implemented" }
-                }
+    override val elements = elements {
+        pfSection("light".modifier()) {
+            pfContent {
+                h1 { +"Deployment" }
+                p { +"Not yet implemented" }
             }
-        })
+        }
+    }
 }

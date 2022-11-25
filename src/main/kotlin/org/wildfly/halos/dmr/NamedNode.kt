@@ -1,6 +1,6 @@
-package org.jboss.dmr
+package org.wildfly.halos.dmr
 
-import org.jboss.dmr.ModelDescriptionConstants.Companion.NAME
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.NAME
 import kotlin.js.Date
 
 /** A model node with a name. */

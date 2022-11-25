@@ -1,4 +1,4 @@
-package org.jboss.dmr
+package org.wildfly.halos.dmr
 
 import kotlinx.browser.window
 
@@ -23,7 +23,29 @@ open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
 
     fun defined(): Boolean = value.type != ModelType.UNDEFINED
 
+    fun undefined(): Boolean = value.type == ModelType.UNDEFINED
+
+    fun hasDefined(key: String): Boolean {
+        return defined() && value[key].defined()
+    }
+
     fun size(): Int = asList().size
+
+    fun type(): ModelType = value.type
+
+    fun lookup(path: Path): ModelNode = if (defined() && path.segments.size > 1) {
+        var current = this
+        for (segment in path.segments) {
+            if (current.hasDefined(segment)) {
+                current = current[segment]
+            } else {
+                break
+            }
+        }
+        current
+    } else {
+        UNDEFINED
+    }
 
     // ------------------------------------------------------ as methods
 
@@ -193,4 +215,14 @@ open class ModelNode(internal var value: ModelValue<*> = ModelValue.UNDEFINED) {
             return node
         }
     }
+}
+
+fun String.path() = Path(this)
+
+data class Path(internal val segments: List<String>) {
+
+    constructor(path: String) : this(path.split('.'))
+    constructor(vararg segments: String) : this(segments.toList())
+
+    override fun toString(): String = segments.joinToString(".")
 }

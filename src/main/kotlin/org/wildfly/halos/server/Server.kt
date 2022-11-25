@@ -2,38 +2,19 @@ package org.wildfly.halos.server
 
 import dev.fritz2.binding.action
 import dev.fritz2.binding.handledBy
-import dev.fritz2.dom.html.render
 import dev.fritz2.dom.stopPropagation
+import dev.fritz2.elemento.Id
+import dev.fritz2.elemento.elements
 import dev.fritz2.lenses.IdProvider
 import dev.fritz2.mvp.Presenter
 import dev.fritz2.mvp.View
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
-import org.jboss.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
-import org.jboss.dmr.ModelDescriptionConstants.Companion.INCLUDE_RUNTIME
-import org.jboss.dmr.ModelDescriptionConstants.Companion.LAUNCH_TYPE
-import org.jboss.dmr.ModelDescriptionConstants.Companion.PRODUCT_NAME
-import org.jboss.dmr.ModelDescriptionConstants.Companion.PRODUCT_VERSION
-import org.jboss.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_OPERATION
-import org.jboss.dmr.ModelDescriptionConstants.Companion.RELEASE_VERSION
-import org.jboss.dmr.ModelDescriptionConstants.Companion.RESULT
-import org.jboss.dmr.ModelDescriptionConstants.Companion.RUNNING_MODE
-import org.jboss.dmr.ModelDescriptionConstants.Companion.SERVER_STATE
-import org.jboss.dmr.ModelDescriptionConstants.Companion.SUSPEND_STATE
-import org.jboss.dmr.ModelNode
-import org.jboss.dmr.NamedNode
-import org.jboss.dmr.ResourceAddress
-import org.jboss.dmr.op
-import org.jboss.dmr.params
-import org.patternfly.DataListDisplay
-import org.patternfly.DataListStore
 import org.patternfly.Drawer
-import org.patternfly.Id
-import org.patternfly.Modifier.primary
-import org.patternfly.Modifier.secondary
+import org.patternfly.Items
 import org.patternfly.Notification
 import org.patternfly.Severity
 import org.patternfly.Size
@@ -46,6 +27,7 @@ import org.patternfly.pfDataList
 import org.patternfly.pfDataListAction
 import org.patternfly.pfDataListCell
 import org.patternfly.pfDataListContent
+import org.patternfly.pfDataListItem
 import org.patternfly.pfDataListRow
 import org.patternfly.pfDrawer
 import org.patternfly.pfDrawerActions
@@ -62,13 +44,29 @@ import org.patternfly.pfTitle
 import org.patternfly.util
 import org.wildfly.halos.cdi
 import org.wildfly.halos.dmr
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.ATTRIBUTES_ONLY
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.INCLUDE_RUNTIME
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.LAUNCH_TYPE
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.PRODUCT_NAME
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.PRODUCT_VERSION
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.READ_RESOURCE_OPERATION
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.RELEASE_VERSION
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.RESULT
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.RUNNING_MODE
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.SERVER_STATE
+import org.wildfly.halos.dmr.ModelDescriptionConstants.Companion.SUSPEND_STATE
+import org.wildfly.halos.dmr.ModelNode
+import org.wildfly.halos.dmr.NamedNode
+import org.wildfly.halos.dmr.ResourceAddress
+import org.wildfly.halos.dmr.op
+import org.wildfly.halos.dmr.params
 
-suspend fun readServers(): List<Server> {
+suspend fun readServers(): Items<Server> {
     val operation = (ResourceAddress.root() op READ_RESOURCE_OPERATION) params {
         +ATTRIBUTES_ONLY
         +INCLUDE_RUNTIME
     }
-    return dmr(operation).asPropertyList().map { Server(it.name, it.value[RESULT]) }
+    return Items(serverId).addAll(dmr(operation).asPropertyList().map { Server(it.value[RESULT]) })
 //    if (it is FetchException && it.statusCode == 404.toShort()) {
 //        emit(ModelNode()) // will end up in an empty server list
 //    } else {
@@ -76,12 +74,7 @@ suspend fun readServers(): List<Server> {
 //    }
 }
 
-class Server(val registeredName: String, node: ModelNode) : NamedNode(node)
-
-val serverId: IdProvider<Server, String> = { Id.build("srv", it.name) }
-
-class ServerStore : DataListStore<Server>(serverId) {
-
+/*
     val serverEvent = handleAndOffer<Pair<String, String>, List<Server>> { _, event ->
         val (action, server) = event
         when (action) {
@@ -91,143 +84,132 @@ class ServerStore : DataListStore<Server>(serverId) {
         }?.let { Notification.info(it) }
         readServers()
     }
+*/
 
-    val refresh = handle {
-        readServers()
-    }
-}
+class Server(node: ModelNode) : NamedNode(node)
+
+val serverId: IdProvider<Server, String> = { Id.build("srv", it.name) }
 
 @OptIn(InternalCoroutinesApi::class)
 class ServerPresenter : Presenter<ServerView> {
 
     override val view = ServerView()
 
-    override fun bind() {
-
-    }
-
     override fun show() {
         view.drawer?.let {
-            cdi().serverStore.selection.map { true } handledBy it.expanded.update
+            cdi().serverStore.data.map { items -> items.selected.isNotEmpty() } handledBy it.expanded.update
         }
         MainScope().launch {
             action(readServers()) handledBy cdi().serverStore.update
-            cdi().serverStore.selection.collect {
-                console.log("Updating server ${it.name} not yet implemented")
-            }
         }
     }
 }
 
 class ServerView : View {
-    private val serverDisplay: DataListDisplay<Server> = {
-        {
-            pfDataListRow {
-                pfDataListContent {
-                    pfDataListCell {
-                        div("flex".layout() + " " + "column".modifier()) {
-                            div {
-                                p { +it.name }
-                                small("mr-sm".util()) {
-                                    domNode.title = "Product Version"
-                                    +it[PRODUCT_VERSION].asString()
-                                }
-                                small {
-                                    domNode.title = "Release Version"
-                                    +it[RELEASE_VERSION].asString()
-                                }
-                            }
-                            div("flex".layout()) {
-                                div {
-                                    +"State: "
-                                    span {
-                                        domNode.title = "running mode"
-                                        +it[RUNNING_MODE].asString().toLowerCase()
-                                    }
-                                    +" / "
-                                    span {
-                                        domNode.title = "server state"
-                                        +it[SERVER_STATE].asString().toLowerCase()
-                                    }
-                                    +" / "
-                                    span {
-                                        domNode.title = "suspend state"
-                                        +it[SUSPEND_STATE].asString().toLowerCase()
-                                    }
-                                }
-                            }
-                        }
+    internal var drawer: Drawer? = null
+
+    override val elements = elements {
+        pfSection("light".modifier(), "fill".modifier()) {
+            classMap = cdi().serverStore.data
+                .map { servers -> mapOf("display-none".util() to servers.all.isNotEmpty()) }
+            pfEmptyState("server".fas(), "No Servers") {
+                pfEmptyStateBody {
+                    p {
+                        +"No servers found. Please manage your servers in OpenShift using the WildFly operator."
+                    }
+                    p {
+                        +"This view will update automatically, once there are servers available."
                     }
                 }
-                pfDataListAction {
-                    pfButton(primary) {
-                        +"Restart"
-                        clicks.stopPropagation().map {
-                            Notification(Severity.INFO, "Restart not yet implemented")
-                        } handledBy Notification.store.add
-                    }
-                    pfButton(secondary) {
-                        +"Suspend"
-                        clicks.stopPropagation().map {
-                            Notification(Severity.INFO, "Suspend not yet implemented")
-                        } handledBy Notification.store.add
-                    }
+                pfButton("primary".modifier()) {
+                    +"Refresh"
+                    clicks handledBy cdi().serverStore.refresh
                 }
             }
         }
-    }
 
-    internal var drawer: Drawer? = null
-
-    override val elements = listOf(
-        render {
-            pfSection("light".modifier(), "fill".modifier()) {
-                classMap = cdi().serverStore.empty.map { noServers -> mapOf("display-none".util() to !noServers) }
-                pfEmptyState("server".fas(), "No Servers") {
-                    pfEmptyStateBody {
-                        p {
-                            +"No servers found. Please manage your servers in OpenShift using the WildFly operator."
-                        }
-                        p {
-                            +"This view will update automatically, once there are servers available."
-                        }
-                    }
-                    pfButton(primary) {
-                        +"Refresh"
-                        clicks handledBy cdi().serverStore.refresh
-                    }
-                }
+        pfSection("light".modifier()) {
+            classMap = cdi().serverStore.data
+                .map { servers -> mapOf("display-none".util() to servers.all.isEmpty()) }
+            pfContent {
+                h1 { +"Servers" }
+                p { +"The list of servers managed by the WildFly operator." }
             }
-        },
-        render {
-            pfSection("light".modifier()) {
-                classMap = cdi().serverStore.empty.map { noServers -> mapOf("display-none".util() to noServers) }
-                pfContent {
-                    h1 { +"Servers" }
-                    p { +"The list of servers managed by the WildFly operator." }
-                }
-            }
-        },
-        render {
-            pfSection("no-padding".modifier(), "padding-on-md".modifier()) {
-                classMap = cdi().serverStore.empty.map { noServers -> mapOf("display-none".util() to noServers) }
-                drawer = pfDrawer {
-                    pfDrawerMain {
-                        pfDrawerContent {
-                            domNode.style.background = "none"
-                            pfDrawerBody {
-                                pfDataList(serverId, cdi().serverStore) {
-                                    display = serverDisplay
+        }
+        pfSection("no-padding".modifier(), "padding-on-md".modifier()) {
+            classMap = cdi().serverStore.data
+                .map { servers -> mapOf("display-none".util() to servers.all.isEmpty()) }
+            drawer = pfDrawer {
+                pfDrawerMain {
+                    pfDrawerContent {
+                        domNode.style.background = "none"
+                        pfDrawerBody {
+                            pfDataList(cdi().serverStore) {
+                                display = {
+                                    pfDataListItem(it) {
+                                        pfDataListRow {
+                                            pfDataListContent {
+                                                pfDataListCell {
+                                                    div("flex".layout() + " " + "column".modifier()) {
+                                                        div {
+                                                            p { +it.name }
+                                                            small("mr-sm".util()) {
+                                                                domNode.title = "Product Version"
+                                                                +it[PRODUCT_VERSION].asString()
+                                                            }
+                                                            small {
+                                                                domNode.title = "Release Version"
+                                                                +it[RELEASE_VERSION].asString()
+                                                            }
+                                                        }
+                                                        div("flex".layout()) {
+                                                            div {
+                                                                +"State: "
+                                                                span {
+                                                                    domNode.title = "running mode"
+                                                                    +it[RUNNING_MODE].asString().toLowerCase()
+                                                                }
+                                                                +" / "
+                                                                span {
+                                                                    domNode.title = "server state"
+                                                                    +it[SERVER_STATE].asString().toLowerCase()
+                                                                }
+                                                                +" / "
+                                                                span {
+                                                                    domNode.title = "suspend state"
+                                                                    +it[SUSPEND_STATE].asString().toLowerCase()
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            pfDataListAction {
+                                                pfButton("primary".modifier()) {
+                                                    +"Restart"
+                                                    clicks.stopPropagation().map {
+                                                        Notification(Severity.INFO, "Restart not yet implemented")
+                                                    } handledBy Notification.store.add
+                                                }
+                                                pfButton("secondary".modifier()) {
+                                                    +"Suspend"
+                                                    clicks.stopPropagation().map {
+                                                        Notification(Severity.INFO, "Suspend not yet implemented")
+                                                    } handledBy Notification.store.add
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
+                    }
+                    val selection = cdi().serverStore.selection
+                    selection.map { it.first() }.mapNotNull {
                         pfDrawerPanel {
-                            val currentServer = cdi().serverStore.selection
                             pfDrawerBody {
                                 pfDrawerHead {
-                                    pfTitle(size = Size.LG) {
-                                        currentServer.map { it.name }.bind()
-                                    }
+                                    pfTitle(size = Size.LG) { +it.name }
                                     pfDrawerActions {
                                         pfDrawerClose()
                                     }
@@ -237,34 +219,21 @@ class ServerView : View {
                                 pfContent {
                                     dl {
                                         dt { +"Product Name" }
-                                        dd { currentServer.map { it[PRODUCT_NAME].asString() }.bind() }
+                                        dd { +it[PRODUCT_NAME].asString() }
                                         dt { +"Product Version" }
-                                        dd { currentServer.map { it[PRODUCT_VERSION].asString() }.bind() }
+                                        dd { +it[PRODUCT_VERSION].asString() }
                                         dt { +"Launch Type" }
-                                        dd { currentServer.map { it[LAUNCH_TYPE].asString() }.bind() }
+                                        dd { +it[LAUNCH_TYPE].asString() }
                                         dt { +"UUID" }
-                                        dd { currentServer.map { it["uuid"].asString() }.bind() }
-                                    }
-                                }
-                            }
-                            pfDrawerBody {
-                                div("pf-l-flex pf-m-justify-content-space-between") {
-                                    div(id = "server-donut1") {
-                                        domNode.style.width = "175px"
-                                        domNode.style.height = "175px"
-                                        +"Donut 1"
-                                    }
-                                    div(id = "server-donut2") {
-                                        domNode.style.width = "175px"
-                                        domNode.style.height = "175px"
-                                        +"Donut 1"
+                                        dd { +it["uuid"].asString() }
                                     }
                                 }
                             }
                         }
-                    }
+                    }.bind()
                 }
             }
         }
-    )
+    }
 }
+

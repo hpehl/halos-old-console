@@ -1,4 +1,4 @@
-package org.jboss.dmr
+package org.wildfly.halos.dmr
 
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.DataView

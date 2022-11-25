@@ -1,4 +1,4 @@
-package org.jboss.dmr
+package org.wildfly.halos.dmr
 
 infix fun String.op(operation: String): Operation = Operation(ResourceAddress.from(this), operation)
 
@@ -18,8 +18,8 @@ class ResourceAddress() : ModelNode() {
         setEmptyList()
     }
 
-    private constructor(address: List<ModelNode>) : this() {
-        set(address)
+    constructor(modelNode: ModelNode) : this() {
+        set(modelNode)
     }
 
     operator fun Pair<String, String>.unaryPlus() = add(this)
@@ -31,7 +31,9 @@ class ResourceAddress() : ModelNode() {
     fun parent(): ResourceAddress = if (this == root()) {
         this
     } else {
-        ResourceAddress(asList().dropLast(1))
+        ResourceAddress(ModelNode().apply {
+            set(asList().dropLast(1))
+        })
     }
 
     fun isEmpty(): Boolean = asList().isEmpty()
